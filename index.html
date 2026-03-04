@@ -742,6 +742,7 @@ function renderHedefler(){
 }
 
 async function saveHedefler(){
+  if(aktifRol!=='yonetici'){showToast('⛔ Yetkiniz yok!',true);return;}
   storeTarget=parseFloat(document.getElementById('storeTarget').value)||storeTarget;
   carpanlar.c1=parseFloat(document.getElementById('c1').value)||carpanlar.c1;carpanlar.c2=parseFloat(document.getElementById('c2').value)||carpanlar.c2;carpanlar.c3=parseFloat(document.getElementById('c3').value)||carpanlar.c3;
   bonusAyar.tip=document.getElementById('bonusTip').value;bonusAyar.sabit=parseFloat(document.getElementById('bonusSabit').value)||0;bonusAyar.yuzde=parseFloat(document.getElementById('bonusYuzde').value)||0;bonusAyar.aktif=document.getElementById('bonusAktif').value==='1';
@@ -762,6 +763,7 @@ function renderYillik(){
 function setYillikEmp(i){activeYillikEmp=i;renderYillik();}
 
 async function saveYillik(){
+  if(aktifRol!=='yonetici'){showToast('⛔ Yetkiniz yok!',true);return;}
   const promises=[];
   employees.forEach((_,ei)=>{MONTHS.forEach((_,mi)=>{const inp=document.getElementById(`yph_${ei}_${mi}`);if(inp){const val=parseInt(inp.value)||0;yillikHedefler[ei][mi].puanHedef=val;promises.push(dbSaveYillik(ei,mi,val));}});});
   try{await Promise.all(promises);showToast('✓ Yıllık plan kaydedildi!');}catch(e){showToast('Kayıt hatası: '+e.message,true);}
@@ -799,6 +801,7 @@ function updatePrev(){
 }
 
 async function saveSale(){
+  if(aktifRol!=='yonetici'){showToast('⛔ Yetkiniz yok!',true);closeSaleModal();return;}
   const editId=document.getElementById('editId').value;
   const obj={emp:parseInt(document.getElementById('sEmp').value),prod:parseInt(document.getElementById('sProd').value),qty:parseInt(document.getElementById('sQty').value)||1,date:document.getElementById('sDate').value,manuel_prim:parseFloat(document.getElementById('sManuel').value)||0,aciklama:document.getElementById('sAc').value.trim()};
   try{
@@ -810,6 +813,7 @@ async function saveSale(){
 
 async function editSale(id){openSaleModal(id);}
 async function deleteSale(id){
+  if(aktifRol!=='yonetici'){showToast('⛔ Yetkiniz yok!',true);return;}
   if(!confirm('Bu satışı silmek istiyor musunuz?'))return;
   try{await dbDeleteSale(id);sales=sales.filter(s=>s.id!==id);showToast('Satış silindi');refreshAll();}catch(e){showToast('Hata: '+e.message,true);}
 }
@@ -823,6 +827,7 @@ function openMuafModalForEmp(ei){openMuafModal();document.getElementById('mEmp')
 function closeMuafModal(){document.getElementById('muafOv').classList.remove('open');}
 
 async function saveMuafiyet(){
+  if(aktifRol!=='yonetici'){showToast('⛔ Yetkiniz yok!',true);closeMuafModal();return;}
   const emp=parseInt(document.getElementById('mEmp').value);const ay=parseInt(document.getElementById('mAy').value);
   if(muafiyetler.some(m=>m.emp===emp&&m.ay===ay&&m.yil===activeYear)){showToast('⚠️ Bu çalışan için bu ay zaten muafiyet var!',true);return;}
   const obj={emp,ay,yil:activeYear,neden:document.getElementById('mNeden').value.trim()||'Belirtilmedi',tarih:new Date().toLocaleDateString('tr-TR')};
@@ -830,6 +835,7 @@ async function saveMuafiyet(){
 }
 
 async function deleteMuafiyet(id){
+  if(aktifRol!=='yonetici'){showToast('⛔ Yetkiniz yok!',true);return;}
   if(!confirm('Muafiyeti silmek istiyor musunuz?'))return;
   try{await dbDeleteMuafiyet(id);muafiyetler=muafiyetler.filter(m=>m.id!==id);showToast('Muafiyet silindi');refreshAll();}catch(e){showToast('Hata: '+e.message,true);}
 }
