@@ -149,7 +149,21 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
 .toast{position:fixed;bottom:20px;right:20px;padding:10px 17px;border-radius:9px;font-weight:600;font-size:12.5px;z-index:9999;display:none;animation:fi 0.3s ease;}
 .toast-ok{background:var(--green);color:#000;}
 .toast-err{background:var(--red);color:#fff;}
-/* LOADING */
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:#f0f2f5;z-index:99999;display:flex;align-items:center;justify-content:center;}
+.login-screen.hidden{display:none;}
+.login-box{background:#fff;border-radius:18px;padding:36px 40px;width:360px;box-shadow:0 8px 40px rgba(0,0,0,0.12);border:1px solid rgba(0,0,0,0.07);text-align:center;}
+.login-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px;}
+.login-logo-dot{width:10px;height:10px;border-radius:50%;background:var(--yellow);animation:pulse 2s infinite;}
+.login-title{font-family:'Bebas Neue';font-size:22px;letter-spacing:2px;color:var(--yellow);}
+.login-sub{font-size:12px;color:var(--gray);margin-bottom:28px;}
+.login-label{display:block;font-size:10px;color:var(--gray);letter-spacing:0.5px;text-align:left;margin-bottom:5px;}
+.login-input{width:100%;background:#f7f8fa;border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:11px 14px;color:#1a1a2e;font-family:'Outfit';font-size:14px;outline:none;transition:border 0.2s;text-align:center;letter-spacing:3px;}
+.login-input:focus{border-color:rgba(230,168,0,0.5);}
+.login-btn{width:100%;margin-top:14px;padding:11px;border-radius:10px;border:none;cursor:pointer;font-family:'Outfit';font-size:14px;font-weight:700;background:var(--yellow);color:#fff;transition:all 0.15s;}
+.login-btn:hover{background:var(--yellow2);transform:translateY(-1px);}
+.login-err{color:var(--red);font-size:12px;margin-top:10px;min-height:18px;}
+
 .loading-overlay{position:fixed;inset:0;background:rgba(240,242,245,0.92);z-index:9998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
 .loading-overlay.hidden{display:none;}
 .spinner{width:40px;height:40px;border:3px solid rgba(230,168,0,0.2);border-top-color:var(--yellow);border-radius:50%;animation:spin 0.8s linear infinite;}
@@ -160,6 +174,21 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
 </style>
 </head>
 <body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-dot"></div>
+      <div class="login-title">TURKCELL BAYİ</div>
+    </div>
+    <div class="login-sub">Hedef & Prim Takip Sistemi</div>
+    <label class="login-label">ŞİFRE</label>
+    <input class="login-input" type="password" id="loginPass" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">🔐 Giriş Yap</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
 
 <!-- LOADING -->
 <div class="loading-overlay" id="loadingOv">
@@ -361,6 +390,28 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// GİRİŞ / ŞİFRE KORUMASI
+// ============================================================
+const APP_PASSWORD = 'turkcell2025'; // şifreyi buradan değiştirin
+
+function doLogin(){
+  const val=document.getElementById('loginPass').value;
+  if(val===APP_PASSWORD){
+    sessionStorage.setItem('tc_auth','1');
+    document.getElementById('loginScreen').classList.add('hidden');
+    loadAll();
+  }else{
+    const err=document.getElementById('loginErr');
+    err.textContent='❌ Hatalı şifre, tekrar deneyin.';
+    document.getElementById('loginPass').value='';
+    document.getElementById('loginPass').focus();
+    setTimeout(()=>err.textContent='',3000);
+  }
+}
+</script>
 
 <script>
 // ============================================================
@@ -1189,7 +1240,11 @@ document.getElementById('saleOv').addEventListener('click',function(e){if(e.targ
 document.getElementById('muafOv').addEventListener('click',function(e){if(e.target===this)closeMuafModal();});
 
 initMonthSel();
-loadAll();
+// Oturum kontrolü: daha önce giriş yapıldıysa direkt yükle
+if(sessionStorage.getItem('tc_auth')==='1'){
+  document.getElementById('loginScreen').classList.add('hidden');
+  loadAll();
+}
 </script>
 </body>
 </html>
