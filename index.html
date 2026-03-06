@@ -184,8 +184,8 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
     </div>
     <div class="login-sub">Hedef & Prim Takip Sistemi</div>
     <label class="login-label">ŞİFRE</label>
-    <input class="login-input" type="password" id="loginPass" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="login-btn" onclick="doLogin()">🔐 Giriş Yap</button>
+    <input class="login-input" type="password" id="loginPass" placeholder="••••••">
+    <button class="login-btn" id="loginBtn">🔐 Giriş Yap</button>
     <div class="login-err" id="loginErr"></div>
   </div>
 </div>
@@ -269,4 +269,5 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
       <button class="btn btn-g" onclick="shiftGunlukDate(-1)">◀</button>
       <input type="date" id="gunlukDate" class="ti" style="width:140px;text-align:center;font-size:12px;" onchange="renderGunluk()">
       <button class="btn btn-g" onclick="shiftGunlukDate(1)">▶</button>
-      <button class="btn btn-g" onclick="resetGunlukDate()">Bugün</butt
+      <button class="btn btn-g" onclick="resetGunlukDate()">Bugün</button>
+      <button class="btn btn-p" onclick="openSa
