@@ -5,6 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Turkcell Bayi — Takip Sistemi</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script>
+// Login - Supabase'den bağımsız, en önce çalışır
+var APP_PASSWORD = 'turkcell2025';
+function doLogin(){
+  var val = document.getElementById('loginPass').value;
+  if(val === APP_PASSWORD){
+    sessionStorage.setItem('tc_auth','1');
+    document.getElementById('loginScreen').style.display='none';
+    if(typeof loadAll === 'function') loadAll();
+  } else {
+    var err = document.getElementById('loginErr');
+    err.textContent = '❌ Hatalı şifre, tekrar deneyin.';
+    document.getElementById('loginPass').value = '';
+    setTimeout(function(){ err.textContent=''; }, 3000);
+  }
+}
+window.addEventListener('load', function(){
+  document.getElementById('loginBtn').onclick = doLogin;
+  document.getElementById('loginPass').onkeydown = function(e){ if(e.key==='Enter') doLogin(); };
+  if(sessionStorage.getItem('tc_auth')==='1'){
+    document.getElementById('loginScreen').style.display='none';
+    if(typeof loadAll === 'function') loadAll();
+  }
+});
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
@@ -253,21 +278,4 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
     <div style="background:rgba(0,0,0,0.07);border-radius:20px;height:8px;overflow:hidden;"><div id="mainBar" style="height:100%;border-radius:20px;background:var(--yellow);transition:width 1s ease;width:0%"></div></div>
     <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray);margin-top:6px;">
       <span>Günlük Hedef: <strong id="dTarget" style="color:var(--yellow)">—</strong></span>
-      <span>Kalan Gün: <strong id="rDays" style="color:var(--yellow)">—</strong></span>
-      <span>Kalan Puan: <strong id="rPuan" style="color:var(--red)">—</strong></span>
-    </div>
-  </div>
-  <div class="sh"><div class="st">ÇALIŞAN <em>PERFORMANSI</em></div></div>
-  <div class="eg" id="dashEg"></div>
-</div>
-
-<!-- GÜNLÜK TAKİP -->
-<div class="page" id="page-gunluk">
-  <div class="ph">
-    <div><div class="pt">GÜNLÜK <span>TAKİP</span></div><div class="ps" id="gunlukPs">Bugünün satış durumu</div></div>
-    <div style="display:flex;gap:7px;align-items:center;">
-      <button class="btn btn-g" onclick="shiftGunlukDate(-1)">◀</button>
-      <input type="date" id="gunlukDate" class="ti" style="width:140px;text-align:center;font-size:12px;" onchange="renderGunluk()">
-      <button class="btn btn-g" onclick="shiftGunlukDate(1)">▶</button>
-      <button class="btn btn-g" onclick="resetGunlukDate()">Bugün</button>
-      <button class="btn btn-p" onclick="openSa
+ 
