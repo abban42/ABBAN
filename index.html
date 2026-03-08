@@ -240,8 +240,8 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
     <div class="ni" onclick="sp('urunler',this)"><span class="ni-ic">📦</span>Ürün Takibi</div>
     <div class="ni" onclick="sp('calisanlar',this)"><span class="ni-ic">👥</span>Çalışanlar</div>
     <div class="ni" onclick="sp('empdetay',this)"><span class="ni-ic">🏆</span>Çalışan Primleri</div>
-    <div class="ni" onclick="sp('prim',this)"><span class="ni-ic">💰</span>Prim Hesabı</div>
-    <div class="ni" onclick="sp('gunlukprim',this)"><span class="ni-ic">⚡</span>Günlük Prim</div>
+    <div class="ni" onclick="sp('prim',this)"><span class="ni-ic">💰</span>Mag. Perakendecilik</div>
+    <div class="ni" onclick="sp('gunlukprim',this)"><span class="ni-ic">⚡</span>Canlı Prim</div>
     <div class="ni" onclick="sp('aktivasyon',this)"><span class="ni-ic">🏧</span>Aktivasyon Teşvik</div>
     <div class="ni" onclick="sp('liderlik',this)"><span class="ni-ic">🥇</span>Liderlik Tablosu</div>
     <div class="ns">YÖNETİM</div>
@@ -320,7 +320,7 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
 
 <!-- PRİM HESABI -->
 <div class="page" id="page-prim">
-  <div class="ph"><div><div class="pt">PRİM <span>HESABI</span></div><div class="ps">Perakendecilik puan primleri</div></div></div>
+  <div class="ph"><div><div class="pt">MAĞAZA <span>PERAKENDECİLİK PRİMİ</span></div><div class="ps">Mağaza perakendecilik puan primleri</div></div></div>
   <div class="kg kg3">
     <div class="kc" style="--ac:var(--yellow)"><div class="kl">TOPLAM PUAN</div><div class="kv" id="pPuan">0</div><div class="ks">Bu ay</div></div>
     <div class="kc" style="--ac:var(--blue)"><div class="kl">AKTİF DİLİM</div><div class="kv" id="pDilim" style="font-size:14px;padding-top:5px">—</div><div class="ks">Puan aralığı</div></div>
@@ -337,10 +337,10 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
   </div>
 </div>
 
-<!-- GÜNLÜK PRİM -->
+<!-- CANLI PRİM -->
 <div class="page" id="page-gunlukprim">
-  <div class="ph"><div><div class="pt">GÜNLÜK <span>PRİM</span></div><div class="ps">600₺ günlük prim hakediş takibi</div></div></div>
-  <div class="info-box"><strong>⚡ Kural:</strong> Günde <strong style="color:#fff">6 POSTPAİD</strong> veya <strong style="color:#fff">5 POSTPAİD + 1 PREPAİD</strong> → <strong style="color:var(--green)">600₺ günlük prim.</strong> &nbsp;|&nbsp; <strong style="color:#fff">12 POSTPAİD</strong> veya <strong style="color:#fff">10 POSTPAİD + 2 PREPAİD</strong> → <strong style="color:var(--yellow)">1.200₺ (×2 kat).</strong> Katlayarak devam eder. Eksik gün ertesi telafi edilirse geçmiş günün primi de kazanılır.</div>
+  <div class="ph"><div><div class="pt">CANLI <span>PRİM</span></div><div class="ps">600₺ canlı prim hakediş takibi</div></div></div>
+  <div class="info-box"><strong>⚡ Kural:</strong> Günde <strong style="color:#fff">6 POSTPAİD</strong> veya <strong style="color:#fff">5 POSTPAİD + 1 PREPAİD</strong> → <strong style="color:var(--green)">600₺ canlı prim.</strong> &nbsp;|&nbsp; <strong style="color:#fff">12 POSTPAİD</strong> veya <strong style="color:#fff">10 POSTPAİD + 2 PREPAİD</strong> → <strong style="color:var(--yellow)">1.200₺ (×2 kat).</strong> Katlayarak devam eder. Eksik gün ertesi telafi edilirse geçmiş günün primi de kazanılır.</div>
   <div id="gpCards"></div>
 </div>
 
@@ -368,6 +368,8 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
     <div class="tr2"><div class="tn">%100–%109</div><div class="ti-wrap"><input type="number" class="ti" id="c2" value="1.00" step="0.01"><span class="tu">×</span></div></div>
     <div class="tr2"><div class="tn">%110+</div><div class="ti-wrap"><input type="number" class="ti" id="c3" value="1.10" step="0.01"><span class="tu">×</span></div></div>
   </div>
+  <div class="sh" style="margin-top:4px;"><div class="st">AYLIK <em>HEDEF TAKVİMİ</em></div></div>
+  <div id="hedefTakvim" style="margin-bottom:18px;"></div>
 </div>
 
 <!-- 12 AYLIK PLAN -->
@@ -405,6 +407,10 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
         <option value="puan">Puan Toplamı</option>
         <option value="faturali">Faturalı Adet</option>
         <option value="prepaid">Ön Ödemeli Adet</option>
+        <option value="ntc">NTC Adet</option>
+        <option value="aksesuar">Aksesuar (₺)</option>
+        <option value="ikinciel">2. El Cihaz (₺)</option>
+        <option value="sifir">Sıfır Cihaz (₺)</option>
         <option value="toplam">Toplam Satış</option>
       </select></div>
     </div>
@@ -679,7 +685,7 @@ function getDailyPrim(ei){
     const ds=`${activeYear}-${String(activeMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     let pp=0,pr=0;
     sales.filter(s=>s.emp===ei&&s.date===ds).forEach(s=>{
-      const t=products[s.prod].tip;
+      const t=products[s.prod]?.tip;
       if(t==='postpaid')pp+=s.qty;else if(t==='prepaid')pr+=s.qty;
     });
     // Kaç kat prim kazanıldı hesapla (6PP=1 kat, 12PP=2 kat, vs.)
@@ -721,6 +727,14 @@ async function loadAll(){
     sales=sd||[];
     // Halit Uludağ (eski index 4) satışlarını Abdurrahman Yıldırım'a (index 0) aktar
     sales.forEach(s=>{ if(s.emp===4) s.emp=0; });
+    // Ürün index kayması düzeltme: eski "2. EL ve SIFIR CİHAZ"(16) → "2. EL CİHAZ"(16), "AKSESUAR"(17) → index 18
+    // Eski prod:17 (AKSESUAR) artık 18, eski prod:16 aynı kalıyor
+    sales.forEach(s=>{
+      if(s.prod===17) s.prod=18; // Eski AKSESUAR → yeni index
+      if(s.prod>18) s.prod=Math.min(s.prod, products.length-1); // Taşma koruması
+    });
+    // Geçersiz prod indexlerini filtrele
+    sales=sales.filter(s=>s.prod>=0&&s.prod<products.length);
     muafiyetler=md||[];
     if(ad){
       storeTarget=ad.store_target||500;
@@ -910,7 +924,7 @@ function renderMagazaOzet(){
           <td><span class="tpp">${topFaturali}</span></td>
           <td><span class="tpr">${topPrepaid}</span></td>
           <td><strong>${topAdet}</strong></td>
-          <td style="color:var(--yellow)">${fmt(ms.reduce((a,s)=>a+products[s.prod].puan*s.qty,0))}</td>
+          <td style="color:var(--yellow)">${fmt(ms.reduce((a,s)=>a+(products[s.prod]?.puan||0)*s.qty,0))}</td>
           <td>—</td>
           <td style="color:${tahminiAySonu>=hedefAdet?'var(--green)':'var(--red)'}">~${tahminiAySonu}</td>
         </tr>
@@ -1175,7 +1189,7 @@ function renderGunluk(){
     html+=`<div style="background:#fff;border:1px solid ${met?'rgba(0,168,107,0.3)':'var(--border)'};border-radius:12px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,0.05);">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
         <div style="font-weight:600;color:${emp.color};font-size:13px">${emp.name}</div>
-        <span class="badge ${met?'bg':tpp>0||tpr>0?'by':'br'}">${met?'✓ 600₺ Günlük Prim':tpp>0||tpr>0?'Satış Var':'Satış Yok'}</span>
+        <span class="badge ${met?'bg':tpp>0||tpr>0?'by':'br'}">${met?'✓ 600₺ Canlı Prim':tpp>0||tpr>0?'Satış Var':'Satış Yok'}</span>
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
         <div style="background:#f5f6f8;border-radius:7px;padding:7px;text-align:center"><div style="font-family:'Bebas Neue';font-size:17px;color:var(--postpaid)">${tpp}</div><div style="color:var(--gray);font-size:9px">POSTPAİD</div></div>
@@ -1213,7 +1227,7 @@ function renderGunlukPrim(){
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <div style="display:flex;align-items:center;gap:9px;">
           <div class="av" style="background:${emp.color};width:36px;height:36px;font-size:13px">${emp.initials}</div>
-          <div><div style="font-weight:600;font-size:13px;color:#1a1a2e">${emp.name}</div><div style="font-size:10px;color:var(--gray)">${totalKat} günlük prim birimi × 600₺</div></div>
+          <div><div style="font-weight:600;font-size:13px;color:#1a1a2e">${emp.name}</div><div style="font-size:10px;color:var(--gray)">${totalKat} canlı prim birimi × 600₺</div></div>
         </div>
         <div style="font-family:'Bebas Neue';font-size:20px;color:var(--green)">${fmtTL(totalKat*600)}</div>
       </div>
@@ -1263,6 +1277,57 @@ function renderHedefler(){
     <td>${p.manuel?'<span style="color:var(--blue);font-size:11px">Satışta girilir</span>':`<input type="number" class="ti" id="hpr_${i}" value="${p.prim}" min="0" style="width:85px">`}</td>
     <td><input type="number" class="ti" id="hcp_${i}" value="${p.calisanPrim||0}" min="0" style="width:85px" placeholder="0"></td>
   </tr>`).join('');
+  renderHedefTakvim();
+}
+
+function renderHedefTakvim(){
+  const el=document.getElementById('hedefTakvim');
+  if(!el) return;
+  const ms=getMonthSales();
+  const eom=new Date(activeYear,activeMonth+1,0);
+  const totalDays=eom.getDate();
+  const today=new Date();
+  const isThisMonth=today.getMonth()===activeMonth&&today.getFullYear()===activeYear;
+  const passedDays=isThisMonth?today.getDate():totalDays;
+
+  // Ürün bazlı gerçekleşme
+  const urunData=products.map((p,i)=>{
+    let qty=0,tlK=0;
+    ms.filter(s=>s.prod===i).forEach(s=>{qty+=s.qty;tlK+=(s.manuel_prim||0)*s.qty;});
+    const hedef=p.manuel?(p.hedefTL*employees.length):(p.hedef*employees.length);
+    const gercek=p.manuel?tlK:qty;
+    const oran=hedef>0?Math.min(100,Math.round(gercek/hedef*100)):0;
+    const gunlukOrt=passedDays>0?gercek/passedDays:0;
+    const tahmini=Math.round(gunlukOrt*totalDays);
+    const tahminiOran=hedef>0?Math.min(150,Math.round(tahmini/hedef*100)):0;
+    return{p,qty,tlK,hedef,gercek,oran,tahmini,tahminiOran};
+  }).filter(d=>d.hedef>0||d.gercek>0);
+
+  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+  ${urunData.map(d=>{
+    const fc=d.oran>=100?'var(--green)':d.oran>=70?'var(--yellow)':'var(--red)';
+    const tf=d.tahminiOran>=100?'var(--green)':d.tahminiOran>=70?'var(--yellow)':'var(--red)';
+    const gercekStr=d.p.manuel?fmtTL(d.gercek):d.gercek+' adet';
+    const hedefStr=d.p.manuel?fmtTL(d.hedef):d.hedef+' adet';
+    const tahStr=d.p.manuel?fmtTL(d.tahmini):d.tahmini+' adet';
+    return`<div style="background:#fff;border-radius:10px;border:1px solid var(--border);padding:13px;box-shadow:0 1px 5px rgba(0,0,0,0.04);">
+      <div style="font-size:10px;font-weight:600;color:#1a1a2e;margin-bottom:8px;letter-spacing:0.3px">${d.p.name}</div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray);margin-bottom:4px;">
+        <span>Gerçekleşen</span><strong style="color:${fc}">${gercekStr}</strong>
+      </div>
+      <div style="background:rgba(0,0,0,0.07);border-radius:20px;height:5px;overflow:hidden;margin-bottom:6px;">
+        <div style="width:${d.oran}%;background:${fc};height:5px;border-radius:20px;transition:width 0.5s"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray);margin-bottom:2px;">
+        <span>Hedef (mağaza)</span><span>${hedefStr}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;margin-top:5px;padding-top:5px;border-top:1px solid rgba(0,0,0,0.06);">
+        <span style="color:var(--gray)">Ay sonu tahmini</span>
+        <strong style="color:${tf}">${tahStr} <span style="font-weight:400;font-size:9px">(%${d.tahminiOran})</span></strong>
+      </div>
+    </div>`;
+  }).join('')}
+  </div>`;
 }
 
 async function saveHedefler(){
@@ -1333,47 +1398,87 @@ function renderYillik(){
   // Yıllık ürün hedefleri tablosu
   const yilEl=document.getElementById('yillikUrunHedef');
   if(yilEl){
+    // Yıllık gerçekleşen veriler
     let topFaturali=0,topPrepaid=0,topRekon=0,topNTC=0,topAKG=0,topSOL=0;
     let tlAksesuar=0,tl2El=0,tlSifir=0;
-    MONTHS.forEach((_,mi)=>{
-      sales.filter(s=>s.date&&parseInt(s.date.split('-')[0])===activeYear&&parseInt(s.date.split('-')[1])-1===mi).forEach(s=>{
-        const p=products[s.prod];
-        if(p.tip==='postpaid'&&s.prod<=4)topFaturali+=s.qty;
-        if(p.tip==='prepaid')topPrepaid+=s.qty;
-        if(p.name.includes('REKON'))topRekon+=s.qty;
-        if(p.name==='NTC')topNTC+=s.qty;
-        if(p.name==='AKG')topAKG+=s.qty;
-        if(s.prod<=2)topSOL+=s.qty;
-        if(p.name==='AKSESUAR')tlAksesuar+=(s.manuel_prim||0)*s.qty;
-        if(p.name==='2. EL CİHAZ')tl2El+=(s.manuel_prim||0)*s.qty;
-        if(p.name==='SIFIR CİHAZ')tlSifir+=(s.manuel_prim||0)*s.qty;
-      });
+    const today=new Date();
+    const passedMonths=today.getFullYear()===activeYear?today.getMonth()+1:12;
+    const passedDayOfYear=today.getFullYear()===activeYear
+      ?(Math.floor((today-new Date(activeYear,0,1))/86400000)+1):365;
+    const totalDays=365;
+
+    sales.filter(s=>s.date&&parseInt(s.date.split('-')[0])===activeYear).forEach(s=>{
+      const p=products[s.prod];
+      if(p.tip==='postpaid'&&s.prod<=4)topFaturali+=s.qty;
+      if(p.tip==='prepaid')topPrepaid+=s.qty;
+      if(p.name.includes('REKON'))topRekon+=s.qty;
+      if(p.name==='NTC')topNTC+=s.qty;
+      if(p.name==='AKG')topAKG+=s.qty;
+      if(s.prod<=2)topSOL+=s.qty;
+      if(p.name==='AKSESUAR')tlAksesuar+=(s.manuel_prim||0)*s.qty;
+      if(p.name==='2. EL CİHAZ')tl2El+=(s.manuel_prim||0)*s.qty;
+      if(p.name==='SIFIR CİHAZ')tlSifir+=(s.manuel_prim||0)*s.qty;
     });
+
+    const N=employees.length;
+    // rows: lbl, kisiBasiHedef, magazaHedef, gercek, birim
     const rows=[
-      {lbl:'FATURALI (Switch dahil)',hedef:1596,gercek:topFaturali,birim:'adet'},
-      {lbl:'ÖN ÖDEMELİ',hedef:400,gercek:topPrepaid,birim:'adet'},
-      {lbl:'NTC',hedef:240,gercek:topNTC,birim:'adet'},
-      {lbl:'REKONTRATLAMA',hedef:220,gercek:topRekon,birim:'adet'},
-      {lbl:'AKG',hedef:23,gercek:topAKG,birim:'adet'},
-      {lbl:'SOL (Süperbox+Fiber+Ortak)',hedef:32,gercek:topSOL,birim:'adet'},
-      {lbl:'AKSESUAR',hedef:312500,gercek:tlAksesuar,birim:'₺'},
-      {lbl:'2. EL CİHAZ',hedef:155000,gercek:tl2El,birim:'₺'},
-      {lbl:'SIFIR CİHAZ',hedef:162500,gercek:tlSifir,birim:'₺'},
+      {lbl:'FATURALI (Switch dahil)', kisiH:Math.round(1596/N), magazaH:1596, gercek:topFaturali, birim:'adet'},
+      {lbl:'ÖN ÖDEMELİ',             kisiH:Math.round(400/N),  magazaH:400,  gercek:topPrepaid,  birim:'adet'},
+      {lbl:'NTC',                     kisiH:Math.round(240/N),  magazaH:240,  gercek:topNTC,      birim:'adet'},
+      {lbl:'REKONTRATLAMA',           kisiH:Math.round(220/N),  magazaH:220,  gercek:topRekon,    birim:'adet'},
+      {lbl:'AKG',                     kisiH:Math.round(23/N),   magazaH:23,   gercek:topAKG,      birim:'adet'},
+      {lbl:'SOL (SB+FİB+OA)',         kisiH:Math.round(32/N),   magazaH:32,   gercek:topSOL,      birim:'adet'},
+      {lbl:'AKSESUAR',                kisiH:Math.round(312500/N),magazaH:312500,gercek:tlAksesuar, birim:'₺'},
+      {lbl:'2. EL CİHAZ',             kisiH:Math.round(155000/N),magazaH:155000,gercek:tl2El,     birim:'₺'},
+      {lbl:'SIFIR CİHAZ',             kisiH:Math.round(162500/N),magazaH:162500,gercek:tlSifir,   birim:'₺'},
     ];
-    yilEl.innerHTML=`<div class="tw"><table><thead><tr><th>Ürün/Kategori</th><th>Yıllık Hedef</th><th>Gerçekleşen</th><th>Kalan</th><th>İlerleme</th></tr></thead><tbody>
+
+    const fmtVal=(v,b)=>b==='₺'?fmtTL(v):v+' '+b;
+    const tahminiYilSonu=(g)=>passedMonths>0?Math.round(g/passedMonths*12):0;
+
+    // Kişi başı tablo
+    let kisiHtml=`<div class="sh" style="margin-top:6px;"><div class="st">KİŞİ BAŞI <em>YILLIK HEDEFLER</em></div></div>
+    <div class="tw"><table><thead><tr><th>Ürün/Kategori</th><th>Kişi Başı Hedef</th><th>Kişi Başı Gerçekleşen</th><th>Kişi Başı Kalan</th><th>Gidişat (Yıl Sonu)</th><th>İlerleme</th></tr></thead><tbody>
     ${rows.map(r=>{
-      const oran=r.hedef>0?Math.min(100,Math.round(r.gercek/r.hedef*100)):0;
-      const kalan=Math.max(0,r.hedef-r.gercek);
-      const val=r.birim==='₺'?fmtTL:fmt;
+      const kisiGercek=Math.round(r.gercek/N);
+      const oran=r.kisiH>0?Math.min(100,Math.round(kisiGercek/r.kisiH*100)):0;
+      const kalan=Math.max(0,r.kisiH-kisiGercek);
+      const tahmin=Math.round(tahminiYilSonu(r.gercek)/N);
+      const tahOran=r.kisiH>0?Math.min(150,Math.round(tahmin/r.kisiH*100)):0;
+      const tf=tahOran>=100?'var(--green)':tahOran>=70?'var(--yellow)':'var(--red)';
       return`<tr>
         <td style="font-weight:600">${r.lbl}</td>
-        <td>${r.birim==='₺'?fmtTL(r.hedef):r.hedef+' '+r.birim}</td>
-        <td style="color:var(--green)">${r.birim==='₺'?fmtTL(r.gercek):r.gercek+' '+r.birim}</td>
-        <td style="color:var(--red)">${r.birim==='₺'?fmtTL(kalan):kalan+' '+r.birim}</td>
+        <td>${fmtVal(r.kisiH,r.birim)}</td>
+        <td style="color:var(--green)">${fmtVal(kisiGercek,r.birim)}</td>
+        <td style="color:var(--red)">${fmtVal(kalan,r.birim)}</td>
+        <td><span style="color:${tf};font-weight:600">${fmtVal(tahmin,r.birim)}</span> <span class="badge ${tahOran>=100?'bg':tahOran>=70?'by':'br'}">%${tahOran}</span></td>
         <td><div style="display:flex;align-items:center;gap:7px"><div style="background:rgba(0,0,0,0.07);border-radius:20px;height:6px;width:80px;overflow:hidden"><div style="width:${oran}%;background:${oran>=100?'var(--green)':oran>=50?'var(--yellow)':'var(--red)'};height:6px;border-radius:20px"></div></div><span class="badge ${oran>=100?'bg':oran>=50?'by':'br'}">%${oran}</span></div></td>
       </tr>`;
     }).join('')}
     </tbody></table></div>`;
+
+    // Mağaza toplam tablo
+    let magazaHtml=`<div class="sh" style="margin-top:10px;"><div class="st">MAĞAZA TOPLAM <em>YILLIK HEDEFLER</em></div></div>
+    <div class="tw"><table><thead><tr><th>Ürün/Kategori</th><th>Yıllık Hedef</th><th>Gerçekleşen</th><th>Kalan</th><th>Gidişat (Yıl Sonu)</th><th>İlerleme</th></tr></thead><tbody>
+    ${rows.map(r=>{
+      const oran=r.magazaH>0?Math.min(100,Math.round(r.gercek/r.magazaH*100)):0;
+      const kalan=Math.max(0,r.magazaH-r.gercek);
+      const tahmin=tahminiYilSonu(r.gercek);
+      const tahOran=r.magazaH>0?Math.min(150,Math.round(tahmin/r.magazaH*100)):0;
+      const tf=tahOran>=100?'var(--green)':tahOran>=70?'var(--yellow)':'var(--red)';
+      return`<tr>
+        <td style="font-weight:600">${r.lbl}</td>
+        <td>${fmtVal(r.magazaH,r.birim)}</td>
+        <td style="color:var(--green)">${fmtVal(r.gercek,r.birim)}</td>
+        <td style="color:var(--red)">${fmtVal(kalan,r.birim)}</td>
+        <td><span style="color:${tf};font-weight:600">${fmtVal(tahmin,r.birim)}</span> <span class="badge ${tahOran>=100?'bg':tahOran>=70?'by':'br'}">%${tahOran}</span></td>
+        <td><div style="display:flex;align-items:center;gap:7px"><div style="background:rgba(0,0,0,0.07);border-radius:20px;height:6px;width:80px;overflow:hidden"><div style="width:${oran}%;background:${oran>=100?'var(--green)':oran>=50?'var(--yellow)':'var(--red)'};height:6px;border-radius:20px"></div></div><span class="badge ${oran>=100?'bg':oran>=50?'by':'br'}">%${oran}</span></div></td>
+      </tr>`;
+    }).join('')}
+    </tbody></table></div>`;
+
+    yilEl.innerHTML=kisiHtml+magazaHtml;
   }
 }
 
@@ -1409,9 +1514,8 @@ function setLiderMod(mod){
 }
 
 function getLiderStats(mod){
-  // Her çalışan için istatistik topla
   return employees.map((emp,i)=>{
-    let puan=0,faturali=0,prepaid=0,toplam=0;
+    let puan=0,faturali=0,prepaid=0,toplam=0,ntc=0,aksesuar=0,ikinciel=0,sifir=0;
     const filtSales=mod==='ay'
       ?getMonthSales(activeMonth,activeYear).filter(s=>s.emp===i)
       :sales.filter(s=>s.emp===i&&s.date&&parseInt(s.date.split('-')[0])===activeYear);
@@ -1420,8 +1524,12 @@ function getLiderStats(mod){
       puan+=p.puan*s.qty;toplam+=s.qty;
       if(p.tip==='postpaid')faturali+=s.qty;
       else if(p.tip==='prepaid')prepaid+=s.qty;
+      if(p.name==='NTC')ntc+=s.qty;
+      if(p.name==='AKSESUAR')aksesuar+=(s.manuel_prim||0)*s.qty;
+      if(p.name==='2. EL CİHAZ')ikinciel+=(s.manuel_prim||0)*s.qty;
+      if(p.name==='SIFIR CİHAZ')sifir+=(s.manuel_prim||0)*s.qty;
     });
-    return{emp,i,puan,faturali,prepaid,toplam};
+    return{emp,i,puan,faturali,prepaid,toplam,ntc,aksesuar,ikinciel,sifir};
   });
 }
 
@@ -1429,28 +1537,33 @@ function renderLiderlik(){
   const stats=getLiderStats(liderMod);
   const donem=liderMod==='ay'?MONTHS[activeMonth]+' '+activeYear:activeYear+' Yılı';
   const cats=[
-    {key:'puan',lbl:'PUAN TOPLAMI',birim:'puan',icon:'⭐',color:'var(--yellow)'},
-    {key:'faturali',lbl:'FATURALI',birim:'adet',icon:'📱',color:'var(--blue)'},
-    {key:'prepaid',lbl:'ÖN ÖDEMELİ',birim:'adet',icon:'💳',color:'var(--prepaid)'},
-    {key:'toplam',lbl:'TOPLAM SATIŞ',birim:'adet',icon:'🏆',color:'var(--green)'},
+    {key:'puan',    lbl:'PUAN TOPLAMI',  birim:'puan',icon:'⭐',color:'var(--yellow)', tl:false},
+    {key:'faturali',lbl:'FATURALI',      birim:'adet',icon:'📱',color:'var(--blue)',   tl:false},
+    {key:'prepaid', lbl:'ÖN ÖDEMELİ',   birim:'adet',icon:'💳',color:'var(--prepaid)',tl:false},
+    {key:'ntc',     lbl:'NTC',           birim:'adet',icon:'🔄',color:'var(--purple)', tl:false},
+    {key:'toplam',  lbl:'TOPLAM SATIŞ',  birim:'adet',icon:'🏆',color:'var(--green)',  tl:false},
+    {key:'aksesuar',lbl:'AKSESUAR',      birim:'₺',   icon:'🎧',color:'var(--green)',  tl:true},
+    {key:'ikinciel',lbl:'2. EL CİHAZ',  birim:'₺',   icon:'📦',color:'var(--notr)',   tl:true},
+    {key:'sifir',   lbl:'SIFIR CİHAZ',  birim:'₺',   icon:'✨',color:'var(--blue)',   tl:true},
   ];
   let html=`<div style="margin-bottom:12px;font-family:'Bebas Neue';font-size:14px;color:var(--gray);letter-spacing:1px">${donem}</div>`;
-  html+=`<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:18px;">`;
+  html+=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;">`;
   cats.forEach(cat=>{
     const sorted=[...stats].sort((a,b)=>b[cat.key]-a[cat.key]);
-    html+=`<div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
-      <div style="font-size:11px;color:var(--gray);letter-spacing:1.5px;margin-bottom:12px">${cat.icon} ${cat.lbl}</div>
+    html+=`<div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+      <div style="font-size:10px;color:var(--gray);letter-spacing:1px;margin-bottom:10px">${cat.icon} ${cat.lbl}</div>
       ${sorted.map((s,rank)=>{
         const isFirst=rank===0;
         const pct=sorted[0][cat.key]>0?Math.round(s[cat.key]/sorted[0][cat.key]*100):0;
-        return`<div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;">
-          <div style="font-family:'Bebas Neue';font-size:18px;color:${isFirst?cat.color:'var(--gray)'};width:20px">${rank===0?'🥇':rank===1?'🥈':rank===2?'🥉':rank+1}</div>
-          <div class="av" style="background:${s.emp.color};width:28px;height:28px;font-size:11px;flex-shrink:0">${s.emp.initials}</div>
-          <div style="flex:1">
-            <div style="font-size:12px;font-weight:600;color:${isFirst?'#1a1a2e':'#555'}">${s.emp.name.split(' ')[0]}</div>
-            <div style="background:rgba(0,0,0,0.07);border-radius:20px;height:3px;margin-top:3px;overflow:hidden"><div style="width:${pct}%;background:${cat.color};height:3px;border-radius:20px"></div></div>
+        const val=cat.tl?fmtTL(s[cat.key]):s[cat.key]+' '+cat.birim;
+        return`<div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;">
+          <div style="font-size:14px;width:18px">${rank===0?'🥇':rank===1?'🥈':'🥉'}</div>
+          <div class="av" style="background:${s.emp.color};width:24px;height:24px;font-size:10px;flex-shrink:0;border-radius:6px">${s.emp.initials}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:11px;font-weight:600;color:${isFirst?'#1a1a2e':'#777'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.emp.name.split(' ')[0]}</div>
+            <div style="background:rgba(0,0,0,0.07);border-radius:20px;height:3px;margin-top:2px;overflow:hidden"><div style="width:${pct}%;background:${cat.color};height:3px;border-radius:20px"></div></div>
           </div>
-          <div style="font-family:'Bebas Neue';font-size:16px;color:${isFirst?cat.color:'var(--gray)'}">${s[cat.key]} <span style="font-size:10px">${cat.birim}</span></div>
+          <div style="font-family:'Bebas Neue';font-size:13px;color:${isFirst?cat.color:'var(--gray)'};white-space:nowrap">${val}</div>
         </div>`;
       }).join('')}
     </div>`;
