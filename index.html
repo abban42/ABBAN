@@ -1421,17 +1421,17 @@ function renderYillik(){
     });
 
     const N=employees.length;
-    // rows: lbl, kisiBasiHedef, magazaHedef, gercek, birim
+    // kisiH = kişi başı yıllık hedef (verilen), magazaH = kisiH * N (mağaza toplamı)
     const rows=[
-      {lbl:'FATURALI (Switch dahil)', kisiH:Math.round(1596/N), magazaH:1596, gercek:topFaturali, birim:'adet'},
-      {lbl:'ÖN ÖDEMELİ',             kisiH:Math.round(400/N),  magazaH:400,  gercek:topPrepaid,  birim:'adet'},
-      {lbl:'NTC',                     kisiH:Math.round(240/N),  magazaH:240,  gercek:topNTC,      birim:'adet'},
-      {lbl:'REKONTRATLAMA',           kisiH:Math.round(220/N),  magazaH:220,  gercek:topRekon,    birim:'adet'},
-      {lbl:'AKG',                     kisiH:Math.round(23/N),   magazaH:23,   gercek:topAKG,      birim:'adet'},
-      {lbl:'SOL (SB+FİB+OA)',         kisiH:Math.round(32/N),   magazaH:32,   gercek:topSOL,      birim:'adet'},
-      {lbl:'AKSESUAR',                kisiH:Math.round(312500/N),magazaH:312500,gercek:tlAksesuar, birim:'₺'},
-      {lbl:'2. EL CİHAZ',             kisiH:Math.round(155000/N),magazaH:155000,gercek:tl2El,     birim:'₺'},
-      {lbl:'SIFIR CİHAZ',             kisiH:Math.round(162500/N),magazaH:162500,gercek:tlSifir,   birim:'₺'},
+      {lbl:'FATURALI (NTC,SOL hariç)', kisiH:1596,   magazaH:1596*N,   gercek:topFaturali, birim:'adet'},
+      {lbl:'ÖN ÖDEMELİ (AKG hariç)',  kisiH:400,    magazaH:400*N,    gercek:topPrepaid,  birim:'adet'},
+      {lbl:'NTC',                      kisiH:240,    magazaH:240*N,    gercek:topNTC,      birim:'adet'},
+      {lbl:'REKONTRATLAMA (1-2-3)',    kisiH:220,    magazaH:220*N,    gercek:topRekon,    birim:'adet'},
+      {lbl:'AKG',                      kisiH:23,     magazaH:23*N,     gercek:topAKG,      birim:'adet'},
+      {lbl:'SOL (SB+FİB+OA)',          kisiH:32,     magazaH:32*N,     gercek:topSOL,      birim:'adet'},
+      {lbl:'AKSESUAR',                 kisiH:312500, magazaH:312500*N, gercek:tlAksesuar,  birim:'₺'},
+      {lbl:'2. EL CİHAZ',              kisiH:155000, magazaH:155000*N, gercek:tl2El,       birim:'₺'},
+      {lbl:'SIFIR CİHAZ',              kisiH:162500, magazaH:162500*N, gercek:tlSifir,     birim:'₺'},
     ];
 
     const fmtVal=(v,b)=>b==='₺'?fmtTL(v):v+' '+b;
