@@ -196,6 +196,36 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
 .loading-text{color:var(--yellow);font-family:'Bebas Neue';font-size:18px;letter-spacing:2px;}
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-thumb{background:rgba(230,168,0,0.3);border-radius:10px;}
+
+/* MOBILE RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{width:100%;height:auto;position:relative;border-right:none;border-bottom:1px solid var(--border);box-shadow:none;z-index:100;}
+  .main{margin-left:0;}
+  .logo-wrap{padding:12px 14px;}
+  nav{display:flex;flex-wrap:wrap;gap:2px;padding:6px 8px;}
+  .ns{display:none;}
+  .ni{padding:6px 8px;font-size:11px;}
+  .ni-ic{font-size:11px;}
+  .month-box{margin:6px 8px;}
+  .page{padding:14px 12px 30px;}
+  .pt{font-size:22px;}
+  .kg4,.kg3{grid-template-columns:repeat(2,1fr);}
+  .kg2{grid-template-columns:1fr;}
+  .eg{grid-template-columns:1fr;}
+  .es2{grid-template-columns:repeat(2,1fr);}
+  .ph{flex-direction:column;gap:10px;}
+  .zor-grid{grid-template-columns:1fr;}
+  .modal{width:95vw;padding:18px;}
+  .fr{grid-template-columns:1fr;}
+  table{font-size:11px;}
+  thead th,td{padding:6px 8px;}
+  .kv{font-size:22px;}
+}
+@media(max-width:480px){
+  .kg4,.kg3,.kg2{grid-template-columns:1fr;}
+  .sidebar nav{padding:4px 6px;}
+  .ni{padding:5px 6px;font-size:10px;}
+}
 </style>
 </head>
 <body>
@@ -208,6 +238,7 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
       <div class="login-title">ELFİN İLETİŞİM</div>
     </div>
     <div class="login-sub">Hedef & Prim Takip Sistemi</div>
+    <div style="font-size:9px;color:var(--gray);margin-bottom:20px;letter-spacing:1px">v2.0 — Opus Edition</div>
     <label class="login-label">ŞİFRE</label>
     <input class="login-input" type="password" id="loginPass" placeholder="••••••">
     <button class="login-btn" id="loginBtn">🔐 Giriş Yap</button>
@@ -717,25 +748,25 @@ function getDailyPrim(ei){
 async function loadAll(){
   showLoading(true);
   try{
-    const[{data:sd},{data:md},{data:ad},{data:ud},{data:yd}]=await Promise.all([
+    const[{data:sd},{data:md},{data:ad},{data:ud},{data:yd},{data:ld}]=await Promise.all([
       sb.from('sales').select('*').order('created_at',{ascending:false}),
       sb.from('muafiyetler').select('*').order('created_at',{ascending:false}),
       sb.from('ayarlar').select('*').eq('id',1).single(),
       sb.from('urun_ayarlar').select('*'),
       sb.from('yillik_hedefler').select('*'),
+      sb.from('lider_primler').select('*').order('created_at',{ascending:false}),
     ]);
     sales=sd||[];
-    // Halit Uludağ (eski index 4) satışlarını Abdurrahman Yıldırım'a (index 0) aktar
-    sales.forEach(s=>{ if(s.emp===4) s.emp=0; });
-    // Ürün index kayması düzeltme: eski "2. EL ve SIFIR CİHAZ"(16) → "2. EL CİHAZ"(16), "AKSESUAR"(17) → index 18
-    // Eski prod:17 (AKSESUAR) artık 18, eski prod:16 aynı kalıyor
+    // Eski çalışan index düzeltme
+    sales.forEach(s=>{ if(s.emp>=employees.length) s.emp=0; });
+    // Ürün index güvenlik: sınır dışı indexleri düzelt
     sales.forEach(s=>{
-      if(s.prod===17) s.prod=18; // Eski AKSESUAR → yeni index
-      if(s.prod>18) s.prod=Math.min(s.prod, products.length-1); // Taşma koruması
+      if(s.prod<0||s.prod>=products.length) s.prod=0;
     });
-    // Geçersiz prod indexlerini filtrele
-    sales=sales.filter(s=>s.prod>=0&&s.prod<products.length);
+    // Geçersiz kayıtları filtrele
+    sales=sales.filter(s=>s.emp>=0&&s.emp<employees.length&&s.prod>=0&&s.prod<products.length);
     muafiyetler=md||[];
+    liderPrimler=ld||[];
     if(ad){
       storeTarget=ad.store_target||500;
       carpanlar={c1:ad.carpan_c1||0.65,c2:ad.carpan_c2||1.00,c3:ad.carpan_c3||1.10};
@@ -934,7 +965,7 @@ function renderMagazaOzet(){
 }
 
 function renderEmpCards(cid){
-  const el=document.getElementById(cid);el.innerHTML='';
+  const el=document.getElementById(cid);if(!el)return;el.innerHTML='';
   const empTarget=Math.round(storeTarget/employees.length);
   employees.forEach((emp,i)=>{
     const st=getEmpStats(i);
@@ -971,7 +1002,7 @@ function renderEmpCards(cid){
 }
 
 function renderEmpDetay(){
-  const el=document.getElementById('empDetayCards');el.innerHTML='';
+  const el=document.getElementById('empDetayCards');if(!el)return;el.innerHTML='';
   const empTarget=Math.round(storeTarget/employees.length);
   employees.forEach((emp,i)=>{
     const st=getEmpStats(i);
@@ -1093,7 +1124,7 @@ function hexToRgb(hex){
 }
 
 function renderUrunler(){
-  const tbody=document.getElementById('urunBody');tbody.innerHTML='';
+  const tbody=document.getElementById('urunBody');if(!tbody)return;tbody.innerHTML='';
   const ms=getMonthSales();
   products.forEach((p,i)=>{
     let qty=0;ms.filter(s=>s.prod===i).forEach(s=>qty+=s.qty);
@@ -1124,7 +1155,7 @@ function renderUrunler(){
 }
 
 function renderSalesTable(tbodyId, salesArr){
-  const tbody=document.getElementById(tbodyId);tbody.innerHTML='';
+  const tbody=document.getElementById(tbodyId);if(!tbody)return;tbody.innerHTML='';
   if(!salesArr.length){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--gray);padding:20px">Satış kaydı yok</td></tr>';return;}
   salesArr.forEach(s=>{
     const p=products[s.prod];
@@ -1204,7 +1235,7 @@ function renderGunluk(){
 }
 
 function renderGunlukPrim(){
-  const el=document.getElementById('gpCards');el.innerHTML='';
+  const el=document.getElementById('gpCards');if(!el)return;el.innerHTML='';
   const eom=new Date(activeYear,activeMonth+1,0);
   const days=eom.getDate();
   employees.forEach((emp,i)=>{
@@ -1578,14 +1609,16 @@ function renderLiderlik(){
     return;
   }
   lpEl.innerHTML=`<div class="tw"><table><thead><tr><th>Dönem</th><th>Kategori</th><th>Kazanan</th><th>Prim</th><th>Not</th><th>İşlem</th></tr></thead><tbody>
-  ${liderPrimler.map((lp,idx)=>`<tr>
+  ${liderPrimler.map(lp=>{
+    const katLabel={'puan':'Puan','faturali':'Faturalı','prepaid':'Ön Ödemeli','ntc':'NTC','aksesuar':'Aksesuar','ikinciel':'2. El Cihaz','sifir':'Sıfır Cihaz','toplam':'Toplam'}[lp.kategori||lp.kat]||(lp.kategori||lp.kat);
+    return`<tr>
     <td>${MONTHS[lp.ay]} ${lp.yil}</td>
-    <td>${lp.kat}</td>
+    <td>${katLabel}</td>
     <td style="color:${employees[lp.kazanan]?.color||'var(--gray)'};font-weight:600">${employees[lp.kazanan]?.name||'—'}</td>
     <td style="color:var(--green);font-weight:600">${fmtTL(lp.tutar)}</td>
-    <td style="color:var(--gray);font-size:11px">${lp.not||'—'}</td>
-    <td><button class="btn btn-d bsm" onclick="deleteLiderPrim(${idx})">🗑️</button></td>
-  </tr>`).join('')}
+    <td style="color:var(--gray);font-size:11px">${lp.not_text||lp.not||'—'}</td>
+    <td><button class="btn btn-d bsm" onclick="deleteLiderPrim('${lp.id}')">🗑️</button></td>
+  </tr>`;}).join('')}
   </tbody></table></div>`;
 }
 
@@ -1602,33 +1635,49 @@ function closeLiderPrimModal(){
   document.getElementById('liderPrimOv').style.display='none';
 }
 
-function saveLiderPrim(){
+async function saveLiderPrim(){
   const ay=parseInt(document.getElementById('lpAy').value);
   const kat=document.getElementById('lpKat').value;
   const tutar=parseFloat(document.getElementById('lpTutar').value)||0;
-  const not=document.getElementById('lpNot').value.trim();
-  // Otomatik kazanan hesapla
+  const notText=document.getElementById('lpNot').value.trim();
   const stats=getLiderStats('ay');
   const sorted=[...stats].sort((a,b)=>{
     if(kat==='puan')return b.puan-a.puan;
     if(kat==='faturali')return b.faturali-a.faturali;
     if(kat==='prepaid')return b.prepaid-a.prepaid;
+    if(kat==='ntc')return b.ntc-a.ntc;
+    if(kat==='aksesuar')return b.aksesuar-a.aksesuar;
+    if(kat==='ikinciel')return b.ikinciel-a.ikinciel;
+    if(kat==='sifir')return b.sifir-a.sifir;
     return b.toplam-a.toplam;
   });
   const kazanan=sorted[0].i;
-  liderPrimler.push({ay,yil:activeYear,kat,tutar,not,kazanan});
-  closeLiderPrimModal();
-  showToast(`✓ ${employees[kazanan].name} için ${fmtTL(tutar)} lider primi tanımlandı!`);
-  renderLiderlik();
+  const obj={ay,yil:activeYear,kategori:kat,tutar,not_text:notText,kazanan};
+  try{
+    const{data,error}=await sb.from('lider_primler').upsert(obj,{onConflict:'ay,yil,kategori'}).select().single();
+    if(error)throw error;
+    const existing=liderPrimler.findIndex(lp=>lp.ay===ay&&lp.yil===activeYear&&(lp.kategori||lp.kat)===kat);
+    if(existing>=0)liderPrimler[existing]=data;
+    else liderPrimler.push(data);
+    closeLiderPrimModal();
+    showToast(`✓ ${employees[kazanan].name} için ${fmtTL(tutar)} lider primi tanımlandı!`);
+    renderLiderlik();
+  }catch(e){showToast('Hata: '+e.message,true);}
 }
 
-function deleteLiderPrim(idx){
-  liderPrimler.splice(idx,1);
-  renderLiderlik();
+async function deleteLiderPrim(id){
+  if(!confirm('Lider primini silmek istiyor musunuz?'))return;
+  try{
+    const{error}=await sb.from('lider_primler').delete().eq('id',id);
+    if(error)throw error;
+    liderPrimler=liderPrimler.filter(lp=>lp.id!==id);
+    showToast('Lider primi silindi');
+    renderLiderlik();
+  }catch(e){showToast('Hata: '+e.message,true);}
 }
 
 function renderMuafiyet(){
-  const tbody=document.getElementById('muafBody');tbody.innerHTML='';
+  const tbody=document.getElementById('muafBody');if(!tbody)return;tbody.innerHTML='';
   if(!muafiyetler.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--gray);padding:20px">Henüz muafiyet kaydı yok</td></tr>';return;}
   muafiyetler.forEach(m=>{
     tbody.innerHTML+=`<tr>
