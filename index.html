@@ -2332,12 +2332,12 @@ function parseExcelDate(val){
 
 // CRM RENDER
 let crmBoardView='today'; // 'today' or 'upcoming'
+let crmEmpFilter=-1; // -1=hepsi, 0-3=çalışan index
 
 function renderCrmBoard(){
   const todayList=getTodayCrmList();
   const upcoming=getUpcomingCrmList();
   const today=new Date().toISOString().split('T')[0];
-  const totalM=crmMusteriler.length;
   const arandiCount=crmAramalar.filter(a=>a.tarih&&a.tarih.startsWith(today)).length;
   const basarili=crmMusteriler.filter(m=>m.sonuc==='taahhut_yenilendi'||m.sonuc==='postpaide_gecti').length;
 
@@ -2347,7 +2347,13 @@ function renderCrmBoard(){
   const upcomingAssign=upcoming.map((m,i)=>({...m,_atanan:i%empCount}));
 
   // Çalışan başına düşen sayılar
-  const perEmp=employees.map((_,ei)=>todayAssign.filter(m=>m._atanan===ei).length);
+  const perEmpToday=employees.map((_,ei)=>todayAssign.filter(m=>m._atanan===ei).length);
+  const perEmpUpcoming=employees.map((_,ei)=>upcomingAssign.filter(m=>m._atanan===ei).length);
+  const activeList=crmBoardView==='today'?todayAssign:upcomingAssign;
+  const perEmp=crmBoardView==='today'?perEmpToday:perEmpUpcoming;
+
+  // Filtrelenmiş liste
+  const filtered=crmEmpFilter>=0?activeList.filter(m=>m._atanan===crmEmpFilter):activeList;
 
   document.getElementById('crmBoardPs').textContent=todayList.length>0?todayList.length+' müşteri aranacak':'Bugün aranacak müşteri yok';
   document.getElementById('crmSummaryCards').innerHTML=`
@@ -2356,41 +2362,52 @@ function renderCrmBoard(){
     <div class="kc" style="--ac:var(--blue)"><div class="kl">BUGÜN ARANDI</div><div class="kv" style="color:var(--blue)">${arandiCount}</div><div class="ks">Bugün yapılan</div></div>
     <div class="kc" style="--ac:var(--green)"><div class="kl">BAŞARILI</div><div class="kv" style="color:var(--green)">${basarili}</div><div class="ks">Yenileme / Geçiş</div></div>`;
 
-  if(crmBoardView==='today'){
-    let tHtml='';
-    if(todayAssign.length===0){
-      tHtml='<div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:30px;text-align:center;color:var(--gray)">🎉 Bugün aranacak müşteri yok!</div>';
-    }else{
-      // Çalışan dağılım özeti
-      tHtml+=`<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">${employees.map((emp,ei)=>`<div style="background:#fff;border-radius:8px;border:1px solid ${emp.color};padding:6px 12px;display:flex;align-items:center;gap:6px;">
-        <div style="width:22px;height:22px;border-radius:6px;background:${emp.color};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:10px;color:#000">${emp.initials}</div>
-        <span style="font-size:11px;font-weight:600;color:#1a1a2e">${emp.name.split(' ')[0]}</span>
-        <span style="font-family:'Bebas Neue';font-size:16px;color:${emp.color}">${perEmp[ei]}</span>
-      </div>`).join('')}</div>`;
-      tHtml+='<div class="sh"><div class="st" style="color:var(--red)">🔴 BUGÜN <em>ARANACAKLAR</em></div></div>';
-      todayAssign.forEach(m=>{
-        tHtml+=buildCrmCard(m,today,true,m._atanan);
-      });
-    }
-    document.getElementById('crmTodayList').innerHTML=tHtml;
-    document.getElementById('crmUpcomingList').innerHTML='';
+  // Çalışan filtre butonları
+  let empBtns=`<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+    <div onclick="setCrmEmpFilter(-1)" style="cursor:pointer;background:${crmEmpFilter===-1?'var(--yellow)':'#fff'};border-radius:8px;border:1px solid ${crmEmpFilter===-1?'var(--yellow)':'var(--border)'};padding:6px 14px;display:flex;align-items:center;gap:6px;">
+      <span style="font-size:11px;font-weight:600;color:${crmEmpFilter===-1?'#000':'var(--gray)'}">Hepsi</span>
+      <span style="font-family:'Bebas Neue';font-size:16px;color:${crmEmpFilter===-1?'#000':'var(--gray)'}">${activeList.length}</span>
+    </div>`;
+  employees.forEach((emp,ei)=>{
+    const isActive=crmEmpFilter===ei;
+    empBtns+=`<div onclick="setCrmEmpFilter(${ei})" style="cursor:pointer;background:${isActive?emp.color+'20':'#fff'};border-radius:8px;border:${isActive?'2px':'1px'} solid ${isActive?emp.color:emp.color+'40'};padding:6px 12px;display:flex;align-items:center;gap:6px;">
+      <div style="width:22px;height:22px;border-radius:6px;background:${emp.color};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:10px;color:#000">${emp.initials}</div>
+      <span style="font-size:11px;font-weight:600;color:#1a1a2e">${emp.name.split(' ')[0]}</span>
+      <span style="font-family:'Bebas Neue';font-size:16px;color:${emp.color}">${perEmp[ei]}</span>
+    </div>`;
+  });
+  empBtns+='</div>';
+
+  // Liste render
+  let listHtml='';
+  if(filtered.length===0){
+    const emptyMsg=crmEmpFilter>=0
+      ?employees[crmEmpFilter].name.split(' ')[0]+' için aranacak müşteri yok.'
+      :(crmBoardView==='today'?'🎉 Bugün aranacak müşteri yok!':'Yakın 7 günde aranacak müşteri yok.');
+    listHtml=`<div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:30px;text-align:center;color:var(--gray)">${emptyMsg}</div>`;
   }else{
-    let uHtml='';
-    if(upcomingAssign.length===0){
-      uHtml='<div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:30px;text-align:center;color:var(--gray)">Yakın 7 günde aranacak müşteri yok.</div>';
-    }else{
-      uHtml+='<div class="sh"><div class="st" style="color:var(--yellow)">🟡 YAKIN 7 GÜN <em>İÇİNDE ARANACAKLAR</em></div></div>';
-      upcomingAssign.forEach(m=>{
-        uHtml+=buildCrmCard(m,today,false,m._atanan);
-      });
-    }
-    document.getElementById('crmTodayList').innerHTML='';
-    document.getElementById('crmUpcomingList').innerHTML=uHtml;
+    const titleColor=crmBoardView==='today'?'var(--red)':'var(--yellow)';
+    const titleIcon=crmBoardView==='today'?'🔴':'🟡';
+    const titleText=crmBoardView==='today'?'BUGÜN <em>ARANACAKLAR</em>':'YAKIN 7 GÜN <em>İÇİNDE</em>';
+    const filterLabel=crmEmpFilter>=0?' — '+employees[crmEmpFilter].name.split(' ')[0]:'';
+    listHtml+=`<div class="sh"><div class="st" style="color:${titleColor}">${titleIcon} ${titleText}${filterLabel?` <span style="color:${employees[crmEmpFilter]?.color||titleColor}">${filterLabel}</span>`:''}</div></div>`;
+    filtered.forEach(m=>{
+      listHtml+=buildCrmCard(m,today,crmBoardView==='today',m._atanan);
+    });
   }
+
+  document.getElementById('crmTodayList').innerHTML=empBtns+listHtml;
+  document.getElementById('crmUpcomingList').innerHTML='';
 }
 
 function setCrmView(view){
   crmBoardView=view;
+  crmEmpFilter=-1;
+  renderCrmBoard();
+}
+
+function setCrmEmpFilter(idx){
+  crmEmpFilter=idx;
   renderCrmBoard();
 }
 
