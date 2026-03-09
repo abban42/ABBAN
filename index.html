@@ -911,6 +911,7 @@ function renderMagazaOzet(){
   const hedefAdet=products.reduce((a,p)=>a+(p.hedef||0),0)*employees.length;
 
   // Çalışan bazlı adet
+  const empAdetHedef=products.reduce((a,p)=>a+(p.manuel?0:(p.hedef||0)),0);
   const empRows=employees.map((emp,i)=>{
     let adet=0,faturali=0,prepaid=0,puan=0;
     ms.filter(s=>s.emp===i).forEach(s=>{
@@ -921,8 +922,9 @@ function renderMagazaOzet(){
     });
     const empHedef=Math.round(storeTarget/employees.length);
     const oran=empHedef>0?Math.min(999,Math.round(puan/empHedef*100)):0;
+    const adetOran=empAdetHedef>0?Math.min(999,Math.round(adet/empAdetHedef*100)):0;
     const tahmini=passedDays>0?Math.round(adet/passedDays*totalDays):0;
-    return {emp,faturali,prepaid,adet,puan,oran,tahmini};
+    return {emp,faturali,prepaid,adet,puan,oran,adetOran,tahmini};
   });
 
   const el=document.getElementById('magazaOzet');
@@ -945,29 +947,34 @@ function renderMagazaOzet(){
     </div>
     <div class="kc" style="--ac:var(--postpaid)">
       <div class="kl">TOPLAM SATIŞ</div>
-      <div class="kv">${topAdet}</div>
+      <div class="kv">${topAdet}<span style="font-size:14px;color:var(--gray)">/${hedefAdet}</span></div>
       <div class="ks">Faturalı: ${topFaturali} | Ön Öd: ${topPrepaid}</div>
+      <div class="badge ${topAdet>=hedefAdet?'bg':topAdet>=hedefAdet*0.7?'by':'br'}">%${hedefAdet>0?Math.round(topAdet/hedefAdet*100):0}</div>
     </div>
   </div>
   <div class="tw">
     <table>
-      <thead><tr><th>Çalışan</th><th>Faturalı</th><th>Ön Ödemeli</th><th>Toplam Adet</th><th>Puan</th><th>Hedef %</th><th>Ay Sonu Tahmini</th></tr></thead>
+      <thead><tr><th>Çalışan</th><th>Faturalı</th><th>Ön Ödemeli</th><th>Toplam</th><th>Hedef</th><th>Puan</th><th>Puan %</th><th>Adet %</th><th>Tahmini</th></tr></thead>
       <tbody>
         ${empRows.map(r=>`<tr>
           <td><span style="font-weight:600;color:${r.emp.color}">${r.emp.name}</span></td>
           <td><span class="tpp">${r.faturali}</span></td>
           <td><span class="tpr">${r.prepaid}</span></td>
           <td><strong>${r.adet}</strong></td>
+          <td style="color:var(--gray)">${empAdetHedef}</td>
           <td style="color:var(--yellow);font-weight:600">${fmt(r.puan)}</td>
           <td><span class="badge ${r.oran>=100?'bg':r.oran>=70?'by':'br'}">%${r.oran}</span></td>
-          <td style="color:${r.tahmini>=Math.round(storeTarget/employees.length)?'var(--green)':'var(--red)'}">${r.tahmini} adet</td>
+          <td><span class="badge ${r.adetOran>=100?'bg':r.adetOran>=70?'by':'br'}">%${r.adetOran}</span></td>
+          <td style="color:${r.tahmini>=empAdetHedef?'var(--green)':'var(--red)'}">${r.tahmini} adet</td>
         </tr>`).join('')}
         <tr style="background:#f7f8fa;font-weight:700;">
           <td>TOPLAM</td>
           <td><span class="tpp">${topFaturali}</span></td>
           <td><span class="tpr">${topPrepaid}</span></td>
           <td><strong>${topAdet}</strong></td>
+          <td style="color:var(--gray)">${empAdetHedef*employees.length}</td>
           <td style="color:var(--yellow)">${fmt(ms.reduce((a,s)=>a+(products[s.prod]?.puan||0)*s.qty,0))}</td>
+          <td>—</td>
           <td>—</td>
           <td style="color:${tahminiAySonu>=hedefAdet?'var(--green)':'var(--red)'}">~${tahminiAySonu}</td>
         </tr>
@@ -979,11 +986,15 @@ function renderMagazaOzet(){
 function renderEmpCards(cid){
   const el=document.getElementById(cid);if(!el)return;el.innerHTML='';
   const empTarget=Math.round(storeTarget/employees.length);
+  // Kişi başı toplam adet hedefi (tüm ürünlerin hedef toplamı)
+  const empAdetHedef=products.reduce((a,p)=>a+(p.manuel?0:(p.hedef||0)),0);
   employees.forEach((emp,i)=>{
     const st=getEmpStats(i);
     const hak=empPrimHak(i);
     const oran=empTarget>0?Math.min(100,Math.round((st.puan/empTarget)*100)):0;
     const fc=oran>=100?'var(--green)':oran>=70?'var(--yellow)':'var(--red)';
+    const adetOran=empAdetHedef>0?Math.min(100,Math.round((st.adet/empAdetHedef)*100)):0;
+    const adetFc=adetOran>=100?'var(--green)':adetOran>=70?'var(--yellow)':'var(--red)';
     const bonus=hak.hak?calcBonus(st.totalPrim,st.puan,empTarget):0;
     el.innerHTML+=`
     <div class="ec">
@@ -999,14 +1010,14 @@ function renderEmpCards(cid){
         <div class="esb"><div class="esv" style="color:${emp.color}">${fmt(st.puan)}</div><div class="esl">PUAN</div></div>
         <div class="esb"><div class="esv" style="color:var(--green)">${fmtTL(st.calisanPrim)}</div><div class="esl">ÇALIŞAN PRİMİ</div></div>
         <div class="esb"><div class="esv" style="color:var(--purple)">${bonus>0?fmtTL(bonus):'—'}</div><div class="esl">BONUS</div></div>
-        <div class="esb"><div class="esv">${st.adet}</div><div class="esl">SATIŞ</div></div>
+        <div class="esb"><div class="esv">${st.adet}<span style="font-size:11px;color:var(--gray)">/${empAdetHedef}</span></div><div class="esl">SATIŞ / HEDEF</div></div>
       </div>
       <div>
         <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray);margin-bottom:3px"><span>Puan Hedefi</span><span>${fmt(st.puan)} / ${fmt(empTarget)}</span></div>
         <div style="background:rgba(0,0,0,0.07);border-radius:20px;height:4px;overflow:hidden;margin-bottom:6px;"><div style="width:${oran}%;background:${fc};height:4px;border-radius:20px"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray);margin-bottom:3px"><span>Adet (PP+PR)</span><span>${st.adet} adet</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray);margin-bottom:3px"><span>Adet Hedefi</span><span>${st.adet} / ${empAdetHedef} adet</span></div>
         <div style="background:rgba(0,0,0,0.07);border-radius:20px;height:4px;overflow:hidden;">
-          <div style="width:${Math.min(100,Math.round(st.adet/Math.max(1,Math.round(30/employees.length))*100))}%;background:var(--blue);height:4px;border-radius:20px"></div>
+          <div style="width:${adetOran}%;background:${adetFc};height:4px;border-radius:20px"></div>
         </div>
       </div>
     </div>`;
