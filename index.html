@@ -2341,6 +2341,14 @@ function renderCrmBoard(){
   const arandiCount=crmAramalar.filter(a=>a.tarih&&a.tarih.startsWith(today)).length;
   const basarili=crmMusteriler.filter(m=>m.sonuc==='taahhut_yenilendi'||m.sonuc==='postpaide_gecti').length;
 
+  // Çalışanlara eşit dağıt
+  const empCount=employees.length;
+  const todayAssign=todayList.map((m,i)=>({...m,_atanan:i%empCount}));
+  const upcomingAssign=upcoming.map((m,i)=>({...m,_atanan:i%empCount}));
+
+  // Çalışan başına düşen sayılar
+  const perEmp=employees.map((_,ei)=>todayAssign.filter(m=>m._atanan===ei).length);
+
   document.getElementById('crmBoardPs').textContent=todayList.length>0?todayList.length+' müşteri aranacak':'Bugün aranacak müşteri yok';
   document.getElementById('crmSummaryCards').innerHTML=`
     <div class="kc" style="--ac:var(--red);cursor:pointer;${crmBoardView==='today'?'border:2px solid var(--red)':''}" onclick="setCrmView('today')"><div class="kl">BUGÜN ARANACAK</div><div class="kv" style="color:var(--red)">${todayList.length}</div><div class="ks">Acil + Gecikmiş</div></div>
@@ -2349,27 +2357,31 @@ function renderCrmBoard(){
     <div class="kc" style="--ac:var(--green)"><div class="kl">BAŞARILI</div><div class="kv" style="color:var(--green)">${basarili}</div><div class="ks">Yenileme / Geçiş</div></div>`;
 
   if(crmBoardView==='today'){
-    // Bugün aranacaklar
     let tHtml='';
-    if(todayList.length===0){
+    if(todayAssign.length===0){
       tHtml='<div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:30px;text-align:center;color:var(--gray)">🎉 Bugün aranacak müşteri yok!</div>';
     }else{
-      tHtml='<div class="sh"><div class="st" style="color:var(--red)">🔴 BUGÜN <em>ARANACAKLAR</em></div></div>';
-      todayList.forEach(m=>{
-        tHtml+=buildCrmCard(m,today,true);
+      // Çalışan dağılım özeti
+      tHtml+=`<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">${employees.map((emp,ei)=>`<div style="background:#fff;border-radius:8px;border:1px solid ${emp.color};padding:6px 12px;display:flex;align-items:center;gap:6px;">
+        <div style="width:22px;height:22px;border-radius:6px;background:${emp.color};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:10px;color:#000">${emp.initials}</div>
+        <span style="font-size:11px;font-weight:600;color:#1a1a2e">${emp.name.split(' ')[0]}</span>
+        <span style="font-family:'Bebas Neue';font-size:16px;color:${emp.color}">${perEmp[ei]}</span>
+      </div>`).join('')}</div>`;
+      tHtml+='<div class="sh"><div class="st" style="color:var(--red)">🔴 BUGÜN <em>ARANACAKLAR</em></div></div>';
+      todayAssign.forEach(m=>{
+        tHtml+=buildCrmCard(m,today,true,m._atanan);
       });
     }
     document.getElementById('crmTodayList').innerHTML=tHtml;
     document.getElementById('crmUpcomingList').innerHTML='';
   }else{
-    // Yakın 7 gün
     let uHtml='';
-    if(upcoming.length===0){
+    if(upcomingAssign.length===0){
       uHtml='<div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:30px;text-align:center;color:var(--gray)">Yakın 7 günde aranacak müşteri yok.</div>';
     }else{
-      uHtml='<div class="sh"><div class="st" style="color:var(--yellow)">🟡 YAKIN 7 GÜN <em>İÇİNDE ARANACAKLAR</em></div></div>';
-      upcoming.forEach(m=>{
-        uHtml+=buildCrmCard(m,today,false);
+      uHtml+='<div class="sh"><div class="st" style="color:var(--yellow)">🟡 YAKIN 7 GÜN <em>İÇİNDE ARANACAKLAR</em></div></div>';
+      upcomingAssign.forEach(m=>{
+        uHtml+=buildCrmCard(m,today,false,m._atanan);
       });
     }
     document.getElementById('crmTodayList').innerHTML='';
@@ -2382,7 +2394,7 @@ function setCrmView(view){
   renderCrmBoard();
 }
 
-function buildCrmCard(m,today,isTodayView){
+function buildCrmCard(m,today,isTodayView,atananIdx){
   const son=getMusteriSonArama(m.id);
   const dates=calcHatirlatma(m);
   const nextDate=isTodayView
@@ -2391,15 +2403,20 @@ function buildCrmCard(m,today,isTodayView){
   const label=nextDate?getDayLabel(nextDate.toISOString().split('T')[0]):'';
   const gecikmi=isTodayView&&nextDate&&nextDate.toISOString().split('T')[0]<today;
   const borderColor=gecikmi?'rgba(230,57,70,0.3)':'var(--border)';
-  const labelColor=gecikmi?'var(--red)':isTodayView?'var(--yellow)':'var(--yellow)';
+  const labelColor=gecikmi?'var(--red)':'var(--yellow)';
+  const emp=typeof atananIdx==='number'?employees[atananIdx]:null;
   return`<div style="background:#fff;border-radius:12px;border:1px solid ${borderColor};padding:14px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
     <div style="flex:0 0 8px;height:8px;border-radius:50%;background:${CRM_GRUP_COLORS[m.grup]||'var(--gray)'}"></div>
     <div style="flex:1;min-width:150px;">
       <div style="font-weight:600;font-size:13px;color:#1a1a2e">${m.ad}</div>
       <div style="font-size:11px;color:var(--gray)">${m.telefon||'—'} &nbsp;·&nbsp; ${CRM_GRUP_LABELS[m.grup]||'—'} &nbsp;·&nbsp; ${m.paket||''}</div>
     </div>
-    <div style="text-align:center;min-width:80px;">
-      <div style="font-size:10px;color:${labelColor}; font-weight:600">${label}</div>
+    ${emp?`<div style="display:flex;align-items:center;gap:5px;background:${emp.color}15;border:1px solid ${emp.color}40;border-radius:8px;padding:4px 8px;">
+      <div style="width:20px;height:20px;border-radius:5px;background:${emp.color};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:9px;color:#000">${emp.initials}</div>
+      <span style="font-size:10px;font-weight:600;color:${emp.color}">${emp.name.split(' ')[0]}</span>
+    </div>`:''}
+    <div style="text-align:center;min-width:70px;">
+      <div style="font-size:10px;color:${labelColor};font-weight:600">${label}</div>
       ${son?`<div style="font-size:9px;color:var(--gray);margin-top:2px">Son: ${CRM_DURUM_LABELS[son.durum]||son.durum}</div>`:''}
     </div>
     <div style="display:flex;gap:5px;">
