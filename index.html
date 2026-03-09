@@ -2205,7 +2205,7 @@ async function saveCrmMusteri(){
       crmMusteriler.unshift(data);
       showToast('✓ Müşteri eklendi!');
     }
-    closeCrmAddModal();updateCrmBadge();refreshAll();
+    closeCrmAddModal();updateCrmBadge();renderCrmBoard();renderCrmList();
   }catch(e){showToast('Hata: '+e.message,true);}
 }
 
@@ -2215,7 +2215,7 @@ async function deleteCrmMusteri(id){
     const{error}=await sb.from('musteriler').delete().eq('id',id);
     if(error)throw error;
     crmMusteriler=crmMusteriler.filter(m=>m.id!==id);
-    showToast('Müşteri silindi');updateCrmBadge();refreshAll();
+    showToast('Müşteri silindi');updateCrmBadge();renderCrmBoard();renderCrmList();
   }catch(e){showToast('Hata: '+e.message,true);}
 }
 
@@ -2235,7 +2235,7 @@ async function saveCrmCall(){
       const idx=crmMusteriler.findIndex(m=>m.id===mid);
       if(idx>=0)crmMusteriler[idx].sonuc=sonuc;
     }
-    closeCrmCallModal();showToast('✓ Arama kaydedildi!');updateCrmBadge();refreshAll();
+    closeCrmCallModal();showToast('✓ Arama kaydedildi!');updateCrmBadge();renderCrmBoard();renderCrmRapor();
   }catch(e){showToast('Hata: '+e.message,true);}
 }
 
@@ -2342,7 +2342,7 @@ async function processCrmUpload(){
   showLoading(false);
   closeCrmUpload();
   showToast(`✓ ${ok} müşteri eklendi${fail>0?' ('+fail+' hata)':''}`);
-  updateCrmBadge();refreshAll();
+  updateCrmBadge();renderCrmBoard();renderCrmList();
 }
 
 function parseExcelDate(val){
@@ -2362,6 +2362,8 @@ function parseExcelDate(val){
 }
 
 // CRM RENDER
+let crmBoardView='today'; // 'today' or 'upcoming'
+
 function renderCrmBoard(){
   const todayList=getTodayCrmList();
   const upcoming=getUpcomingCrmList();
@@ -2372,61 +2374,70 @@ function renderCrmBoard(){
 
   document.getElementById('crmBoardPs').textContent=todayList.length>0?todayList.length+' müşteri aranacak':'Bugün aranacak müşteri yok';
   document.getElementById('crmSummaryCards').innerHTML=`
-    <div class="kc" style="--ac:var(--red)"><div class="kl">BUGÜN ARANACAK</div><div class="kv" style="color:var(--red)">${todayList.length}</div><div class="ks">Acil + Gecikmiş</div></div>
-    <div class="kc" style="--ac:var(--yellow)"><div class="kl">YAKIN 7 GÜN</div><div class="kv" style="color:var(--yellow)">${upcoming.length}</div><div class="ks">Yaklaşan</div></div>
+    <div class="kc" style="--ac:var(--red);cursor:pointer;${crmBoardView==='today'?'border:2px solid var(--red)':''}" onclick="setCrmView('today')"><div class="kl">BUGÜN ARANACAK</div><div class="kv" style="color:var(--red)">${todayList.length}</div><div class="ks">Acil + Gecikmiş</div></div>
+    <div class="kc" style="--ac:var(--yellow);cursor:pointer;${crmBoardView==='upcoming'?'border:2px solid var(--yellow)':''}" onclick="setCrmView('upcoming')"><div class="kl">YAKIN 7 GÜN</div><div class="kv" style="color:var(--yellow)">${upcoming.length}</div><div class="ks">Tıkla → Listele</div></div>
     <div class="kc" style="--ac:var(--blue)"><div class="kl">BUGÜN ARANDI</div><div class="kv" style="color:var(--blue)">${arandiCount}</div><div class="ks">Bugün yapılan</div></div>
     <div class="kc" style="--ac:var(--green)"><div class="kl">BAŞARILI</div><div class="kv" style="color:var(--green)">${basarili}</div><div class="ks">Yenileme / Geçiş</div></div>`;
 
-  // Bugün aranacaklar
-  let tHtml='';
-  if(todayList.length===0){
-    tHtml='<div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:30px;text-align:center;color:var(--gray)">🎉 Bugün aranacak müşteri yok!</div>';
+  if(crmBoardView==='today'){
+    // Bugün aranacaklar
+    let tHtml='';
+    if(todayList.length===0){
+      tHtml='<div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:30px;text-align:center;color:var(--gray)">🎉 Bugün aranacak müşteri yok!</div>';
+    }else{
+      tHtml='<div class="sh"><div class="st" style="color:var(--red)">🔴 BUGÜN <em>ARANACAKLAR</em></div></div>';
+      todayList.forEach(m=>{
+        tHtml+=buildCrmCard(m,today,true);
+      });
+    }
+    document.getElementById('crmTodayList').innerHTML=tHtml;
+    document.getElementById('crmUpcomingList').innerHTML='';
   }else{
-    tHtml='<div class="sh"><div class="st" style="color:var(--red)">🔴 BUGÜN <em>ARANACAKLAR</em></div></div>';
-    todayList.forEach(m=>{
-      const son=getMusteriSonArama(m.id);
-      const dates=calcHatirlatma(m);
-      const nextDate=dates.find(d=>d.toISOString().split('T')[0]<=today);
-      const label=nextDate?getDayLabel(nextDate.toISOString().split('T')[0]):'';
-      const gecikmi=nextDate&&nextDate.toISOString().split('T')[0]<today;
-      tHtml+=`<div style="background:#fff;border-radius:12px;border:1px solid ${gecikmi?'rgba(230,57,70,0.3)':'var(--border)'};padding:14px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-        <div style="flex:0 0 8px;height:8px;border-radius:50%;background:${CRM_GRUP_COLORS[m.grup]||'var(--gray)'}"></div>
-        <div style="flex:1;min-width:150px;">
-          <div style="font-weight:600;font-size:13px;color:#1a1a2e">${m.ad}</div>
-          <div style="font-size:11px;color:var(--gray)">${m.telefon||'—'} &nbsp;·&nbsp; ${CRM_GRUP_LABELS[m.grup]||'—'} &nbsp;·&nbsp; ${m.paket||''}</div>
-        </div>
-        <div style="text-align:center;min-width:80px;">
-          <div style="font-size:10px;color:${gecikmi?'var(--red)':'var(--yellow)'}; font-weight:600">${label}</div>
-          ${son?`<div style="font-size:9px;color:var(--gray);margin-top:2px">Son: ${CRM_DURUM_LABELS[son.durum]||son.durum}</div>`:''}
-        </div>
-        <div style="display:flex;gap:5px;">
-          <button class="btn btn-p bsm" onclick="openCrmCallModal('${m.id}')">📞 Ara</button>
-          <button class="btn btn-e bsm" onclick="openCrmAddModal('${m.id}')">✏️</button>
-        </div>
-      </div>`;
-    });
+    // Yakın 7 gün
+    let uHtml='';
+    if(upcoming.length===0){
+      uHtml='<div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:30px;text-align:center;color:var(--gray)">Yakın 7 günde aranacak müşteri yok.</div>';
+    }else{
+      uHtml='<div class="sh"><div class="st" style="color:var(--yellow)">🟡 YAKIN 7 GÜN <em>İÇİNDE ARANACAKLAR</em></div></div>';
+      upcoming.forEach(m=>{
+        uHtml+=buildCrmCard(m,today,false);
+      });
+    }
+    document.getElementById('crmTodayList').innerHTML='';
+    document.getElementById('crmUpcomingList').innerHTML=uHtml;
   }
-  document.getElementById('crmTodayList').innerHTML=tHtml;
+}
 
-  // Yaklaşan 7 gün
-  let uHtml='';
-  if(upcoming.length>0){
-    uHtml='<div class="sh"><div class="st" style="color:var(--yellow)">🟡 YAKIN 7 GÜN <em>İÇİNDE</em></div></div>';
-    upcoming.forEach(m=>{
-      const dates=calcHatirlatma(m);
-      const nextDate=dates.find(d=>d.toISOString().split('T')[0]>today);
-      const label=nextDate?getDayLabel(nextDate.toISOString().split('T')[0]):'';
-      uHtml+=`<div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:12px;margin-bottom:6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;opacity:0.85;">
-        <div style="flex:0 0 8px;height:8px;border-radius:50%;background:${CRM_GRUP_COLORS[m.grup]||'var(--gray)'}"></div>
-        <div style="flex:1;min-width:150px;">
-          <div style="font-weight:600;font-size:12px;color:#555">${m.ad}</div>
-          <div style="font-size:10px;color:var(--gray)">${m.telefon||'—'} &nbsp;·&nbsp; ${CRM_GRUP_LABELS[m.grup]||'—'}</div>
-        </div>
-        <div style="font-size:10px;color:var(--yellow);font-weight:600">${label}</div>
-      </div>`;
-    });
-  }
-  document.getElementById('crmUpcomingList').innerHTML=uHtml;
+function setCrmView(view){
+  crmBoardView=view;
+  renderCrmBoard();
+}
+
+function buildCrmCard(m,today,isTodayView){
+  const son=getMusteriSonArama(m.id);
+  const dates=calcHatirlatma(m);
+  const nextDate=isTodayView
+    ?dates.find(d=>d.toISOString().split('T')[0]<=today)
+    :dates.find(d=>d.toISOString().split('T')[0]>today);
+  const label=nextDate?getDayLabel(nextDate.toISOString().split('T')[0]):'';
+  const gecikmi=isTodayView&&nextDate&&nextDate.toISOString().split('T')[0]<today;
+  const borderColor=gecikmi?'rgba(230,57,70,0.3)':'var(--border)';
+  const labelColor=gecikmi?'var(--red)':isTodayView?'var(--yellow)':'var(--yellow)';
+  return`<div style="background:#fff;border-radius:12px;border:1px solid ${borderColor};padding:14px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <div style="flex:0 0 8px;height:8px;border-radius:50%;background:${CRM_GRUP_COLORS[m.grup]||'var(--gray)'}"></div>
+    <div style="flex:1;min-width:150px;">
+      <div style="font-weight:600;font-size:13px;color:#1a1a2e">${m.ad}</div>
+      <div style="font-size:11px;color:var(--gray)">${m.telefon||'—'} &nbsp;·&nbsp; ${CRM_GRUP_LABELS[m.grup]||'—'} &nbsp;·&nbsp; ${m.paket||''}</div>
+    </div>
+    <div style="text-align:center;min-width:80px;">
+      <div style="font-size:10px;color:${labelColor}; font-weight:600">${label}</div>
+      ${son?`<div style="font-size:9px;color:var(--gray);margin-top:2px">Son: ${CRM_DURUM_LABELS[son.durum]||son.durum}</div>`:''}
+    </div>
+    <div style="display:flex;gap:5px;">
+      <button class="btn btn-p bsm" onclick="openCrmCallModal('${m.id}')">📞 Ara</button>
+      <button class="btn btn-e bsm" onclick="openCrmAddModal('${m.id}')">✏️</button>
+    </div>
+  </div>`;
 }
 
 function renderCrmList(){
