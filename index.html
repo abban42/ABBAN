@@ -314,19 +314,8 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
     <div class="kc" style="--ac:var(--blue)"><div class="kl">PUAN PRİMİ</div><div class="kv" id="k3">₺0</div><div class="ks">Dilim + Çarpan</div><div class="badge bb" id="k3c">—</div></div>
     <div class="kc" style="--ac:var(--purple)"><div class="kl">TOPLAM PRİM</div><div class="kv" id="k4">₺0</div><div class="ks">Tüm primler</div><div class="badge bp">Bu ay</div></div>
   </div>
-  <div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:14px 17px;margin-bottom:18px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--gray);margin-bottom:6px;"><span>Aylık Puan Hedefi</span><span id="pLabel">0 / 0</span></div>
-    <div style="background:rgba(0,0,0,0.07);border-radius:20px;height:8px;overflow:hidden;"><div id="mainBar" style="height:100%;border-radius:20px;background:var(--yellow);transition:width 1s ease;width:0%"></div></div>
-    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray);margin-top:6px;">
-      <span>Günlük Hedef: <strong id="dTarget" style="color:var(--yellow)">—</strong></span>
-      <span>Kalan Gün: <strong id="rDays" style="color:var(--yellow)">—</strong></span>
-      <span>Kalan Puan: <strong id="rPuan" style="color:var(--red)">—</strong></span>
-    </div>
-  </div>
   <div class="sh"><div class="st">MAĞAZA <em>PERFORMANS ÖZETİ</em></div></div>
   <div id="magazaOzet" style="margin-bottom:18px;"></div>
-  <div class="sh"><div class="st">ÇALIŞAN <em>PERFORMANSI</em></div></div>
-  <div class="eg" id="dashEg"></div>
 </div>
 
 <!-- GÜNLÜK TAKİP -->
@@ -354,7 +343,7 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
 
 <!-- ÇALIŞANLAR -->
 <div class="page" id="page-calisanlar">
-  <div class="ph"><div><div class="pt">ÇALIŞAN <span>YÖNETİMİ</span></div><div class="ps">5 aktif çalışan</div></div><button class="btn btn-p" onclick="openSaleModal()">+ Satış Ekle</button></div>
+  <div class="ph"><div><div class="pt">ÇALIŞAN <span>YÖNETİMİ</span></div><div class="ps">4 aktif çalışan</div></div><button class="btn btn-p" onclick="openSaleModal()">+ Satış Ekle</button></div>
   <div class="eg" id="allEg"></div>
   <div class="sh"><div class="st">TÜM <em>SATIŞLAR</em></div></div>
   <div class="tw"><table><thead><tr><th>Çalışan</th><th>Ürün</th><th>Tip</th><th>Adet</th><th>Puan</th><th>Prim</th><th>Açıklama</th><th>Tarih</th><th>İşlem</th></tr></thead><tbody id="allBody"></tbody></table></div>
@@ -716,15 +705,15 @@ const MONTHS=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağust
 const products=[
   {name:"SÜPERBOX",                    tip:"postpaid",puan:7,  prim:1256,manuel:false,hedef:2, zorunlu:false, yillikHedef:10},
   {name:"FİBER",                       tip:"postpaid",puan:5,  prim:1256,manuel:false,hedef:2, zorunlu:false, yillikHedef:12},
-  {name:"ORTAK ALTYAPI",               tip:"postpaid",puan:3.5,prim:628, manuel:false,hedef:2, zorunlu:false, yillikHedef:10},
+  {name:"ORTAK ALTYAPI",               tip:"postpaid",puan:3.5,prim:628, manuel:false,hedef:2, zorunlu:false, yillikHedef:10, hidden:true},
   {name:"FATURALI YENİ TESİS ve MNT",  tip:"postpaid",puan:4.5,prim:564, manuel:false,hedef:5, zorunlu:true,  yillikHedef:400},
   {name:"SWİTCH",                      tip:"postpaid",puan:2,  prim:294, manuel:false,hedef:3, zorunlu:true,  yillikHedef:133},
-  {name:"FATURALI DATA",               tip:"postpaid",puan:4.5,prim:338, manuel:false,hedef:4, zorunlu:false, yillikHedef:80},
+  {name:"FATURALI DATA",               tip:"postpaid",puan:4.5,prim:338, manuel:false,hedef:4, zorunlu:false, yillikHedef:80, hidden:true},
   {name:"ÖN ÖDEMELİ YENİ TESİS",      tip:"prepaid", puan:1,  prim:183, manuel:false,hedef:6, zorunlu:false, yillikHedef:200},
   {name:"ÖN ÖDEMELİ MNT",             tip:"prepaid", puan:1,  prim:254, manuel:false,hedef:5, zorunlu:false, yillikHedef:200},
-  {name:"TURKCELL RAHAT ve MNT",       tip:"prepaid", puan:1.5,prim:338, manuel:false,hedef:4, zorunlu:false, yillikHedef:50},
-  {name:"RAHATTAN FATURALIYA GEÇİŞ",   tip:"postpaid",puan:2,  prim:245, manuel:false,hedef:3, zorunlu:false, yillikHedef:40},
-  {name:"ÖN ÖDEMELİDEN RAHATA GEÇİŞ", tip:"prepaid", puan:1.5,prim:270, manuel:false,hedef:3, zorunlu:false, yillikHedef:30},
+  {name:"TURKCELL RAHAT ve MNT",       tip:"prepaid", puan:1.5,prim:338, manuel:false,hedef:4, zorunlu:false, yillikHedef:50, hidden:true},
+  {name:"RAHATTAN FATURALIYA GEÇİŞ",   tip:"postpaid",puan:2,  prim:245, manuel:false,hedef:3, zorunlu:false, yillikHedef:40, hidden:true},
+  {name:"ÖN ÖDEMELİDEN RAHATA GEÇİŞ", tip:"prepaid", puan:1.5,prim:270, manuel:false,hedef:3, zorunlu:false, yillikHedef:30, hidden:true},
   {name:"REKONTRATLAMA 1",             tip:"notr",    puan:0,  prim:370, manuel:false,hedef:5, zorunlu:true,  yillikHedef:80},
   {name:"REKONTRATLAMA 2",             tip:"notr",    puan:0,  prim:420, manuel:false,hedef:3, zorunlu:true,  yillikHedef:80},
   {name:"REKONTRATLAMA 3",             tip:"notr",    puan:0,  prim:500, manuel:false,hedef:2, zorunlu:true,  yillikHedef:60},
@@ -812,7 +801,7 @@ function getPuanPrim(puan){
 function getEmpZorunlu(ei,m=activeMonth,y=activeYear){
   const ms=getMonthSales(m,y).filter(s=>s.emp===ei);
   return products.map((p,pi)=>{
-    if(!p.zorunlu)return null;
+    if(!p.zorunlu||p.hidden)return null;
     let qty=0;ms.filter(s=>s.prod===pi).forEach(s=>qty+=s.qty);
     if(p.manuel){
       let tlK=0;ms.filter(s=>s.prod===pi).forEach(s=>tlK+=(s.manuel_prim||0)*s.qty);
@@ -984,21 +973,11 @@ function renderDashboard(){
   ob.textContent='%'+Math.round(pct);
   ob.className='badge '+(pct>=110?'bg':pct>=100?'bb':pct>=70?'by':'br');
   document.getElementById('k3c').textContent='Çarpan: ×'+carpan.toFixed(2);
-  const bar=document.getElementById('mainBar');
-  bar.style.width=Math.min(100,pct)+'%';
-  bar.style.background=pct>=110?'var(--green)':pct>=100?'var(--blue)':pct>=70?'var(--yellow)':'var(--red)';
-  document.getElementById('pLabel').textContent=fmt(tot.puan)+' / '+fmt(storeTarget)+' puan';
-  const eom=new Date(activeYear,activeMonth+1,0);
-  const rem=Math.max(1,Math.ceil((eom-new Date())/86400000));
-  document.getElementById('dTarget').textContent=fmt(Math.ceil(storeTarget/eom.getDate()))+' /gün';
-  document.getElementById('rDays').textContent=rem+' gün';
-  document.getElementById('rPuan').textContent=fmt(Math.max(0,storeTarget-tot.puan))+' puan';
-  ['cs1','cs2','cs3'].forEach(id=>document.getElementById(id).classList.remove('hi'));
-  ['cm1','cm2','cm3'].forEach(id=>document.getElementById(id).classList.remove('ac'));
-  if(pct>=110){document.getElementById('cs3').classList.add('hi');document.getElementById('cm3').classList.add('ac');}
-  else if(pct>=100){document.getElementById('cs2').classList.add('hi');document.getElementById('cm2').classList.add('ac');}
-  else if(pct>=70){document.getElementById('cs1').classList.add('hi');document.getElementById('cm1').classList.add('ac');}
-  renderEmpCards('dashEg');
+  ['cs1','cs2','cs3'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('hi');});
+  ['cm1','cm2','cm3'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('ac');});
+  if(pct>=110){const e=document.getElementById('cs3');if(e)e.classList.add('hi');const f=document.getElementById('cm3');if(f)f.classList.add('ac');}
+  else if(pct>=100){const e=document.getElementById('cs2');if(e)e.classList.add('hi');const f=document.getElementById('cm2');if(f)f.classList.add('ac');}
+  else if(pct>=70){const e=document.getElementById('cs1');if(e)e.classList.add('hi');const f=document.getElementById('cm1');if(f)f.classList.add('ac');}
   renderMagazaOzet();
 }
 
@@ -1026,10 +1005,10 @@ function renderMagazaOzet(){
   // Günlük ortalama ve gidişat
   const gunlukOrt=passedDays>0?Math.round(topAdet/passedDays*10)/10:0;
   const tahminiAySonu=Math.round(gunlukOrt*totalDays);
-  const hedefAdet=products.reduce((a,p)=>a+(p.hedef||0),0)*employees.length;
+  const hedefAdet=products.reduce((a,p)=>a+((p.hidden||p.manuel)?0:(p.hedef||0)),0)*employees.length;
 
   // Çalışan bazlı adet
-  const empAdetHedef=products.reduce((a,p)=>a+(p.manuel?0:(p.hedef||0)),0);
+  const empAdetHedef=products.reduce((a,p)=>a+((p.manuel||p.hidden)?0:(p.hedef||0)),0);
   const empRows=employees.map((emp,i)=>{
     let adet=0,faturali=0,prepaid=0,puan=0;
     ms.filter(s=>s.emp===i).forEach(s=>{
@@ -1072,7 +1051,7 @@ function renderMagazaOzet(){
   </div>
   <div class="tw">
     <table>
-      <thead><tr><th>Çalışan</th><th>Faturalı</th><th>Ön Ödemeli</th><th>Toplam</th><th>Hedef</th><th>Puan</th><th>Puan %</th><th>Adet %</th><th>Tahmini</th></tr></thead>
+      <thead><tr><th>Çalışan</th><th>Faturalı</th><th>Ön Ödemeli</th><th>Toplam</th><th>Hedef</th><th>Adet %</th><th>Tahmini</th></tr></thead>
       <tbody>
         ${empRows.map(r=>`<tr>
           <td><span style="font-weight:600;color:${r.emp.color}">${r.emp.name}</span></td>
@@ -1080,8 +1059,6 @@ function renderMagazaOzet(){
           <td><span class="tpr">${r.prepaid}</span></td>
           <td><strong>${r.adet}</strong></td>
           <td style="color:var(--gray)">${empAdetHedef}</td>
-          <td style="color:var(--yellow);font-weight:600">${fmt(r.puan)}</td>
-          <td><span class="badge ${r.oran>=100?'bg':r.oran>=70?'by':'br'}">%${r.oran}</span></td>
           <td><span class="badge ${r.adetOran>=100?'bg':r.adetOran>=70?'by':'br'}">%${r.adetOran}</span></td>
           <td style="color:${r.tahmini>=empAdetHedef?'var(--green)':'var(--red)'}">${r.tahmini} adet</td>
         </tr>`).join('')}
@@ -1091,8 +1068,6 @@ function renderMagazaOzet(){
           <td><span class="tpr">${topPrepaid}</span></td>
           <td><strong>${topAdet}</strong></td>
           <td style="color:var(--gray)">${empAdetHedef*employees.length}</td>
-          <td style="color:var(--yellow)">${fmt(ms.reduce((a,s)=>a+(products[s.prod]?.puan||0)*s.qty,0))}</td>
-          <td>—</td>
           <td>—</td>
           <td style="color:${tahminiAySonu>=hedefAdet?'var(--green)':'var(--red)'}">~${tahminiAySonu}</td>
         </tr>
@@ -1103,16 +1078,13 @@ function renderMagazaOzet(){
 
 function renderEmpCards(cid){
   const el=document.getElementById(cid);if(!el)return;el.innerHTML='';
-  const empTarget=Math.round(storeTarget/employees.length);
-  // Kişi başı toplam adet hedefi (tüm ürünlerin hedef toplamı)
-  const empAdetHedef=products.reduce((a,p)=>a+(p.manuel?0:(p.hedef||0)),0);
+  const empAdetHedef=products.reduce((a,p)=>a+((p.manuel||p.hidden)?0:(p.hedef||0)),0);
   employees.forEach((emp,i)=>{
     const st=getEmpStats(i);
     const hak=empPrimHak(i);
-    const oran=empTarget>0?Math.min(100,Math.round((st.puan/empTarget)*100)):0;
-    const fc=oran>=100?'var(--green)':oran>=70?'var(--yellow)':'var(--red)';
     const adetOran=empAdetHedef>0?Math.min(100,Math.round((st.adet/empAdetHedef)*100)):0;
     const adetFc=adetOran>=100?'var(--green)':adetOran>=70?'var(--yellow)':'var(--red)';
+    const empTarget=Math.round(storeTarget/employees.length);
     const bonus=hak.hak?calcBonus(st.totalPrim,st.puan,empTarget):0;
     el.innerHTML+=`
     <div class="ec">
@@ -1120,19 +1092,16 @@ function renderEmpCards(cid){
         <div class="av" style="background:${emp.color}">${emp.initials}</div>
         <div><div class="en">${emp.name}</div><div class="er">Satış Temsilcisi</div></div>
         <div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:3px">
-          <span class="badge ${oran>=100?'bg':oran>=70?'by':'br'}">%${oran}</span>
+          <span class="badge ${adetOran>=100?'bg':adetOran>=70?'by':'br'}">%${adetOran}</span>
           ${hak.muaf?'<span class="muaf-badge">Muaf</span>':hak.hak?'<span class="badge bg">✓ Prim Hak</span>':'<span class="badge br">✗ Eksik</span>'}
         </div>
       </div>
       <div class="es2">
-        <div class="esb"><div class="esv" style="color:${emp.color}">${fmt(st.puan)}</div><div class="esl">PUAN</div></div>
         <div class="esb"><div class="esv" style="color:var(--green)">${fmtTL(st.calisanPrim)}</div><div class="esl">ÇALIŞAN PRİMİ</div></div>
         <div class="esb"><div class="esv" style="color:var(--purple)">${bonus>0?fmtTL(bonus):'—'}</div><div class="esl">BONUS</div></div>
         <div class="esb"><div class="esv">${st.adet}<span style="font-size:11px;color:var(--gray)">/${empAdetHedef}</span></div><div class="esl">SATIŞ / HEDEF</div></div>
       </div>
       <div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray);margin-bottom:3px"><span>Puan Hedefi</span><span>${fmt(st.puan)} / ${fmt(empTarget)}</span></div>
-        <div style="background:rgba(0,0,0,0.07);border-radius:20px;height:4px;overflow:hidden;margin-bottom:6px;"><div style="width:${oran}%;background:${fc};height:4px;border-radius:20px"></div></div>
         <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray);margin-bottom:3px"><span>Adet Hedefi</span><span>${st.adet} / ${empAdetHedef} adet</span></div>
         <div style="background:rgba(0,0,0,0.07);border-radius:20px;height:4px;overflow:hidden;">
           <div style="width:${adetOran}%;background:${adetFc};height:4px;border-radius:20px"></div>
@@ -1177,8 +1146,7 @@ function renderEmpDetay(){
           <div style="font-size:10px;color:var(--gray)">Toplam Hakediş</div>
         </div>
       </div>
-      <div class="kg kg4" style="margin-bottom:14px;">
-        <div class="kc" style="--ac:var(--yellow);padding:12px"><div class="kl">PUAN</div><div class="kv" style="font-size:20px">${fmt(st.puan)}</div><div class="ks">/ ${fmt(empTarget)}</div></div>
+      <div class="kg kg3" style="margin-bottom:14px;">
         <div class="kc" style="--ac:var(--green);padding:12px"><div class="kl">ÇALIŞAN PRİMİ</div><div class="kv" style="font-size:20px;color:var(--green)">${hak.hak?fmtTL(st.calisanPrim):'—'}</div><div class="ks" style="color:var(--green)">Çalışanın kazancı</div></div>
         <div class="kc" style="--ac:var(--blue);padding:12px"><div class="kl">MAĞAZA KARI</div><div class="kv" style="font-size:20px;color:var(--blue)">${hak.hak?fmtTL(st.totalPrim-st.calisanPrim):'—'}</div><div class="ks">Bayi kazancı</div></div>
         <div class="kc" style="--ac:var(--purple);padding:12px"><div class="kl">BONUS</div><div class="kv" style="font-size:20px;color:var(--purple)">${bonus>0?fmtTL(bonus):'—'}</div></div>
@@ -1268,6 +1236,7 @@ function renderUrunler(){
   const tbody=document.getElementById('urunBody');if(!tbody)return;tbody.innerHTML='';
   const ms=getMonthSales();
   products.forEach((p,i)=>{
+    if(p.hidden)return;
     let qty=0;ms.filter(s=>s.prod===i).forEach(s=>qty+=s.qty);
     let oran=0;
     if(p.manuel){
@@ -1437,7 +1406,7 @@ function renderHedefler(){
   document.getElementById('bonusYuzde').value=bonusAyar.yuzde;
   document.getElementById('bonusAktif').value=bonusAyar.aktif?'1':'0';
   toggleBonus();
-  document.getElementById('hedefBody').innerHTML=products.map((p,i)=>`<tr>
+  document.getElementById('hedefBody').innerHTML=products.map((p,i)=>p.hidden?'':`<tr>
     <td>${p.name}${p.manuel?'<span style="font-size:9px;color:var(--blue);margin-left:4px">M</span>':''}</td>
     <td>${tipLabel(p.tip)}</td>
     <td><label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="hz_${i}" ${p.zorunlu?'checked':''}><span style="font-size:11px;color:${p.zorunlu?'var(--red)':'var(--gray)'}">Zorunlu</span></label></td>
@@ -1473,7 +1442,7 @@ function renderHedefTakvim(){
     const tahmini=Math.round(gunlukOrt*totalDays);
     const tahminiOran=hedef>0?Math.min(150,Math.round(tahmini/hedef*100)):0;
     return{p,qty,tlK,hedef,gercek,oran,tahmini,tahminiOran};
-  }).filter(d=>d.hedef>0||d.gercek>0);
+  }).filter(d=>(d.hedef>0||d.gercek>0)&&!d.p.hidden);
 
   el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
   ${urunData.map(d=>{
@@ -1837,7 +1806,7 @@ function renderMuafiyet(){
 function openSaleModal(editId=''){
   document.getElementById('editId').value=editId;
   document.getElementById('sEmp').innerHTML=employees.map((e,i)=>`<option value="${i}">${e.name}</option>`).join('');
-  document.getElementById('sProd').innerHTML=products.map((p,i)=>`<option value="${i}">${p.name} (${tipName(p.tip)})</option>`).join('');
+  document.getElementById('sProd').innerHTML=products.map((p,i)=>p.hidden?'':`<option value="${i}">${p.name} (${tipName(p.tip)})</option>`).join('');
   if(editId){
     const s=sales.find(x=>x.id===editId);
     document.getElementById('sModalTitle').textContent='DÜZENLE';
