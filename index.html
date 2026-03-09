@@ -242,7 +242,7 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
       <div class="login-title">ELFİN İLETİŞİM</div>
     </div>
     <div class="login-sub">Hedef & Prim Takip Sistemi</div>
-    <div style="font-size:9px;color:var(--gray);margin-bottom:20px;letter-spacing:1px">v2.0 — Opus Edition</div>
+    <div style="font-size:9px;color:var(--gray);margin-bottom:20px;letter-spacing:1px">v2.1 — Opus Edition + CRM</div>
     <label class="login-label">ŞİFRE</label>
     <input class="login-input" type="password" id="loginPass" placeholder="••••••">
     <button class="login-btn" id="loginBtn">🔐 Giriş Yap</button>
@@ -292,6 +292,11 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
     <div class="ni" onclick="sp('yillik',this)"><span class="ni-ic">📆</span>12 Aylık Plan</div>
     <div class="ni" onclick="sp('muafiyet',this)"><span class="ni-ic">🛡️</span>Muafiyet Yönet</div>
     <div class="ni" onclick="openSaleModal()"><span class="ni-ic">➕</span>Satış Ekle</div>
+    <div class="ns">MÜŞTERİ TAKİP</div>
+    <div class="ni" onclick="sp('crmboard',this)"><span class="ni-ic">📞</span>Bugün Ara<span id="crmBadge" style="margin-left:auto;background:var(--red);color:#fff;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:700;display:none">0</span></div>
+    <div class="ni" onclick="sp('crmlist',this)"><span class="ni-ic">📋</span>Tüm Müşteriler</div>
+    <div class="ni" onclick="sp('crmrapor',this)"><span class="ni-ic">📊</span>Arama Raporu</div>
+    <div class="ni" onclick="openCrmUpload()"><span class="ni-ic">📥</span>Excel Yükle</div>
   </nav>
 </div>
 
@@ -533,7 +538,118 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
   <div id="atSonucBox"></div>
 </div>
 
+<!-- ============ MÜŞTERİ TAKİP: BUGÜN ARA ============ -->
+<div class="page" id="page-crmboard">
+  <div class="ph">
+    <div><div class="pt">BUGÜN <span>ARANACAKLAR</span></div><div class="ps" id="crmBoardPs">Bugün aranması gereken müşteriler</div></div>
+    <div style="display:flex;gap:7px;">
+      <button class="btn btn-g" onclick="openCrmAddModal()">+ Müşteri Ekle</button>
+      <button class="btn btn-p" onclick="openCrmUpload()">📥 Excel Yükle</button>
+    </div>
+  </div>
+  <div class="kg kg4" id="crmSummaryCards"></div>
+  <div id="crmTodayList"></div>
+  <div id="crmUpcomingList" style="margin-top:18px;"></div>
 </div>
+
+<!-- ============ MÜŞTERİ TAKİP: TÜM MÜŞTERİLER ============ -->
+<div class="page" id="page-crmlist">
+  <div class="ph">
+    <div><div class="pt">TÜM <span>MÜŞTERİLER</span></div><div class="ps">Kayıtlı müşteri listesi ve durumları</div></div>
+    <div style="display:flex;gap:7px;">
+      <button class="btn btn-g" onclick="openCrmAddModal()">+ Müşteri Ekle</button>
+      <select class="month-sel" id="crmGrupFilter" onchange="renderCrmList()" style="width:180px;padding:6px 9px;">
+        <option value="0">Tüm Gruplar</option>
+        <option value="1">Grup 1 — Postpaid 1 Yıl</option>
+        <option value="2">Grup 2 — Prepaid MNT</option>
+        <option value="3">Grup 3 — Prepaid Yeni Tesis</option>
+        <option value="4">Grup 4 — Yapboz 6 Ay</option>
+      </select>
+    </div>
+  </div>
+  <div class="tw"><table><thead><tr><th>Müşteri</th><th>Telefon</th><th>Grup</th><th>Taahhüt Bitiş</th><th>Hatırlatma</th><th>Durum</th><th>Sonuç</th><th>Son Arama</th><th>İşlem</th></tr></thead><tbody id="crmListBody"></tbody></table></div>
+</div>
+
+<!-- ============ MÜŞTERİ TAKİP: ARAMA RAPORU ============ -->
+<div class="page" id="page-crmrapor">
+  <div class="ph">
+    <div><div class="pt">ARAMA <span>RAPORU</span></div><div class="ps">Haftalık ve aylık arama istatistikleri</div></div>
+  </div>
+  <div class="kg kg4" id="crmRaporCards"></div>
+  <div class="sh"><div class="st">SON <em>ARAMA KAYITLARI</em></div></div>
+  <div class="tw"><table><thead><tr><th>Müşteri</th><th>Tarih</th><th>Durum</th><th>Sonuç</th><th>Not</th><th>Arayan</th></tr></thead><tbody id="crmRaporBody"></tbody></table></div>
+</div>
+
+<!-- CRM MÜŞTERİ EKLE/DÜZENLE MODAL -->
+<div class="ov" id="crmAddOv">
+  <div class="modal">
+    <h2>MÜŞTERİ <em id="crmAddTitle">EKLE</em></h2>
+    <div class="msub">Yeni müşteri kaydı</div>
+    <input type="hidden" id="crmEditId" value="">
+    <div class="fr">
+      <div class="fg"><label>MÜŞTERİ ADI</label><input type="text" id="crmAd" placeholder="Ad Soyad / Şirket"></div>
+      <div class="fg"><label>TELEFON</label><input type="tel" id="crmTel" placeholder="0532 XXX XX XX"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>GRUP</label><select id="crmGrup">
+        <option value="1">Grup 1 — Postpaid (1 Yıl Taahhüt)</option>
+        <option value="2">Grup 2 — Prepaid MNT</option>
+        <option value="3">Grup 3 — Prepaid Yeni Tesis</option>
+        <option value="4">Grup 4 — Yapboz Paket (6 Ay)</option>
+      </select></div>
+      <div class="fg"><label>PAKET / TARİFE</label><input type="text" id="crmPaket" placeholder="Paket adı"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>TAAHHÜT BAŞLANGIÇ</label><input type="date" id="crmBaslangic"></div>
+      <div class="fg"><label>TAAHHÜT BİTİŞ / AKTİVASYON</label><input type="date" id="crmBitis"></div>
+    </div>
+    <div class="fg"><label>E-POSTA</label><input type="email" id="crmEposta" placeholder="ornek@mail.com"></div>
+    <div class="mf"><button class="btn btn-g" onclick="closeCrmAddModal()">İptal</button><button class="btn btn-p" onclick="saveCrmMusteri()">✓ Kaydet</button></div>
+  </div>
+</div>
+
+<!-- CRM ARAMA MODAL -->
+<div class="ov" id="crmCallOv">
+  <div class="modal">
+    <h2>ARAMA <em>KAYDI</em></h2>
+    <div class="msub" id="crmCallSub">Müşteri arama sonucu girin</div>
+    <input type="hidden" id="crmCallMusteriId" value="">
+    <div class="fg"><label>DURUM</label><select id="crmCallDurum">
+      <option value="arandi">✓ Arandı — Ulaşıldı</option>
+      <option value="ulasilamadi">✗ Ulaşılamadı</option>
+      <option value="mesgul">📞 Meşgul / Daha Sonra</option>
+    </select></div>
+    <div class="fg"><label>SONUÇ</label><select id="crmCallSonuc">
+      <option value="">— Henüz sonuç yok —</option>
+      <option value="taahhut_yenilendi">✅ Taahhüt Yenilendi</option>
+      <option value="postpaide_gecti">✅ Postpaid'e Geçti</option>
+      <option value="dusunuyor">⏳ Düşünüyor</option>
+      <option value="reddetti">❌ Reddetti</option>
+      <option value="iptal_etti">❌ İptal Etti</option>
+      <option value="numara_yanlis">⚠️ Numara Yanlış</option>
+    </select></div>
+    <div class="fg"><label>NOT</label><textarea id="crmCallNot" placeholder="Görüşme detayları, randevu tarihi, vb..."></textarea></div>
+    <div class="mf"><button class="btn btn-g" onclick="closeCrmCallModal()">İptal</button><button class="btn btn-p" onclick="saveCrmCall()">✓ Kaydet</button></div>
+  </div>
+</div>
+
+<!-- CRM EXCEL YÜKLEME MODAL -->
+<div class="ov" id="crmUploadOv">
+  <div class="modal">
+    <h2>EXCEL <em>YÜKLE</em></h2>
+    <div class="msub">Müşteri listesini Excel'den içe aktar</div>
+    <div class="info-box">
+      <strong>📋 Format:</strong> Excel dosyanızda şu sütunlar olmalı:<br>
+      <strong>A:</strong> Müşteri Adı &nbsp;|&nbsp; <strong>B:</strong> Telefon &nbsp;|&nbsp; <strong>C:</strong> Grup (1-4) &nbsp;|&nbsp; <strong>D:</strong> Paket<br>
+      <strong>E:</strong> Taahhüt Başlangıç &nbsp;|&nbsp; <strong>F:</strong> Taahhüt Bitiş / Aktivasyon Tarihi &nbsp;|&nbsp; <strong>G:</strong> E-posta (opsiyonel)
+    </div>
+    <div class="fg">
+      <label>DOSYA SEÇ</label>
+      <input type="file" id="crmFile" accept=".xlsx,.xls,.csv" style="background:#f7f8fa;border:1px solid var(--border);border-radius:8px;padding:10px;width:100%;font-family:'Outfit';cursor:pointer;">
+    </div>
+    <div id="crmUploadPreview" style="display:none;margin-top:12px;"></div>
+    <div class="mf"><button class="btn btn-g" onclick="closeCrmUpload()">İptal</button><button class="btn btn-p" id="crmUploadBtn" onclick="processCrmUpload()" disabled>📥 İçe Aktar</button></div>
+  </div>
 </div>
 
 <!-- SATIŞ MODAL -->
@@ -803,6 +919,8 @@ async function loadAll(){
     showToast('Veri yükleme hatası: '+e.message,true);
   }finally{
     showLoading(false);
+    await loadCrmData();
+    initCrmNotifications();
     renderDashboard();
   }
 }
@@ -1946,6 +2064,457 @@ function renderAktivasyonTesvık(){
 }
 
 // ============================================================
+// MÜŞTERİ TAKİP (CRM) SİSTEMİ
+// ============================================================
+let crmMusteriler=[];
+let crmAramalar=[];
+const CRM_GRUP_LABELS={1:'Postpaid 1 Yıl',2:'Prepaid MNT',3:'Prepaid Yeni Tesis',4:'Yapboz 6 Ay'};
+const CRM_GRUP_COLORS={1:'var(--postpaid)',2:'var(--prepaid)',3:'var(--purple)',4:'var(--yellow)'};
+const CRM_DURUM_LABELS={arandi:'✓ Arandı',ulasilamadi:'✗ Ulaşılamadı',mesgul:'📞 Meşgul'};
+const CRM_SONUC_LABELS={taahhut_yenilendi:'✅ Taahhüt Yenilendi',postpaide_gecti:'✅ Postpaid\'e Geçti',dusunuyor:'⏳ Düşünüyor',reddetti:'❌ Reddetti',iptal_etti:'❌ İptal Etti',numara_yanlis:'⚠️ Numara Yanlış'};
+
+function calcHatirlatma(m){
+  const g=parseInt(m.grup);
+  const dates=[];
+  if(g===1&&m.taahhut_bitis){
+    const b=new Date(m.taahhut_bitis);
+    const d30=new Date(b);d30.setDate(d30.getDate()-30);dates.push(d30);
+    const d7=new Date(b);d7.setDate(d7.getDate()-7);dates.push(d7);
+  } else if(g===2&&m.aktivasyon_tarihi){
+    const a=new Date(m.aktivasyon_tarihi);
+    const d38=new Date(a);d38.setDate(d38.getDate()+38);dates.push(d38);
+    const d45=new Date(a);d45.setDate(d45.getDate()+45);dates.push(d45);
+    const d83=new Date(a);d83.setDate(d83.getDate()+83);dates.push(d83);
+    const d90=new Date(a);d90.setDate(d90.getDate()+90);dates.push(d90);
+  } else if(g===3&&(m.aktivasyon_tarihi||m.taahhut_bitis)){
+    const t=new Date(m.aktivasyon_tarihi||m.taahhut_bitis);
+    const d83=new Date(t);d83.setDate(d83.getDate()+83);dates.push(d83);
+    const d90=new Date(t);d90.setDate(d90.getDate()+90);dates.push(d90);
+  } else if(g===4&&m.taahhut_bitis){
+    const b=new Date(m.taahhut_bitis);
+    const d30=new Date(b);d30.setDate(d30.getDate()-30);dates.push(d30);
+    const d7=new Date(b);d7.setDate(d7.getDate()-7);dates.push(d7);
+  }
+  return dates.sort((a,b)=>a-b);
+}
+
+function getTodayCrmList(){
+  const today=new Date().toISOString().split('T')[0];
+  const todayD=new Date(today);
+  return crmMusteriler.filter(m=>{
+    if(m.sonuc==='taahhut_yenilendi'||m.sonuc==='postpaide_gecti')return false;
+    const dates=calcHatirlatma(m);
+    return dates.some(d=>{
+      const ds=d.toISOString().split('T')[0];
+      return ds<=today;
+    });
+  }).sort((a,b)=>{
+    const da=calcHatirlatma(a)[0]||new Date('2099-01-01');
+    const db=calcHatirlatma(b)[0]||new Date('2099-01-01');
+    return da-db;
+  });
+}
+
+function getUpcomingCrmList(){
+  const today=new Date().toISOString().split('T')[0];
+  const next7=new Date();next7.setDate(next7.getDate()+7);
+  const next7s=next7.toISOString().split('T')[0];
+  return crmMusteriler.filter(m=>{
+    if(m.sonuc==='taahhut_yenilendi'||m.sonuc==='postpaide_gecti')return false;
+    const dates=calcHatirlatma(m);
+    return dates.some(d=>{
+      const ds=d.toISOString().split('T')[0];
+      return ds>today&&ds<=next7s;
+    });
+  });
+}
+
+function getMusteriSonArama(mid){
+  const aramalar=crmAramalar.filter(a=>a.musteri_id===mid);
+  return aramalar.length>0?aramalar[0]:null;
+}
+
+function getDayLabel(ds){
+  const today=new Date().toISOString().split('T')[0];
+  if(ds===today)return 'Bugün';
+  const d=new Date(ds);const t=new Date(today);
+  const diff=Math.round((t-d)/86400000);
+  if(diff===1)return 'Dün';
+  if(diff>1)return diff+' gün gecikmiş';
+  if(diff===-1)return 'Yarın';
+  return Math.abs(diff)+' gün sonra';
+}
+
+// CRM CRUD
+async function loadCrmData(){
+  try{
+    const[{data:md},{data:ad}]=await Promise.all([
+      sb.from('musteriler').select('*').order('created_at',{ascending:false}),
+      sb.from('arama_kayitlari').select('*').order('tarih',{ascending:false}),
+    ]);
+    crmMusteriler=md||[];
+    crmAramalar=ad||[];
+    updateCrmBadge();
+  }catch(e){console.error('CRM yükleme hatası:',e);}
+}
+
+function updateCrmBadge(){
+  const badge=document.getElementById('crmBadge');
+  if(!badge)return;
+  const count=getTodayCrmList().length;
+  badge.textContent=count;
+  badge.style.display=count>0?'inline-block':'none';
+  if(count>0&&Notification.permission==='granted'){
+    // Bildirim sesi yalnızca ilk yüklemede
+  }
+}
+
+async function saveCrmMusteri(){
+  const editId=document.getElementById('crmEditId').value;
+  const grup=parseInt(document.getElementById('crmGrup').value);
+  const bitis=document.getElementById('crmBitis').value;
+  const baslangic=document.getElementById('crmBaslangic').value;
+  const obj={
+    ad:document.getElementById('crmAd').value.trim(),
+    telefon:document.getElementById('crmTel').value.trim(),
+    grup:grup,
+    paket:document.getElementById('crmPaket').value.trim(),
+    eposta:document.getElementById('crmEposta').value.trim(),
+    taahhut_baslangic:baslangic||null,
+    taahhut_bitis:(grup===1||grup===4)?bitis||null:null,
+    aktivasyon_tarihi:(grup===2||grup===3)?bitis||null:null,
+    durum:'aktif',
+    updated_at:new Date().toISOString()
+  };
+  if(!obj.ad){showToast('Müşteri adı gerekli!',true);return;}
+  // Hatırlatma tarihlerini hesapla
+  const tempM={...obj};
+  const hDates=calcHatirlatma(tempM);
+  if(hDates.length>=1)obj.hatirlatma_gun1=hDates[0].toISOString().split('T')[0];
+  if(hDates.length>=2)obj.hatirlatma_gun2=hDates[1].toISOString().split('T')[0];
+  try{
+    if(editId){
+      const{error}=await sb.from('musteriler').update(obj).eq('id',editId);
+      if(error)throw error;
+      const idx=crmMusteriler.findIndex(m=>m.id===editId);
+      if(idx>=0)crmMusteriler[idx]={...crmMusteriler[idx],...obj};
+      showToast('✓ Müşteri güncellendi!');
+    }else{
+      const{data,error}=await sb.from('musteriler').insert([obj]).select().single();
+      if(error)throw error;
+      crmMusteriler.unshift(data);
+      showToast('✓ Müşteri eklendi!');
+    }
+    closeCrmAddModal();updateCrmBadge();refreshAll();
+  }catch(e){showToast('Hata: '+e.message,true);}
+}
+
+async function deleteCrmMusteri(id){
+  if(!confirm('Bu müşteriyi silmek istiyor musunuz?'))return;
+  try{
+    const{error}=await sb.from('musteriler').delete().eq('id',id);
+    if(error)throw error;
+    crmMusteriler=crmMusteriler.filter(m=>m.id!==id);
+    showToast('Müşteri silindi');updateCrmBadge();refreshAll();
+  }catch(e){showToast('Hata: '+e.message,true);}
+}
+
+async function saveCrmCall(){
+  const mid=document.getElementById('crmCallMusteriId').value;
+  const durum=document.getElementById('crmCallDurum').value;
+  const sonuc=document.getElementById('crmCallSonuc').value;
+  const notText=document.getElementById('crmCallNot').value.trim();
+  const obj={musteri_id:mid,durum,sonuc,not_text:notText,arayan:'',tarih:new Date().toISOString()};
+  try{
+    const{data,error}=await sb.from('arama_kayitlari').insert([obj]).select().single();
+    if(error)throw error;
+    crmAramalar.unshift(data);
+    // Müşteri sonucunu güncelle
+    if(sonuc){
+      await sb.from('musteriler').update({sonuc,updated_at:new Date().toISOString()}).eq('id',mid);
+      const idx=crmMusteriler.findIndex(m=>m.id===mid);
+      if(idx>=0)crmMusteriler[idx].sonuc=sonuc;
+    }
+    closeCrmCallModal();showToast('✓ Arama kaydedildi!');updateCrmBadge();refreshAll();
+  }catch(e){showToast('Hata: '+e.message,true);}
+}
+
+// CRM MODALS
+function openCrmAddModal(editId=''){
+  document.getElementById('crmEditId').value=editId;
+  if(editId){
+    const m=crmMusteriler.find(x=>x.id===editId);
+    document.getElementById('crmAddTitle').textContent='DÜZENLE';
+    document.getElementById('crmAd').value=m.ad||'';
+    document.getElementById('crmTel').value=m.telefon||'';
+    document.getElementById('crmGrup').value=m.grup||1;
+    document.getElementById('crmPaket').value=m.paket||'';
+    document.getElementById('crmEposta').value=m.eposta||'';
+    document.getElementById('crmBaslangic').value=m.taahhut_baslangic||'';
+    document.getElementById('crmBitis').value=m.taahhut_bitis||m.aktivasyon_tarihi||'';
+  }else{
+    document.getElementById('crmAddTitle').textContent='EKLE';
+    ['crmAd','crmTel','crmPaket','crmEposta','crmBaslangic','crmBitis'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('crmGrup').value='1';
+  }
+  document.getElementById('crmAddOv').classList.add('open');
+}
+function closeCrmAddModal(){document.getElementById('crmAddOv').classList.remove('open');}
+
+function openCrmCallModal(mid){
+  const m=crmMusteriler.find(x=>x.id===mid);
+  document.getElementById('crmCallMusteriId').value=mid;
+  document.getElementById('crmCallSub').textContent=m?m.ad+' — '+m.telefon:'';
+  document.getElementById('crmCallDurum').value='arandi';
+  document.getElementById('crmCallSonuc').value='';
+  document.getElementById('crmCallNot').value='';
+  document.getElementById('crmCallOv').classList.add('open');
+}
+function closeCrmCallModal(){document.getElementById('crmCallOv').classList.remove('open');}
+
+function openCrmUpload(){document.getElementById('crmUploadOv').classList.add('open');document.getElementById('crmFile').value='';document.getElementById('crmUploadPreview').style.display='none';document.getElementById('crmUploadBtn').disabled=true;}
+function closeCrmUpload(){document.getElementById('crmUploadOv').classList.remove('open');}
+
+// Excel yükleme
+document.addEventListener('DOMContentLoaded',function(){
+  const fi=document.getElementById('crmFile');
+  if(fi)fi.addEventListener('change',async function(){
+    const file=this.files[0];if(!file)return;
+    const prev=document.getElementById('crmUploadPreview');
+    const btn=document.getElementById('crmUploadBtn');
+    try{
+      let rows=[];
+      if(file.name.endsWith('.csv')){
+        const txt=await file.text();
+        rows=txt.split('\n').filter(r=>r.trim()).map(r=>r.split(/[,;\t]/).map(c=>c.trim().replace(/^"|"$/g,'')));
+      }else{
+        const XLSX=await import('https://cdn.sheetjs.com/xlsx-0.20.1/package/xlsx.mjs');
+        const ab=await file.arrayBuffer();
+        const wb=XLSX.read(ab);
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        rows=XLSX.utils.sheet_to_json(ws,{header:1});
+      }
+      // İlk satır başlık, atla
+      const dataRows=rows.slice(1).filter(r=>r[0]&&String(r[0]).trim());
+      prev.style.display='block';
+      prev.innerHTML=`<div style="background:#f7f8fa;border-radius:8px;padding:10px;font-size:12px;color:var(--gray)">
+        <strong style="color:var(--green)">${dataRows.length} müşteri</strong> bulundu. İçe aktarmak için butona basın.
+      </div>`;
+      btn.disabled=false;
+      window._crmUploadData=dataRows;
+    }catch(e){
+      prev.style.display='block';
+      prev.innerHTML=`<div style="color:var(--red);font-size:12px">Dosya okunamadı: ${e.message}</div>`;
+      btn.disabled=true;
+    }
+  });
+});
+
+async function processCrmUpload(){
+  const rows=window._crmUploadData;
+  if(!rows||!rows.length){showToast('Yüklenecek veri yok!',true);return;}
+  showLoading(true);
+  let ok=0,fail=0;
+  for(const r of rows){
+    const grup=parseInt(r[2])||1;
+    const bitis=r[5]?parseExcelDate(r[5]):null;
+    const baslangic=r[4]?parseExcelDate(r[4]):null;
+    const obj={
+      ad:String(r[0]||'').trim(),
+      telefon:String(r[1]||'').trim(),
+      grup,
+      paket:String(r[3]||'').trim(),
+      taahhut_baslangic:baslangic,
+      taahhut_bitis:(grup===1||grup===4)?bitis:null,
+      aktivasyon_tarihi:(grup===2||grup===3)?bitis:null,
+      eposta:String(r[6]||'').trim(),
+      durum:'aktif',sonuc:'bekliyor'
+    };
+    const hDates=calcHatirlatma(obj);
+    if(hDates.length>=1)obj.hatirlatma_gun1=hDates[0].toISOString().split('T')[0];
+    if(hDates.length>=2)obj.hatirlatma_gun2=hDates[1].toISOString().split('T')[0];
+    try{
+      const{data,error}=await sb.from('musteriler').insert([obj]).select().single();
+      if(error)throw error;
+      crmMusteriler.unshift(data);ok++;
+    }catch(e){fail++;console.error(e);}
+  }
+  showLoading(false);
+  closeCrmUpload();
+  showToast(`✓ ${ok} müşteri eklendi${fail>0?' ('+fail+' hata)':''}`);
+  updateCrmBadge();refreshAll();
+}
+
+function parseExcelDate(val){
+  if(!val)return null;
+  if(typeof val==='number'){
+    const d=new Date((val-25569)*86400000);
+    return d.toISOString().split('T')[0];
+  }
+  const s=String(val).trim();
+  // GG.AA.YYYY
+  const m1=s.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
+  if(m1)return `${m1[3]}-${m1[2].padStart(2,'0')}-${m1[1].padStart(2,'0')}`;
+  // YYYY-MM-DD
+  const m2=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(m2)return s;
+  return s;
+}
+
+// CRM RENDER
+function renderCrmBoard(){
+  const todayList=getTodayCrmList();
+  const upcoming=getUpcomingCrmList();
+  const today=new Date().toISOString().split('T')[0];
+  const totalM=crmMusteriler.length;
+  const arandiCount=crmAramalar.filter(a=>a.tarih&&a.tarih.startsWith(today)).length;
+  const basarili=crmMusteriler.filter(m=>m.sonuc==='taahhut_yenilendi'||m.sonuc==='postpaide_gecti').length;
+
+  document.getElementById('crmBoardPs').textContent=todayList.length>0?todayList.length+' müşteri aranacak':'Bugün aranacak müşteri yok';
+  document.getElementById('crmSummaryCards').innerHTML=`
+    <div class="kc" style="--ac:var(--red)"><div class="kl">BUGÜN ARANACAK</div><div class="kv" style="color:var(--red)">${todayList.length}</div><div class="ks">Acil + Gecikmiş</div></div>
+    <div class="kc" style="--ac:var(--yellow)"><div class="kl">YAKIN 7 GÜN</div><div class="kv" style="color:var(--yellow)">${upcoming.length}</div><div class="ks">Yaklaşan</div></div>
+    <div class="kc" style="--ac:var(--blue)"><div class="kl">BUGÜN ARANDI</div><div class="kv" style="color:var(--blue)">${arandiCount}</div><div class="ks">Bugün yapılan</div></div>
+    <div class="kc" style="--ac:var(--green)"><div class="kl">BAŞARILI</div><div class="kv" style="color:var(--green)">${basarili}</div><div class="ks">Yenileme / Geçiş</div></div>`;
+
+  // Bugün aranacaklar
+  let tHtml='';
+  if(todayList.length===0){
+    tHtml='<div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:30px;text-align:center;color:var(--gray)">🎉 Bugün aranacak müşteri yok!</div>';
+  }else{
+    tHtml='<div class="sh"><div class="st" style="color:var(--red)">🔴 BUGÜN <em>ARANACAKLAR</em></div></div>';
+    todayList.forEach(m=>{
+      const son=getMusteriSonArama(m.id);
+      const dates=calcHatirlatma(m);
+      const nextDate=dates.find(d=>d.toISOString().split('T')[0]<=today);
+      const label=nextDate?getDayLabel(nextDate.toISOString().split('T')[0]):'';
+      const gecikmi=nextDate&&nextDate.toISOString().split('T')[0]<today;
+      tHtml+=`<div style="background:#fff;border-radius:12px;border:1px solid ${gecikmi?'rgba(230,57,70,0.3)':'var(--border)'};padding:14px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div style="flex:0 0 8px;height:8px;border-radius:50%;background:${CRM_GRUP_COLORS[m.grup]||'var(--gray)'}"></div>
+        <div style="flex:1;min-width:150px;">
+          <div style="font-weight:600;font-size:13px;color:#1a1a2e">${m.ad}</div>
+          <div style="font-size:11px;color:var(--gray)">${m.telefon||'—'} &nbsp;·&nbsp; ${CRM_GRUP_LABELS[m.grup]||'—'} &nbsp;·&nbsp; ${m.paket||''}</div>
+        </div>
+        <div style="text-align:center;min-width:80px;">
+          <div style="font-size:10px;color:${gecikmi?'var(--red)':'var(--yellow)'}; font-weight:600">${label}</div>
+          ${son?`<div style="font-size:9px;color:var(--gray);margin-top:2px">Son: ${CRM_DURUM_LABELS[son.durum]||son.durum}</div>`:''}
+        </div>
+        <div style="display:flex;gap:5px;">
+          <button class="btn btn-p bsm" onclick="openCrmCallModal('${m.id}')">📞 Ara</button>
+          <button class="btn btn-e bsm" onclick="openCrmAddModal('${m.id}')">✏️</button>
+        </div>
+      </div>`;
+    });
+  }
+  document.getElementById('crmTodayList').innerHTML=tHtml;
+
+  // Yaklaşan 7 gün
+  let uHtml='';
+  if(upcoming.length>0){
+    uHtml='<div class="sh"><div class="st" style="color:var(--yellow)">🟡 YAKIN 7 GÜN <em>İÇİNDE</em></div></div>';
+    upcoming.forEach(m=>{
+      const dates=calcHatirlatma(m);
+      const nextDate=dates.find(d=>d.toISOString().split('T')[0]>today);
+      const label=nextDate?getDayLabel(nextDate.toISOString().split('T')[0]):'';
+      uHtml+=`<div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:12px;margin-bottom:6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;opacity:0.85;">
+        <div style="flex:0 0 8px;height:8px;border-radius:50%;background:${CRM_GRUP_COLORS[m.grup]||'var(--gray)'}"></div>
+        <div style="flex:1;min-width:150px;">
+          <div style="font-weight:600;font-size:12px;color:#555">${m.ad}</div>
+          <div style="font-size:10px;color:var(--gray)">${m.telefon||'—'} &nbsp;·&nbsp; ${CRM_GRUP_LABELS[m.grup]||'—'}</div>
+        </div>
+        <div style="font-size:10px;color:var(--yellow);font-weight:600">${label}</div>
+      </div>`;
+    });
+  }
+  document.getElementById('crmUpcomingList').innerHTML=uHtml;
+}
+
+function renderCrmList(){
+  const tbody=document.getElementById('crmListBody');if(!tbody)return;tbody.innerHTML='';
+  const filter=parseInt(document.getElementById('crmGrupFilter')?.value||0);
+  const list=filter>0?crmMusteriler.filter(m=>m.grup===filter):crmMusteriler;
+  if(!list.length){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--gray);padding:20px">Henüz müşteri kaydı yok</td></tr>';return;}
+  list.forEach(m=>{
+    const son=getMusteriSonArama(m.id);
+    const dates=calcHatirlatma(m);
+    const nextD=dates.length>0?dates[0].toISOString().split('T')[0]:'—';
+    const sonucLabel=CRM_SONUC_LABELS[m.sonuc]||m.sonuc||'Bekliyor';
+    const sonucColor=m.sonuc==='taahhut_yenilendi'||m.sonuc==='postpaide_gecti'?'var(--green)':m.sonuc==='reddetti'||m.sonuc==='iptal_etti'?'var(--red)':'var(--gray)';
+    tbody.innerHTML+=`<tr>
+      <td style="font-weight:600">${m.ad}</td>
+      <td>${m.telefon||'—'}</td>
+      <td><span style="color:${CRM_GRUP_COLORS[m.grup]};font-weight:600;font-size:11px">${CRM_GRUP_LABELS[m.grup]||m.grup}</span></td>
+      <td style="font-size:11px">${m.taahhut_bitis||m.aktivasyon_tarihi||'—'}</td>
+      <td style="font-size:11px">${nextD}</td>
+      <td style="font-size:11px">${m.durum||'aktif'}</td>
+      <td style="color:${sonucColor};font-size:11px;font-weight:600">${sonucLabel}</td>
+      <td style="font-size:10px;color:var(--gray)">${son?new Date(son.tarih).toLocaleDateString('tr-TR'):'—'}</td>
+      <td><div style="display:flex;gap:4px">
+        <button class="btn btn-p bsm" onclick="openCrmCallModal('${m.id}')">📞</button>
+        <button class="btn btn-e bsm" onclick="openCrmAddModal('${m.id}')">✏️</button>
+        <button class="btn btn-d bsm" onclick="deleteCrmMusteri('${m.id}')">🗑️</button>
+      </div></td>
+    </tr>`;
+  });
+}
+
+function renderCrmRapor(){
+  const today=new Date();
+  const todayS=today.toISOString().split('T')[0];
+  const week=new Date(today);week.setDate(week.getDate()-7);
+  const weekS=week.toISOString().split('T')[0];
+  const monthStart=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-01`;
+
+  const bugunArama=crmAramalar.filter(a=>a.tarih&&a.tarih.startsWith(todayS)).length;
+  const haftaArama=crmAramalar.filter(a=>a.tarih&&a.tarih.split('T')[0]>=weekS).length;
+  const ayArama=crmAramalar.filter(a=>a.tarih&&a.tarih.split('T')[0]>=monthStart).length;
+  const ulasilan=crmAramalar.filter(a=>a.tarih&&a.tarih.split('T')[0]>=monthStart&&a.durum==='arandi').length;
+  const ulasilamayan=crmAramalar.filter(a=>a.tarih&&a.tarih.split('T')[0]>=monthStart&&(a.durum==='ulasilamadi'||a.durum==='mesgul')).length;
+
+  document.getElementById('crmRaporCards').innerHTML=`
+    <div class="kc" style="--ac:var(--blue)"><div class="kl">BUGÜN</div><div class="kv" style="color:var(--blue)">${bugunArama}</div><div class="ks">arama yapıldı</div></div>
+    <div class="kc" style="--ac:var(--yellow)"><div class="kl">BU HAFTA</div><div class="kv" style="color:var(--yellow)">${haftaArama}</div><div class="ks">son 7 gün</div></div>
+    <div class="kc" style="--ac:var(--green)"><div class="kl">BU AY ULAŞILAN</div><div class="kv" style="color:var(--green)">${ulasilan}</div><div class="ks">başarılı arama</div></div>
+    <div class="kc" style="--ac:var(--red)"><div class="kl">ULAŞILAMAYAN</div><div class="kv" style="color:var(--red)">${ulasilamayan}</div><div class="ks">meşgul + ulaşılamadı</div></div>`;
+
+  const tbody=document.getElementById('crmRaporBody');if(!tbody)return;tbody.innerHTML='';
+  const recent=crmAramalar.slice(0,50);
+  if(!recent.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:20px">Henüz arama kaydı yok</td></tr>';return;}
+  recent.forEach(a=>{
+    const m=crmMusteriler.find(x=>x.id===a.musteri_id);
+    const durumLabel=CRM_DURUM_LABELS[a.durum]||a.durum;
+    const sonucLabel=CRM_SONUC_LABELS[a.sonuc]||a.sonuc||'—';
+    tbody.innerHTML+=`<tr>
+      <td style="font-weight:600">${m?m.ad:'Bilinmiyor'}</td>
+      <td style="font-size:11px">${new Date(a.tarih).toLocaleString('tr-TR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</td>
+      <td>${durumLabel}</td>
+      <td style="font-size:11px">${sonucLabel}</td>
+      <td style="font-size:11px;color:var(--gray);max-width:200px;overflow:hidden;text-overflow:ellipsis">${a.not_text||'—'}</td>
+      <td style="font-size:11px;color:var(--gray)">${a.arayan||'—'}</td>
+    </tr>`;
+  });
+}
+
+// CRM Bildirim
+function initCrmNotifications(){
+  if('Notification' in window&&Notification.permission==='default'){
+    Notification.requestPermission();
+  }
+  // Her 5 dakikada kontrol
+  setInterval(()=>{
+    const count=getTodayCrmList().length;
+    updateCrmBadge();
+    if(count>0&&Notification.permission==='granted'){
+      new Notification('📞 Elfin İletişim',{body:count+' müşteri aranmayı bekliyor!',icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">📞</text></svg>'});
+      try{
+        const audio=new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH+Jj4yCbF1dc3+Ij4+CbF5ddH+Ij46CbF5ddH+Hj46DbF5edH+Hj46DdF5edH+Hjo6DdF5edX+Hjo2DdF9fdX+Hjo2DdF9fdX+Gjo2EdF9fdX+Gjo2EdF9fdX+Gjo2EdV9fdX+Gjo2EdV9fdX+Gjo2EdV9fdX+GjY2EdV9fdQ==');
+        audio.volume=0.3;audio.play().catch(()=>{});
+      }catch(e){}
+    }
+  },300000);
+}
+
+// ============================================================
 // MOBILE MENU
 // ============================================================
 function toggleMobMenu(){
@@ -1965,7 +2534,7 @@ function sp(page,navEl){
   document.getElementById('page-'+page).classList.add('active');
   if(navEl){document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));navEl.classList.add('active');}
   closeMobMenu();
-  const m={dashboard:renderDashboard,gunluk:renderGunluk,urunler:renderUrunler,calisanlar:renderCalisanlar,empdetay:renderEmpDetay,prim:renderPrim,gunlukprim:renderGunlukPrim,hedefler:renderHedefler,yillik:renderYillik,muafiyet:renderMuafiyet,aktivasyon:renderAktivasyonTesvık,liderlik:renderLiderlik};
+  const m={dashboard:renderDashboard,gunluk:renderGunluk,urunler:renderUrunler,calisanlar:renderCalisanlar,empdetay:renderEmpDetay,prim:renderPrim,gunlukprim:renderGunlukPrim,hedefler:renderHedefler,yillik:renderYillik,muafiyet:renderMuafiyet,aktivasyon:renderAktivasyonTesvık,liderlik:renderLiderlik,crmboard:renderCrmBoard,crmlist:renderCrmList,crmrapor:renderCrmRapor};
   if(m[page])m[page]();
 }
 
@@ -1989,6 +2558,9 @@ function showToast(msg,err=false){
 
 document.getElementById('saleOv').addEventListener('click',function(e){if(e.target===this)closeSaleModal();});
 document.getElementById('muafOv').addEventListener('click',function(e){if(e.target===this)closeMuafModal();});
+document.getElementById('crmAddOv').addEventListener('click',function(e){if(e.target===this)closeCrmAddModal();});
+document.getElementById('crmCallOv').addEventListener('click',function(e){if(e.target===this)closeCrmCallModal();});
+document.getElementById('crmUploadOv').addEventListener('click',function(e){if(e.target===this)closeCrmUpload();});
 
 // ============================================================
 // INIT
