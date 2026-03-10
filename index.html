@@ -2143,6 +2143,8 @@ async function loadCrmData(){
       sb.from('arama_kayitlari').select('*').order('tarih',{ascending:false}),
     ]);
     crmMusteriler=md||[];
+    // Mevcut numaraları düzelt
+    crmMusteriler.forEach(m=>{if(m.telefon)m.telefon=fixPhone(m.telefon);});
     crmAramalar=ad||[];
     updateCrmBadge();
   }catch(e){console.error('CRM yükleme hatası:',e);}
@@ -2166,7 +2168,7 @@ async function saveCrmMusteri(){
   const baslangic=document.getElementById('crmBaslangic').value;
   const obj={
     ad:document.getElementById('crmAd').value.trim(),
-    telefon:document.getElementById('crmTel').value.trim(),
+    telefon:fixPhone(document.getElementById('crmTel').value.trim()),
     grup:grup,
     paket:document.getElementById('crmPaket').value.trim(),
     eposta:document.getElementById('crmEposta').value.trim(),
@@ -2311,7 +2313,7 @@ async function processCrmUpload(){
     const baslangic=r[4]?parseExcelDate(r[4]):null;
     const obj={
       ad:String(r[0]||'').trim(),
-      telefon:String(r[1]||'').trim(),
+      telefon:fixPhone(String(r[1]||'').trim()),
       grup,
       paket:String(r[3]||'').trim(),
       taahhut_baslangic:baslangic,
@@ -2333,6 +2335,20 @@ async function processCrmUpload(){
   closeCrmUpload();
   showToast(`✓ ${ok} müşteri eklendi${fail>0?' ('+fail+' hata)':''}`);
   updateCrmBadge();renderCrmBoard();renderCrmList();
+}
+
+function fixPhone(tel){
+  if(!tel)return '';
+  let t=tel.replace(/[\s\-\(\)\.]/g,'');
+  // 5XXXXXXXXX (10 hane, başında 0 yok) → 05XXXXXXXXX
+  if(/^5\d{9}$/.test(t))t='0'+t;
+  // 905XXXXXXXXX (12 hane) → 05XXXXXXXXX
+  if(/^90\d{10}$/.test(t))t='0'+t.slice(2);
+  // +905XXXXXXXXX → 05XXXXXXXXX
+  if(/^\+90\d{10}$/.test(t))t='0'+t.slice(3);
+  // Formatla: 0XXX XXX XX XX
+  if(/^0\d{10}$/.test(t))return t.replace(/^(\d{4})(\d{3})(\d{2})(\d{2})$/,'$1 $2 $3 $4');
+  return t;
 }
 
 function parseExcelDate(val){
@@ -2440,13 +2456,29 @@ function buildCrmCard(m,today,isTodayView,atananIdx){
     :dates.find(d=>d.toISOString().split('T')[0]>today);
   const label=nextDate?getDayLabel(nextDate.toISOString().split('T')[0]):'';
   const gecikmi=isTodayView&&nextDate&&nextDate.toISOString().split('T')[0]<today;
-  const borderColor=gecikmi?'rgba(230,57,70,0.3)':'var(--border)';
-  const labelColor=gecikmi?'var(--red)':'var(--yellow)';
   const emp=typeof atananIdx==='number'?employees[atananIdx]:null;
-  return`<div style="background:#fff;border-radius:12px;border:1px solid ${borderColor};padding:14px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+  // Bugün arandı mı kontrol
+  const bugunArandi=son&&son.tarih&&son.tarih.startsWith(today);
+  const bugunDurum=bugunArandi?son.durum:null;
+  // Renklendirme
+  let cardBg='#fff',borderColor='var(--border)',statusBadge='';
+  if(bugunDurum==='arandi'){
+    cardBg='rgba(0,168,107,0.06)';borderColor='rgba(0,168,107,0.35)';
+    statusBadge='<span style="background:rgba(0,168,107,0.15);color:var(--green);font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700">✓ Arandı</span>';
+  }else if(bugunDurum==='ulasilamadi'){
+    cardBg='rgba(230,168,0,0.06)';borderColor='rgba(230,168,0,0.35)';
+    statusBadge='<span style="background:rgba(230,168,0,0.15);color:var(--yellow);font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700">✗ Ulaşılamadı</span>';
+  }else if(bugunDurum==='mesgul'){
+    cardBg='rgba(43,123,232,0.06)';borderColor='rgba(43,123,232,0.35)';
+    statusBadge='<span style="background:rgba(43,123,232,0.15);color:var(--blue);font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700">📞 Meşgul</span>';
+  }else if(gecikmi){
+    cardBg='rgba(230,57,70,0.04)';borderColor='rgba(230,57,70,0.3)';
+  }
+  const labelColor=gecikmi?'var(--red)':'var(--yellow)';
+  return`<div style="background:${cardBg};border-radius:12px;border:1px solid ${borderColor};padding:14px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
     <div style="flex:0 0 8px;height:8px;border-radius:50%;background:${CRM_GRUP_COLORS[m.grup]||'var(--gray)'}"></div>
     <div style="flex:1;min-width:150px;">
-      <div style="font-weight:600;font-size:13px;color:#1a1a2e">${m.ad}</div>
+      <div style="display:flex;align-items:center;gap:6px"><span style="font-weight:600;font-size:13px;color:#1a1a2e">${m.ad}</span>${statusBadge}</div>
       <div style="font-size:11px;color:var(--gray)">${m.telefon||'—'} &nbsp;·&nbsp; ${CRM_GRUP_LABELS[m.grup]||'—'} &nbsp;·&nbsp; ${m.paket||''}</div>
     </div>
     ${emp?`<div style="display:flex;align-items:center;gap:5px;background:${emp.color}15;border:1px solid ${emp.color}40;border-radius:8px;padding:4px 8px;">
@@ -2455,7 +2487,7 @@ function buildCrmCard(m,today,isTodayView,atananIdx){
     </div>`:''}
     <div style="text-align:center;min-width:70px;">
       <div style="font-size:10px;color:${labelColor};font-weight:600">${label}</div>
-      ${son?`<div style="font-size:9px;color:var(--gray);margin-top:2px">Son: ${CRM_DURUM_LABELS[son.durum]||son.durum}</div>`:''}
+      ${son&&!bugunArandi?`<div style="font-size:9px;color:var(--gray);margin-top:2px">Son: ${CRM_DURUM_LABELS[son.durum]||son.durum}</div>`:''}
     </div>
     <div style="display:flex;gap:5px;">
       <a href="tel:${(m.telefon||'').replace(/\s/g,'')}" class="btn btn-p bsm" style="text-decoration:none">📞</a>
