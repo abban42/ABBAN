@@ -319,6 +319,7 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
     <div class="ni" onclick="sp('crmrapor',this)"><span class="ni-ic">📊</span>Arama Raporu</div>
     <div class="ni" onclick="openCrmUpload()"><span class="ni-ic">📥</span>Excel Yükle</div>
     <div class="ns">SMS & RAPORLAR</div>
+    <div class="ni" onclick="sp('smsgonder',this)"><span class="ni-ic">📱</span>Hızlı SMS Gönder</div>
     <div class="ni" onclick="sp('smsrapor',this)"><span class="ni-ic">💬</span>Haftalık Rapor SMS</div>
     <div class="ni" onclick="sp('smsgecmis',this)"><span class="ni-ic">📨</span>SMS Geçmişi</div>
   </nav>
@@ -591,6 +592,30 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
   <div class="kg kg4" id="crmRaporCards"></div>
   <div class="sh"><div class="st">SON <em>ARAMA KAYITLARI</em></div></div>
   <div class="tw"><table><thead><tr><th>Müşteri</th><th>Tarih</th><th>Durum</th><th>Sonuç</th><th>Not</th><th>Arayan</th></tr></thead><tbody id="crmRaporBody"></tbody></table></div>
+</div>
+
+<!-- ============ HIZLI SMS GÖNDER ============ -->
+<div class="page" id="page-smsgonder">
+  <div class="ph">
+    <div><div class="pt">HIZLI <span>SMS GÖNDER</span></div><div class="ps">Tek kişiye veya toplu SMS gönder</div></div>
+  </div>
+  <div class="ts" style="margin-bottom:16px;">
+    <div class="tsh"><div class="tst">📱 SMS GÖNDER</div></div>
+    <div style="padding:14px;">
+      <div class="fr">
+        <div class="fg"><label>ALICI SEÇ</label><select id="smsTekAlici" onchange="smsAliciSec()">
+          <option value="">— Listeden seç veya numara gir —</option>
+          <option disabled style="font-weight:700;color:var(--yellow)">── ÇALIŞANLAR ──</option>
+        </select></div>
+        <div class="fg"><label>TELEFON</label><input type="tel" id="smsTekTel" placeholder="0532 XXX XX XX"></div>
+      </div>
+      <div class="fg"><label>MESAJ <span id="smsTekCount" style="color:var(--gray);font-size:10px">(0/160)</span></label><textarea id="smsTekMesaj" placeholder="Mesajınızı yazın..." oninput="smsTekSay()" style="min-height:100px;"></textarea></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+        <div style="font-size:10px;color:var(--gray)">NetGSM · Gönderici: ABBANELTRNK</div>
+        <button class="btn btn-p" onclick="sendTekSms()">📤 SMS Gönder</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ============ HAFTALIK RAPOR SMS ============ -->
@@ -2616,6 +2641,61 @@ function initCrmNotifications(){
 // ============================================================
 // SMS & HAFTALIK RAPOR SİSTEMİ
 // ============================================================
+
+// Hızlı SMS fonksiyonları
+function renderSmsGonder(){
+  const sel=document.getElementById('smsTekAlici');
+  if(!sel)return;
+  let html='<option value="">— Listeden seç veya numara gir —</option>';
+  html+='<option disabled style="font-weight:700;color:var(--yellow)">── ÇALIŞANLAR ──</option>';
+  employees.forEach((e,i)=>html+=`<option value="emp_${i}">${e.name} (${e.tel})</option>`);
+  // CRM müşterilerinden son 20
+  const recent=crmMusteriler.filter(m=>m.telefon).slice(0,20);
+  if(recent.length){
+    html+='<option disabled style="font-weight:700;color:var(--blue)">── SON MÜŞTERİLER ──</option>';
+    recent.forEach(m=>html+=`<option value="crm_${m.id}">${m.ad} (${m.telefon})</option>`);
+  }
+  sel.innerHTML=html;
+  document.getElementById('smsTekTel').value='';
+  document.getElementById('smsTekMesaj').value='';
+  smsTekSay();
+}
+
+function smsAliciSec(){
+  const sel=document.getElementById('smsTekAlici');
+  const tel=document.getElementById('smsTekTel');
+  const val=sel.value;
+  if(val.startsWith('emp_')){
+    tel.value=employees[parseInt(val.split('_')[1])]?.tel||'';
+  }else if(val.startsWith('crm_')){
+    const m=crmMusteriler.find(x=>x.id===val.split('_')[1]);
+    tel.value=m?m.telefon:'';
+  }else{
+    tel.value='';
+  }
+}
+
+function smsTekSay(){
+  const msg=document.getElementById('smsTekMesaj')?.value||'';
+  const el=document.getElementById('smsTekCount');
+  if(el)el.textContent=`(${msg.length}/160 · ${Math.ceil(msg.length/160)||1} SMS)`;
+}
+
+async function sendTekSms(){
+  const tel=document.getElementById('smsTekTel').value.trim();
+  const msg=document.getElementById('smsTekMesaj').value.trim();
+  if(!tel){showToast('Telefon numarası girin!',true);return;}
+  if(!msg){showToast('Mesaj yazın!',true);return;}
+  if(!confirm(tel+' numarasına SMS göndermek istiyor musunuz?'))return;
+  try{
+    const{data,error}=await sb.rpc('send_sms',{p_telefon:tel,p_mesaj:msg});
+    if(error)throw error;
+    showToast('✓ SMS gönderildi!');
+    document.getElementById('smsTekMesaj').value='';
+    smsTekSay();
+  }catch(e){showToast('SMS hatası: '+e.message,true);}
+}
+
 const SMS_ESPRI_TEMPLATES=[
   // Beşiktaş - Abdurrahman
   {takim:'Beşiktaşlı',espri:[
@@ -2804,7 +2884,7 @@ function sp(page,navEl){
   document.getElementById('page-'+page).classList.add('active');
   if(navEl){document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));navEl.classList.add('active');}
   closeMobMenu();
-  const m={dashboard:renderDashboard,gunluk:renderGunluk,urunler:renderUrunler,calisanlar:renderCalisanlar,empdetay:renderEmpDetay,prim:renderPrim,gunlukprim:renderGunlukPrim,hedefler:renderHedefler,yillik:renderYillik,muafiyet:renderMuafiyet,aktivasyon:renderAktivasyonTesvık,liderlik:renderLiderlik,crmboard:renderCrmBoard,crmlist:renderCrmList,crmrapor:renderCrmRapor,smsrapor:renderSmsRapor,smsgecmis:renderSmsGecmis};
+  const m={dashboard:renderDashboard,gunluk:renderGunluk,urunler:renderUrunler,calisanlar:renderCalisanlar,empdetay:renderEmpDetay,prim:renderPrim,gunlukprim:renderGunlukPrim,hedefler:renderHedefler,yillik:renderYillik,muafiyet:renderMuafiyet,aktivasyon:renderAktivasyonTesvık,liderlik:renderLiderlik,crmboard:renderCrmBoard,crmlist:renderCrmList,crmrapor:renderCrmRapor,smsgonder:renderSmsGonder,smsrapor:renderSmsRapor,smsgecmis:renderSmsGecmis};
   if(m[page])m[page]();
 }
 
