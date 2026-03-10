@@ -263,7 +263,7 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
       <div class="login-title">ELFİN İLETİŞİM</div>
     </div>
     <div class="login-sub">Hedef & Prim Takip Sistemi</div>
-    <div style="font-size:9px;color:var(--gray);margin-bottom:20px;letter-spacing:1px">v2.4 — Korumalı + CRM</div>
+    <div style="font-size:9px;color:var(--gray);margin-bottom:20px;letter-spacing:1px">v2.5 — CRM + NetGSM</div>
     <label class="login-label">ŞİFRE</label>
     <input class="login-input" type="password" id="loginPass" placeholder="••••••">
     <button class="login-btn" id="loginBtn">🔐 Giriş Yap</button>
@@ -318,6 +318,11 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
     <div class="ni" onclick="sp('crmlist',this)"><span class="ni-ic">📋</span>Tüm Müşteriler</div>
     <div class="ni" onclick="sp('crmrapor',this)"><span class="ni-ic">📊</span>Arama Raporu</div>
     <div class="ni" onclick="openCrmUpload()"><span class="ni-ic">📥</span>Excel Yükle</div>
+    <div class="ns">SMS & RAPORLAR</div>
+    <div class="ni" onclick="sp('smsrapor',this)"><span class="ni-ic">💬</span>Haftalık Rapor SMS</div>
+    <div class="ni" onclick="sp('smsgecmis',this)"><span class="ni-ic">📨</span>SMS Geçmişi</div>
+    <div class="ns">SMS</div>
+    <div class="ni" onclick="sp('sms',this)"><span class="ni-ic">💬</span>SMS Gönder</div>
   </nav>
 </div>
 
@@ -590,6 +595,82 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
   <div class="tw"><table><thead><tr><th>Müşteri</th><th>Tarih</th><th>Durum</th><th>Sonuç</th><th>Not</th><th>Arayan</th></tr></thead><tbody id="crmRaporBody"></tbody></table></div>
 </div>
 
+<!-- ============ SMS GÖNDERİM PANELİ ============ -->
+<div class="page" id="page-sms">
+  <div class="ph">
+    <div><div class="pt">SMS <span>GÖNDERİM</span></div><div class="ps">NetGSM üzerinden SMS gönder</div></div>
+  </div>
+  <div class="kg kg3" id="smsStatCards"></div>
+
+  <!-- Tekil SMS -->
+  <div class="ts" style="margin-bottom:16px;">
+    <div class="tsh"><div class="tst">📱 TEKİL SMS</div></div>
+    <div style="padding:14px;">
+      <div class="fr">
+        <div class="fg"><label>ALICI</label><select id="smsTekAlici" onchange="smsAliciDegisti()">
+          <option value="">— Numara gir —</option>
+        </select></div>
+        <div class="fg"><label>TELEFON</label><input type="tel" id="smsTekTel" placeholder="0532 XXX XX XX"></div>
+      </div>
+      <div class="fg"><label>MESAJ <span id="smsTekCount" style="color:var(--gray);font-size:10px">(0/160)</span></label><textarea id="smsTekMesaj" placeholder="Mesajınız..." oninput="smsTekSay()" style="min-height:80px;"></textarea></div>
+      <div class="mf"><button class="btn btn-p" onclick="sendTekSms()">📤 Gönder</button></div>
+    </div>
+  </div>
+
+  <!-- Haftalık Rapor -->
+  <div class="ts" style="margin-bottom:16px;">
+    <div class="tsh"><div class="tst">📊 HAFTALIK ÇALIŞAN RAPORU</div></div>
+    <div style="padding:14px;">
+      <div class="info-box"><strong>⚡ Nasıl çalışır:</strong> Her çalışanın haftalık performansını analiz eder, kişiye özel motivasyon mesajı oluşturur ve SMS olarak gönderir. Claude AI mesajları her seferinde farklı ve espirili yazar.</div>
+      <div id="smsRaporPreview"></div>
+      <div class="mf">
+        <button class="btn btn-g" onclick="generateWeeklyReport()">👁 Önizle</button>
+        <button class="btn btn-p" id="smsRaporSendBtn" onclick="sendWeeklyReport()" disabled>📤 Hepsini Gönder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Taahhüt Hatırlatma SMS -->
+  <div class="ts" style="margin-bottom:16px;">
+    <div class="tsh"><div class="tst">🔔 TAAHHÜT HATIRLATMA SMS</div></div>
+    <div style="padding:14px;">
+      <div class="info-box"><strong>📋 Kural:</strong> Taahhüt bitişine yaklaşan müşterilere otomatik bilgilendirme SMS'i gönderir. Müşteri hazırlıklı olur, dönüşüm oranı artar.</div>
+      <div id="smsTaahhutList"></div>
+      <div class="mf">
+        <button class="btn btn-g" onclick="previewTaahhutSms()">👁 Önizle</button>
+        <button class="btn btn-p" id="smsTaahhutBtn" onclick="sendTaahhutSms()" disabled>📤 Gönder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SMS Geçmişi -->
+  <div class="sh"><div class="st">SON <em>SMS GEÇMİŞİ</em></div></div>
+  <div class="tw"><table><thead><tr><th>Telefon</th><th>Mesaj</th><th>Tip</th><th>Tarih</th></tr></thead><tbody id="smsLogBody"></tbody></table></div>
+</div>
+
+<!-- ============ HAFTALIK RAPOR SMS ============ -->
+<div class="page" id="page-smsrapor">
+  <div class="ph">
+    <div><div class="pt">HAFTALIK <span>RAPOR SMS</span></div><div class="ps">Çalışanlara kişiye özel performans SMS'i gönder</div></div>
+    <div style="display:flex;gap:7px;">
+      <button class="btn btn-g" onclick="generateWeeklyReports()">🔄 Raporları Oluştur</button>
+      <button class="btn btn-p" onclick="sendAllWeeklyReports()">📤 Hepsini Gönder</button>
+    </div>
+  </div>
+  <div class="info-box">
+    <strong>💬 Nasıl çalışır:</strong> "Raporları Oluştur" butonuna basın → her çalışan için haftalık performans + kişiye özel espirili mesaj oluşturulur. Önizleyip düzenleyebilirsiniz. "Gönder" ile NetGSM üzerinden SMS olarak gider.
+  </div>
+  <div id="smsRaporCards"></div>
+</div>
+
+<!-- ============ SMS GEÇMİŞİ ============ -->
+<div class="page" id="page-smsgecmis">
+  <div class="ph">
+    <div><div class="pt">SMS <span>GEÇMİŞİ</span></div><div class="ps">Gönderilen SMS kayıtları</div></div>
+  </div>
+  <div class="tw"><table><thead><tr><th>Tarih</th><th>Telefon</th><th>Mesaj</th><th>Durum</th></tr></thead><tbody id="smsGecmisBody"></tbody></table></div>
+</div>
+
 <!-- CRM MÜŞTERİ EKLE/DÜZENLE MODAL -->
 <div class="ov" id="crmAddOv">
   <div class="modal">
@@ -745,10 +826,14 @@ const products=[
   {name:"AKSESUAR",                    tip:"notr",    puan:0,  prim:0,   manuel:true, hedef:0, zorunlu:false, hedefTL:26042,yillikHedefTL:312500},
 ];
 const employees=[
-  {name:"Abdurrahman Yıldırım",color:"#FFD100",initials:"AY"},
-  {name:"Hüseyin Ergün",       color:"#00e5a0",initials:"HE"},
-  {name:"Kerem Ardıç",         color:"#4fa3ff",initials:"KA"},
-  {name:"Melike Erdal",        color:"#ff6b9d",initials:"ME"},
+  {name:"Abdurrahman Yıldırım",color:"#FFD100",initials:"AY",tel:"05326822277",
+   karakter:"İşkolik, Beşiktaşlı, ekmeğini kes çayını kesme, evli 3 çocuk, Güneysinır Durayda köyünden, 44 yaşında"},
+  {name:"Hüseyin Ergün",       color:"#00e5a0",initials:"HE",tel:"05363125015",
+   karakter:"Zaman mefhumu yok, Konyasporlu, satış canavarı, 2 kızı var, Konya Başarakavaklı, 46 yaşında"},
+  {name:"Kerem Ardıç",         color:"#4fa3ff",initials:"KA",tel:"05304031534",
+   karakter:"Yakışıklı ama geç anlayan, Fenerbahçeli, kızlarla arası iyi, cihaz satış potansiyeli var, bekar Ermeneği, 25 yaşında, temiz tertipli"},
+  {name:"Melike Erdal",        color:"#ff6b9d",initials:"ME",tel:"05326521404",
+   karakter:"Güzel alımlı, çok makyaj yapar, bazen sinirli halleri olur, bekar 18 yaşında, Galatasaraylı, Niğdeli"},
 ];
 const primBands=[
   {min:190,max:239,prim:2228},{min:240,max:289,prim:5495},
@@ -930,6 +1015,7 @@ async function loadAll(){
   }finally{
     showLoading(false);
     await loadCrmData();
+    await loadSmsLog();
     initCrmNotifications();
     renderDashboard();
   }
@@ -2564,6 +2650,229 @@ function renderCrmRapor(){
   });
 }
 
+// ============================================================
+// SMS SİSTEMİ (NETGSM)
+// ============================================================
+let smsLog=[];
+
+async function loadSmsLog(){
+  try{
+    const{data}=await sb.from('sms_log').select('*').order('created_at',{ascending:false}).limit(50);
+    smsLog=data||[];
+  }catch(e){console.error('SMS log yükleme hatası:',e);}
+}
+
+async function sendSmsViaNetgsm(telefon,mesaj,tip='manual'){
+  try{
+    const{data,error}=await sb.rpc('send_sms',{p_telefon:telefon,p_mesaj:mesaj,p_tip:tip});
+    if(error)throw error;
+    if(data&&data.ok){
+      smsLog.unshift({telefon,mesaj,tip,durum:'gonderildi',created_at:new Date().toISOString()});
+      return{ok:true};
+    }
+    return{ok:false,error:data?.error||'Bilinmeyen hata'};
+  }catch(e){return{ok:false,error:e.message};}
+}
+
+function renderSms(){
+  // Alıcı dropdown
+  const sel=document.getElementById('smsTekAlici');
+  if(sel) sel.innerHTML='<option value="">— Numara gir —</option>'+employees.map((e,i)=>`<option value="${i}">${e.name} (${e.tel})</option>`).join('');
+
+  // İstatistikler
+  const today=new Date().toISOString().split('T')[0];
+  const bugun=smsLog.filter(s=>s.created_at&&s.created_at.startsWith(today)).length;
+  const topEl=document.getElementById('smsStatCards');
+  if(topEl) topEl.innerHTML=`
+    <div class="kc" style="--ac:var(--green)"><div class="kl">BUGÜN GÖNDERİLEN</div><div class="kv" style="color:var(--green)">${bugun}</div><div class="ks">SMS</div></div>
+    <div class="kc" style="--ac:var(--blue)"><div class="kl">TOPLAM</div><div class="kv" style="color:var(--blue)">${smsLog.length}</div><div class="ks">SMS</div></div>
+    <div class="kc" style="--ac:var(--yellow)"><div class="kl">ÇALIŞAN</div><div class="kv" style="color:var(--yellow)">${employees.length}</div><div class="ks">Kayıtlı</div></div>`;
+
+  // SMS Geçmişi
+  const tbody=document.getElementById('smsLogBody');
+  if(!tbody)return;
+  tbody.innerHTML='';
+  if(!smsLog.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--gray);padding:20px">Henüz SMS kaydı yok</td></tr>';return;}
+  smsLog.slice(0,30).forEach(s=>{
+    const tipLabel={'manual':'Tekil','haftalik':'Haftalık Rapor','taahhut':'Taahhüt','toplu':'Toplu'}[s.tip]||s.tip;
+    tbody.innerHTML+=`<tr>
+      <td style="font-size:11px">${s.telefon}</td>
+      <td style="font-size:11px;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.mesaj}</td>
+      <td><span class="badge bb">${tipLabel}</span></td>
+      <td style="font-size:10px;color:var(--gray)">${s.created_at?new Date(s.created_at).toLocaleString('tr-TR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''}</td>
+    </tr>`;
+  });
+}
+
+function smsAliciDegisti(){
+  const sel=document.getElementById('smsTekAlici');
+  const tel=document.getElementById('smsTekTel');
+  if(sel.value!=='')tel.value=employees[parseInt(sel.value)]?.tel||'';
+  else tel.value='';
+}
+
+function smsTekSay(){
+  const msg=document.getElementById('smsTekMesaj').value;
+  document.getElementById('smsTekCount').textContent=`(${msg.length}/160)`;
+}
+
+async function sendTekSms(){
+  const tel=document.getElementById('smsTekTel').value.trim();
+  const msg=document.getElementById('smsTekMesaj').value.trim();
+  if(!tel||!msg){showToast('Telefon ve mesaj gerekli!',true);return;}
+  showToast('⏳ Gönderiliyor...');
+  const res=await sendSmsViaNetgsm(tel,msg,'manual');
+  if(res.ok){
+    showToast('✓ SMS gönderildi!');
+    document.getElementById('smsTekMesaj').value='';
+    smsTekSay();
+    renderSms();
+  }else{
+    showToast('SMS hatası: '+(res.error||''),true);
+  }
+}
+
+// Haftalık Rapor
+async function generateWeeklyReport(){
+  const preview=document.getElementById('smsRaporPreview');
+  preview.innerHTML='<div style="color:var(--yellow);padding:10px">⏳ Claude AI mesajları oluşturuyor...</div>';
+
+  // Haftalık performans verilerini topla
+  const now=new Date();
+  const weekAgo=new Date(now);weekAgo.setDate(weekAgo.getDate()-7);
+  const weekStr=weekAgo.toISOString().split('T')[0];
+
+  const reports=employees.map((emp,i)=>{
+    const weekSales=sales.filter(s=>s.emp===i&&s.date>=weekStr);
+    let puan=0,faturali=0,prepaid=0,toplam=0,ntc=0;
+    weekSales.forEach(s=>{
+      const p=products[s.prod];
+      puan+=p.puan*s.qty;toplam+=s.qty;
+      if(p.tip==='postpaid')faturali+=s.qty;
+      else if(p.tip==='prepaid')prepaid+=s.qty;
+      if(p.name==='NTC')ntc+=s.qty;
+    });
+    // En çok satılan ürün
+    const prodCount={};
+    weekSales.forEach(s=>{prodCount[s.prod]=(prodCount[s.prod]||0)+s.qty;});
+    const topProd=Object.entries(prodCount).sort((a,b)=>b[1]-a[1])[0];
+    const topProdName=topProd?products[parseInt(topProd[0])]?.name:'Yok';
+    // Zayıf ürün (hedefi olan ama 0 satış)
+    const zayif=products.filter((p,pi)=>!p.hidden&&p.hedef>0&&!weekSales.some(s=>s.prod===pi)).map(p=>p.name).slice(0,2);
+    return{emp,i,puan,faturali,prepaid,toplam,ntc,topProdName,zayif,tel:emp.tel};
+  });
+
+  // Claude API ile kişiye özel mesaj oluştur
+  const messages=[];
+  for(const r of reports){
+    try{
+      const prompt=`Sen Turkcell bayisi "Elfin İletişim" mağaza müdürüsün. Çalışanına haftalık performans SMS'i yazacaksın. 
+Kısa, samimi, espirili ve motive edici ol. Maksimum 155 karakter. Emoji kullan.
+Çalışan: ${r.emp.name}
+Bu hafta: ${r.toplam} satış, ${r.faturali} faturalı, ${r.prepaid} prepaid, ${r.puan} puan
+En çok sattığı: ${r.topProdName}
+Zayıf kaldığı ürünler: ${r.zayif.length?r.zayif.join(', '):'Yok'}
+Sadece SMS metnini yaz, başka bir şey yazma.`;
+
+      const response=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:200,messages:[{role:'user',content:prompt}]})
+      });
+      const data=await response.json();
+      const txt=data.content?.[0]?.text||`${r.emp.name.split(' ')[0]}, bu hafta ${r.toplam} satış yaptın. Haftaya daha güçlü! 💪`;
+      messages.push({emp:r.emp,tel:r.tel,mesaj:txt.slice(0,160)});
+    }catch(e){
+      messages.push({emp:r.emp,tel:r.tel,mesaj:`${r.emp.name.split(' ')[0]}, bu hafta ${r.toplam} satış, ${r.puan} puan. Devam! 💪`});
+    }
+  }
+
+  window._weeklyMessages=messages;
+
+  // Önizleme göster
+  preview.innerHTML=messages.map(m=>`
+    <div style="background:#f7f8fa;border-radius:10px;padding:12px;margin-bottom:8px;border-left:3px solid ${m.emp.color}">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-weight:600;color:${m.emp.color}">${m.emp.name}</span>
+        <span style="font-size:10px;color:var(--gray)">${m.tel}</span>
+      </div>
+      <div style="font-size:12px;color:#333;line-height:1.5">${m.mesaj}</div>
+      <div style="font-size:9px;color:var(--gray);margin-top:4px">${m.mesaj.length}/160 karakter</div>
+    </div>`).join('');
+
+  document.getElementById('smsRaporSendBtn').disabled=false;
+}
+
+async function sendWeeklyReport(){
+  const messages=window._weeklyMessages;
+  if(!messages||!messages.length){showToast('Önce önizleme yapın!',true);return;}
+  if(!confirm(`${messages.length} çalışana haftalık rapor SMS'i gönderilecek. Onaylıyor musunuz?`))return;
+  
+  showToast('⏳ Gönderiliyor...');
+  let ok=0,fail=0;
+  for(const m of messages){
+    const res=await sendSmsViaNetgsm(m.tel,m.mesaj,'haftalik');
+    if(res.ok)ok++;else fail++;
+  }
+  showToast(`✓ ${ok} SMS gönderildi${fail>0?' ('+fail+' hata)':''}`);
+  document.getElementById('smsRaporSendBtn').disabled=true;
+  await loadSmsLog();
+  renderSms();
+}
+
+// Taahhüt Hatırlatma
+function previewTaahhutSms(){
+  const todayList=getTodayCrmList();
+  const upcoming=getUpcomingCrmList();
+  const allList=[...todayList,...upcoming].filter(m=>m.telefon);
+  const el=document.getElementById('smsTaahhutList');
+
+  if(!allList.length){
+    el.innerHTML='<div style="color:var(--gray);font-size:12px;padding:10px">Şu an hatırlatma gönderilecek müşteri yok.</div>';
+    document.getElementById('smsTaahhutBtn').disabled=true;
+    return;
+  }
+
+  const msgs=allList.map(m=>{
+    const grup=parseInt(m.grup);
+    let mesaj='';
+    if(grup===1||grup===4){
+      mesaj=`Sayın ${m.ad}, Elfin İletişim'den bilgilendirme: Taahhüt süreniz yakında dolmaktadır. Size özel avantajlı tekliflerimiz için bizi arayın. Tel: 05326822277`;
+    }else{
+      mesaj=`Sayın ${m.ad}, Elfin İletişim'den bilgilendirme: Faturalı hatta geçiş için özel kampanyamız var! Detaylar için bizi arayın. Tel: 05326822277`;
+    }
+    return{m,mesaj:mesaj.slice(0,160)};
+  });
+
+  window._taahhutMessages=msgs;
+
+  el.innerHTML=`<div style="font-size:11px;color:var(--gray);margin-bottom:8px">${msgs.length} müşteriye SMS gönderilecek:</div>`+
+    msgs.slice(0,10).map(x=>`<div style="background:#f7f8fa;border-radius:8px;padding:10px;margin-bottom:6px;">
+      <div style="font-weight:600;font-size:12px">${x.m.ad} <span style="color:var(--gray);font-weight:400">${x.m.telefon}</span></div>
+      <div style="font-size:11px;color:#555;margin-top:4px">${x.mesaj}</div>
+    </div>`).join('')+
+    (msgs.length>10?`<div style="color:var(--gray);font-size:11px;padding:6px">...ve ${msgs.length-10} müşteri daha</div>`:'');
+
+  document.getElementById('smsTaahhutBtn').disabled=false;
+}
+
+async function sendTaahhutSms(){
+  const msgs=window._taahhutMessages;
+  if(!msgs||!msgs.length)return;
+  if(!confirm(`${msgs.length} müşteriye taahhüt hatırlatma SMS'i gönderilecek. Onaylıyor musunuz?`))return;
+
+  showToast('⏳ Gönderiliyor...');
+  let ok=0,fail=0;
+  for(const x of msgs){
+    const res=await sendSmsViaNetgsm(x.m.telefon,x.mesaj,'taahhut');
+    if(res.ok)ok++;else fail++;
+  }
+  showToast(`✓ ${ok} SMS gönderildi${fail>0?' ('+fail+' hata)':''}`);
+  document.getElementById('smsTaahhutBtn').disabled=true;
+  await loadSmsLog();
+  renderSms();
+}
+
 // CRM Bildirim
 function initCrmNotifications(){
   if('Notification' in window&&Notification.permission==='default'){
@@ -2581,6 +2890,177 @@ function initCrmNotifications(){
       }catch(e){}
     }
   },300000);
+}
+
+// ============================================================
+// SMS & HAFTALIK RAPOR SİSTEMİ
+// ============================================================
+const SMS_ESPRI_TEMPLATES=[
+  // Beşiktaş - Abdurrahman
+  {takim:'Beşiktaşlı',espri:[
+    'Kara Kartal gibi sahada ol haftaya!',
+    'Beşiktaş ruhuyla haftaya dalış yap!',
+    'Vodafone Park kadar dolu dolu bir hafta olsun!',
+  ]},
+  // Konyaspor - Hüseyin
+  {takim:'Konyasporlu',espri:[
+    'Konya ovası gibi geniş hedeflerle haftaya başla!',
+    'Konyaspor gibi savaşçı ruhunla devam!',
+    'Mevlana gibi dön ama satışta dön!',
+  ]},
+  // Fenerbahçe - Kerem
+  {takim:'Fenerbahçeli',espri:[
+    'Kadıköy tribünü gibi coşkulu bir hafta olsun!',
+    'Fener ol sahayı aydınlat!',
+    'Alex gibi asist yap, satışı kap!',
+  ]},
+  // Galatasaray - Melike
+  {takim:'Galatasaraylı',espri:[
+    'Cimbom ruhuyla rakipleri ez geç!',
+    'Galatasaray gibi şampiyon performans!',
+    'Aslan kız, sahaya çık!',
+  ]},
+];
+
+function getRandomEspri(emp){
+  const t=SMS_ESPRI_TEMPLATES.find(x=>emp.karakter&&emp.karakter.includes(x.takim));
+  if(t&&t.espri.length)return t.espri[Math.floor(Math.random()*t.espri.length)];
+  return 'Haftaya güzel bir başlangıç yap!';
+}
+
+function generateWeeklyReport(ei){
+  const emp=employees[ei];
+  const st=getEmpStats(ei);
+  const ms=getMonthSales();
+  const empSales=ms.filter(s=>s.emp===ei);
+
+  // Haftalık (son 7 gün) verileri
+  const today=new Date();
+  const week=new Date(today);week.setDate(week.getDate()-7);
+  const weekStr=week.toISOString().split('T')[0];
+  let hPP=0,hPR=0,hAdet=0,hPuan=0;
+  sales.filter(s=>s.emp===ei&&s.date>=weekStr).forEach(s=>{
+    const p=products[s.prod];
+    hAdet+=s.qty;hPuan+=p.puan*s.qty;
+    if(p.tip==='postpaid')hPP+=s.qty;
+    else if(p.tip==='prepaid')hPR+=s.qty;
+  });
+
+  // En az satılan ürün kategorisi
+  const urunSayilari={};
+  products.forEach((p,pi)=>{
+    if(p.hidden)return;
+    let qty=0;empSales.filter(s=>s.prod===pi).forEach(s=>qty+=s.qty);
+    if(p.hedef>0)urunSayilari[p.name]={qty,hedef:p.hedef,oran:Math.round(qty/p.hedef*100)};
+  });
+  const eksikler=Object.entries(urunSayilari).filter(([k,v])=>v.oran<70).sort((a,b)=>a[1].oran-b[1].oran);
+  const enIyi=Object.entries(urunSayilari).filter(([k,v])=>v.oran>=100).sort((a,b)=>b[1].oran-a[1].oran);
+
+  // Mesaj oluştur
+  const ad=emp.name.split(' ')[0];
+  const espri=getRandomEspri(emp);
+  let msg=`Merhaba ${ad}! 🎯\n\n`;
+  msg+=`📊 HAFTALIK RAPOR:\n`;
+  msg+=`Toplam: ${hAdet} satış (${hPP} PP + ${hPR} PR)\n`;
+  msg+=`Puan: ${fmt(hPuan)}\n\n`;
+
+  if(enIyi.length>0){
+    msg+=`✅ Güçlü: ${enIyi.slice(0,2).map(([k])=>k).join(', ')}\n`;
+  }
+  if(eksikler.length>0){
+    msg+=`⚠️ Dikkat: ${eksikler.slice(0,2).map(([k,v])=>k+' (%'+v.oran+')').join(', ')}\n`;
+  }
+  msg+=`\n${espri}\n`;
+  msg+=`\n- Elfin İletişim`;
+
+  return{emp,msg,hAdet,hPP,hPR,hPuan,eksikler,enIyi};
+}
+
+let weeklyReports=[];
+
+function generateWeeklyReports(){
+  weeklyReports=employees.map((_,i)=>generateWeeklyReport(i));
+  renderSmsRapor();
+  showToast('✓ Raporlar oluşturuldu!');
+}
+
+function renderSmsRapor(){
+  const el=document.getElementById('smsRaporCards');if(!el)return;
+  if(!weeklyReports.length){
+    el.innerHTML='<div style="color:var(--gray);text-align:center;padding:30px">Henüz rapor oluşturulmadı. "Raporları Oluştur" butonuna basın.</div>';
+    return;
+  }
+  el.innerHTML=weeklyReports.map((r,i)=>{
+    const emp=r.emp;
+    return`<div style="background:#fff;border-radius:12px;border:1px solid ${emp.color}40;padding:18px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="av" style="background:${emp.color};width:38px;height:38px;font-size:14px">${emp.initials}</div>
+          <div>
+            <div style="font-weight:600;font-size:14px;color:#1a1a2e">${emp.name}</div>
+            <div style="font-size:10px;color:var(--gray)">${emp.tel} · Haftalık: ${r.hAdet} satış, ${fmt(r.hPuan)} puan</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-p bsm" onclick="sendWeeklyReport(${i})">📤 Gönder</button>
+        </div>
+      </div>
+      <div style="background:#f7f8fa;border-radius:10px;padding:14px;position:relative;">
+        <textarea id="smsMsg_${i}" style="width:100%;min-height:140px;background:transparent;border:none;font-family:'Outfit';font-size:12px;color:#1a1a2e;resize:vertical;outline:none;line-height:1.6">${r.msg}</textarea>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:var(--gray)">
+          <span>${r.msg.length} karakter</span>
+          <span>${Math.ceil(r.msg.length/160)} SMS</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function sendWeeklyReport(idx){
+  const r=weeklyReports[idx];
+  const msg=document.getElementById('smsMsg_'+idx)?.value||r.msg;
+  const tel=r.emp.tel;
+  if(!tel){showToast('Telefon numarası yok!',true);return;}
+  if(!confirm(r.emp.name+' kişisine SMS göndermek istiyor musunuz?'))return;
+  try{
+    const{data,error}=await sb.rpc('send_sms',{p_telefon:tel,p_mesaj:msg});
+    if(error)throw error;
+    showToast('✓ '+r.emp.name.split(' ')[0]+' kişisine SMS gönderildi!');
+  }catch(e){showToast('SMS hatası: '+e.message,true);}
+}
+
+async function sendAllWeeklyReports(){
+  if(!weeklyReports.length){showToast('Önce raporları oluşturun!',true);return;}
+  if(!confirm(employees.length+' çalışana SMS göndermek istiyor musunuz?'))return;
+  let ok=0,fail=0;
+  for(let i=0;i<weeklyReports.length;i++){
+    const r=weeklyReports[i];
+    const msg=document.getElementById('smsMsg_'+i)?.value||r.msg;
+    try{
+      const{data,error}=await sb.rpc('send_sms',{p_telefon:r.emp.tel,p_mesaj:msg});
+      if(error)throw error;
+      ok++;
+    }catch(e){fail++;console.error(e);}
+  }
+  showToast(`✓ ${ok} SMS gönderildi${fail>0?' ('+fail+' hata)':''}`);
+}
+
+async function renderSmsGecmis(){
+  const tbody=document.getElementById('smsGecmisBody');if(!tbody)return;tbody.innerHTML='';
+  try{
+    const{data,error}=await sb.from('sms_kuyruk').select('*').order('created_at',{ascending:false}).limit(50);
+    if(error)throw error;
+    if(!data||!data.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--gray);padding:20px">Henüz SMS kaydı yok</td></tr>';return;}
+    data.forEach(s=>{
+      const durumColor=s.durum==='gonderildi'?'var(--green)':s.durum==='hata'?'var(--red)':'var(--gray)';
+      tbody.innerHTML+=`<tr>
+        <td style="font-size:11px">${new Date(s.created_at).toLocaleString('tr-TR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</td>
+        <td>${s.telefon}</td>
+        <td style="font-size:11px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.mesaj}</td>
+        <td style="color:${durumColor};font-weight:600;font-size:11px">${s.durum}</td>
+      </tr>`;
+    });
+  }catch(e){tbody.innerHTML='<tr><td colspan="4" style="color:var(--red);padding:20px">Yükleme hatası: '+e.message+'</td></tr>';}
 }
 
 // ============================================================
@@ -2603,7 +3083,7 @@ function sp(page,navEl){
   document.getElementById('page-'+page).classList.add('active');
   if(navEl){document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));navEl.classList.add('active');}
   closeMobMenu();
-  const m={dashboard:renderDashboard,gunluk:renderGunluk,urunler:renderUrunler,calisanlar:renderCalisanlar,empdetay:renderEmpDetay,prim:renderPrim,gunlukprim:renderGunlukPrim,hedefler:renderHedefler,yillik:renderYillik,muafiyet:renderMuafiyet,aktivasyon:renderAktivasyonTesvık,liderlik:renderLiderlik,crmboard:renderCrmBoard,crmlist:renderCrmList,crmrapor:renderCrmRapor};
+  const m={dashboard:renderDashboard,gunluk:renderGunluk,urunler:renderUrunler,calisanlar:renderCalisanlar,empdetay:renderEmpDetay,prim:renderPrim,gunlukprim:renderGunlukPrim,hedefler:renderHedefler,yillik:renderYillik,muafiyet:renderMuafiyet,aktivasyon:renderAktivasyonTesvık,liderlik:renderLiderlik,crmboard:renderCrmBoard,crmlist:renderCrmList,crmrapor:renderCrmRapor,smsrapor:renderSmsRapor,smsgecmis:renderSmsGecmis};
   if(m[page])m[page]();
 }
 
