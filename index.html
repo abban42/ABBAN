@@ -2356,30 +2356,87 @@ document.addEventListener('DOMContentLoaded',function(){
     }
   });
 });
-
 async function processCrmUpload(){
   const rows=window._crmUploadData;
   if(!rows||!rows.length){showToast('Yüklenecek veri yok!',true);return;}
   showLoading(true);
   let ok=0,fail=0;
+
+  // Tarihe belirtilen gün sayısını ekleyen yardımcı fonksiyon
+  const addDays = (dateStr, days) => {
+    if(!dateStr) return null;
+    const d = new Date(dateStr);
+    if(isNaN(d)) return null;
+    d.setDate(d.getDate() + days);
+    return d.toISOString().split('T');
+  };
+
   for(const r of rows){
-    const grup=parseInt(r[2])||1;
-    const bitis=r[5]?parseExcelDate(r[5]):null;
-    const baslangic=r[4]?parseExcelDate(r[4]):null;
+    // Eğer sütun sayısı 10'dan fazlaysa bunun direkt Turkcell Raporu olduğunu anlıyoruz
+    const isTurkcell = r.length > 10; 
+    
+    let ad, telefon, grup, paket, baslangic, bitis;
+
+    if(isTurkcell) {
+      // --- TURKCELL RAPORU OTOMATİK AYRIŞTIRMA KURALLARINIZ ---
+      ad = String(r[8] || '').trim(); // I sütunu: Adi Soyadi / Sirket Adi
+      telefon = fixPhone(String(r || '').trim()); // A sütunu: Gsm No
+      paket = String(r[25] || '').trim(); // Z sütunu: İlk Tarife
+      
+      const islemTipi = String(r[1] || '').trim().toUpperCase(); // B sütunu
+      const odemeTipi = String(r[2] || '').trim().toUpperCase(); // C sütunu
+      
+      // H sütunu (PortIn Baslangic Zamani). Boşsa L sütunu (Tarih) kullanılır.
+      const rawDate = r[7] ? String(r[7]).split(' ') : (r[11] ? String(r[11]).split(' ') : null);
+      baslangic = parseExcelDate(rawDate);
+      
+      // GRUP ve TAAHHÜT BİTİŞ (360 GÜN / 180 GÜN) KONTROLÜ
+      if(odemeTipi === 'FATURALI') {
+         // YAPBOZ Kontrolü (Z sütunu)
+         if(paket.toUpperCase().includes('YAPBOZ')) {
+           grup = 4; // Grup 4: Yapboz (6 Ay)
+           bitis = addDays(baslangic, 180); // F sütunu: 180 gün (6 ay) eklendi
+         } else {
+           grup = 1; // Grup 1: Postpaid Yeni Tesis / MNT
+           bitis = addDays(baslangic, 360); // F sütunu: 360 gün eklendi
+         }
+      } else {
+         // PREPAID (Faturasız)
+         if(islemTipi.includes('NUMARA')) {
+           grup = 2; // Grup 2: Prepaid MNT
+         } else {
+           grup = 3; // Grup 3: Prepaid Yeni Tesis
+         }
+         bitis = baslangic; // Prepaid için taahhüt olmadığından bitiş = aktivasyon
+      }
+
+    } else {
+      // --- ESKİ MANUEL YÜKLEME ŞABLONU (Eğer manuel Excel yüklerseniz diye) ---
+      ad = String(r||'').trim();
+      telefon = fixPhone(String(r[1]||'').trim());
+      grup = parseInt(r[2])||1;
+      paket = String(r[3]||'').trim();
+      baslangic = r[4]?parseExcelDate(r[4]):null;
+      bitis = r[5]?parseExcelDate(r[5]):null;
+    }
+
     const obj={
-      ad:String(r[0]||'').trim(),
-      telefon:fixPhone(String(r[1]||'').trim()),
-      grup,
-      paket:String(r[3]||'').trim(),
-      taahhut_baslangic:baslangic,
-      taahhut_bitis:(grup===1||grup===4)?bitis:null,
-      aktivasyon_tarihi:(grup===2||grup===3)?bitis:null,
-      eposta:String(r[6]||'').trim(),
-      durum:'aktif',sonuc:'bekliyor'
+      ad: ad,
+      telefon: telefon,
+      grup: grup,
+      paket: paket,
+      taahhut_baslangic: baslangic,
+      taahhut_bitis: (grup===1||grup===4) ? bitis : null,
+      aktivasyon_tarihi: (grup===2||grup===3) ? baslangic : null,
+      durum:'aktif',
+      sonuc:'bekliyor'
     };
+    
+    // Hatırlatma tarihleri hesabı
     const hDates=calcHatirlatma(obj);
-    if(hDates.length>=1)obj.hatirlatma_gun1=hDates[0].toISOString().split('T')[0];
-    if(hDates.length>=2)obj.hatirlatma_gun2=hDates[1].toISOString().split('T')[0];
+    if(hDates.length>=1)obj.hatirlatma_gun1=hDates.toISOString().split('T');
+    if(hDates.length>=2)obj.hatirlatma_gun2=hDates[1].toISOString().split('T');
+    
     try{
       const{data,error}=await sb.from('musteriler').insert([obj]).select().single();
       if(error)throw error;
@@ -2390,6 +2447,7 @@ async function processCrmUpload(){
   closeCrmUpload();
   showToast(`✓ ${ok} müşteri eklendi${fail>0?' ('+fail+' hata)':''}`);
   updateCrmBadge();renderCrmBoard();renderCrmList();
+}
 }
 
 function fixPhone(tel){
