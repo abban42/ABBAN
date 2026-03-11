@@ -378,3 +378,1606 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
     <div class="kc" style="--ac:var(--blue)"><div class="kl">AKTİF DİLİM</div><div class="kv" id="pDilim" style="font-size:14px;padding-top:5px">—</div><div class="ks">Puan aralığı</div></div>
     <div class="kc" style="--ac:var(--green)"><div class="kl">PUAN PRİMİ</div><div class="kv" id="pSonuc">₺0</div><div class="ks" id="pCarpan">—</div></div>
   </div>
+  <div class="ts"><div class="tsh"><div class="tst">PERAKENDECİLİK DİLİMLERİ</div></div><div id="bandTable"></div></div>
+  <div class="cb" style="margin-top:0;">
+    <div class="ct">PUAN PRİMİ ÇARPANI</div>
+    <div class="cs">
+      <div class="csi" id="cs1"><div class="csr">%70–%99</div><div class="csm" id="cm1">×0.65</div><div class="csl">Düşük</div></div>
+      <div class="csi" id="cs2"><div class="csr">%100–%109</div><div class="csm" id="cm2">×1.00</div><div class="csl">Hedef</div></div>
+      <div class="csi" id="cs3"><div class="csr">%110+</div><div class="csm" id="cm3">×1.10</div><div class="csl">Süper</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-gunlukprim">
+  <div class="ph"><div><div class="pt">CANLI <span>PRİM</span></div><div class="ps">600₺ canlı prim hakediş takibi</div></div></div>
+  <div class="info-box"><strong>⚡ Kural:</strong> Günde <strong style="color:#fff">6 POSTPAİD</strong> veya <strong style="color:#fff">5 POSTPAİD + 1 PREPAİD</strong> → <strong style="color:var(--green)">600₺ canlı prim.</strong> &nbsp;|&nbsp; <strong style="color:#fff">12 POSTPAİD</strong> veya <strong style="color:#fff">10 POSTPAİD + 2 PREPAİD</strong> → <strong style="color:var(--yellow)">1.200₺ (×2 kat).</strong> Katlayarak devam eder. Eksik gün ertesi telafi edilirse geçmiş günün primi de kazanılır.</div>
+  <div id="gpCards"></div>
+</div>
+
+<div class="page" id="page-hedefler">
+  <div class="ph"><div><div class="pt">HEDEF <span>AYARLARI</span></div><div class="ps">Ürün hedefleri, prim ve bonus ayarları</div></div><button class="btn btn-p" onclick="saveHedefler()">💾 Kaydet</button></div>
+  <div class="ts">
+    <div class="tsh"><div class="tst">MAĞAZA GENEL HEDEFİ</div></div>
+    <div class="tr2"><div class="tn">Aylık Puan Hedefi</div><div class="ti-wrap"><input type="number" class="ti" id="storeTarget" value="500" style="width:110px"><span class="tu">puan</span></div></div>
+  </div>
+  <div class="ts">
+    <div class="tsh"><div class="tst">BONUS PRİM (%100 Hedef Tamamlama)</div></div>
+    <div class="tr2"><div class="tn">Bonus türü</div><div class="ti-wrap"><select class="ti" id="bonusTip" style="width:160px" onchange="toggleBonus()"><option value="sabit">Sabit Tutar (₺)</option><option value="yuzde">Yüzde (%)</option></select></div></div>
+    <div class="tr2" id="bSabitRow"><div class="tn">Sabit bonus (₺)</div><div class="ti-wrap"><input type="number" class="ti" id="bonusSabit" value="1000" style="width:110px"><span class="tu">₺</span></div></div>
+    <div class="tr2" id="bYuzdeRow" style="display:none"><div class="tn">Yüzde bonus</div><div class="ti-wrap"><input type="number" class="ti" id="bonusYuzde" value="15" style="width:110px"><span class="tu">%</span></div></div>
+    <div class="tr2"><div class="tn">Bonus aktif</div><div class="ti-wrap"><select class="ti" id="bonusAktif" style="width:110px"><option value="1">Evet</option><option value="0">Hayır</option></select></div></div>
+  </div>
+  <div class="ts">
+    <div class="tsh"><div class="tst">ÜRÜN HEDEFLERİ & DEĞERLER</div></div>
+    <div class="ow"><table style="min-width:850px;"><thead><tr><th>Ürün</th><th>Tip</th><th>Zorunlu</th><th>Kişi Başı Hedef</th><th>Puan/Adet</th><th>Prim/Adet (₺)</th><th>Çalışan Primi (₺)</th></tr></thead><tbody id="hedefBody"></tbody></table></div>
+  </div>
+  <div class="ts">
+    <div class="tsh"><div class="tst">ÇARPAN EŞİKLERİ</div></div>
+    <div class="tr2"><div class="tn">%70–%99</div><div class="ti-wrap"><input type="number" class="ti" id="c1" value="0.65" step="0.01"><span class="tu">×</span></div></div>
+    <div class="tr2"><div class="tn">%100–%109</div><div class="ti-wrap"><input type="number" class="ti" id="c2" value="1.00" step="0.01"><span class="tu">×</span></div></div>
+    <div class="tr2"><div class="tn">%110+</div><div class="ti-wrap"><input type="number" class="ti" id="c3" value="1.10" step="0.01"><span class="tu">×</span></div></div>
+  </div>
+  <div class="sh" style="margin-top:4px;"><div class="st">AYLIK <em>HEDEF TAKVİMİ</em></div></div>
+  <div id="hedefTakvim" style="margin-bottom:18px;"></div>
+</div>
+
+<div class="page" id="page-yillik">
+  <div class="ph"><div><div class="pt">12 AYLIK <span>PLAN</span></div><div class="ps">Çalışan bazlı yıllık hedef ve ilerleme</div></div><button class="btn btn-p" onclick="saveYillik()">💾 Kaydet</button></div>
+  <div class="yillik-tabs" id="yillikTabs"></div>
+  <div id="yillikContent"></div>
+  <div class="sh" style="margin-top:10px;"><div class="st">MAĞAZA <em>YILLIK HEDEFLER</em></div></div>
+  <div id="yillikUrunHedef"></div>
+</div>
+
+<div class="page" id="page-liderlik">
+  <div class="ph">
+    <div><div class="pt">LİDERLİK <span>TABLOSU</span></div><div class="ps">Aylık ve yıllık performans sıralaması</div></div>
+    <div style="display:flex;gap:7px;align-items:center;">
+      <button class="btn btn-g" id="liderAyBtn" onclick="setLiderMod('ay')">📅 Bu Ay</button>
+      <button class="btn btn-g" id="liderYilBtn" onclick="setLiderMod('yil')">🏆 Bu Yıl</button>
+      <button class="btn btn-p" onclick="openLiderPrimModal()">🎁 Lider Prim Tanımla</button>
+    </div>
+  </div>
+  <div id="liderContent"></div>
+  <div class="sh" style="margin-top:6px;"><div class="st">TANIMLANMIŞ <em>LİDER PRİMLERİ</em></div></div>
+  <div id="liderPrimList"></div>
+</div>
+
+<div class="ov" id="liderPrimOv">
+  <div class="modal">
+    <h2>LİDER <em>PRİM TANIMLA</em></h2>
+    <div class="msub">Seçilen aya lider olan çalışana prim ekle</div>
+    <div class="fr">
+      <div class="fg"><label>AY</label><select id="lpAy" class="ti"></select></div>
+      <div class="fg"><label>KATEGORİ</label><select id="lpKat" class="ti">
+        <option value="puan">Puan Toplamı</option>
+        <option value="faturali">Faturalı Adet</option>
+        <option value="prepaid">Ön Ödemeli Adet</option>
+        <option value="ntc">NTC Adet</option>
+        <option value="aksesuar">Aksesuar (₺)</option>
+        <option value="ikinciel">2. El Cihaz (₺)</option>
+        <option value="sifir">Sıfır Cihaz (₺)</option>
+        <option value="toplam">Toplam Satış</option>
+      </select></div>
+    </div>
+    <div class="fg"><label>PRİM TUTARI (₺)</label><input type="number" id="lpTutar" class="ti" value="500" min="0"></div>
+    <div class="fg"><label>NOT</label><input type="text" id="lpNot" class="ti" placeholder="Mart ayı lider primi..."></div>
+    <div class="mf"><button class="btn btn-g" onclick="closeLiderPrimModal()">İptal</button><button class="btn btn-p" onclick="saveLiderPrim()">✓ Kaydet</button></div>
+  </div>
+</div>
+
+<div class="page" id="page-muafiyet">
+  <div class="ph"><div><div class="pt">MUAFİYET <span>YÖNETİMİ</span></div><div class="ps">Manuel prim muafiyet kayıtları</div></div><button class="btn btn-p" onclick="openMuafModal()">+ Muafiyet Ekle</button></div>
+  <div class="info-box"><strong>🛡️ Muafiyet:</strong> Zorunlu ürün hedefini tutturamayan çalışana muafiyet tanımlayabilirsiniz — o ay primini almaya devam eder.</div>
+  <div class="tw"><table><thead><tr><th>Çalışan</th><th>Ay</th><th>Neden</th><th>Kayıt Tarihi</th><th>İşlem</th></tr></thead><tbody id="muafBody"></tbody></table></div>
+</div>
+
+<div class="page" id="page-aktivasyon">
+  <div class="ph">
+    <div><div class="pt">AKTİVASYON <span>TEŞVİK PRİMİ</span></div><div class="ps">POS/ÖKC cirosu üzerinden hesaplanan ek prim</div></div>
+    <div style="display:flex;align-items:center;gap:7px;">
+      <button class="btn btn-g" onclick="shiftAktivasyonMonth(-1)">◀</button>
+      <span id="aktivasyonMonthLabel" style="font-family:'Bebas Neue';font-size:16px;color:var(--yellow);letter-spacing:1px;min-width:110px;text-align:center;">—</span>
+      <button class="btn btn-g" onclick="shiftAktivasyonMonth(1)">▶</button>
+    </div>
+  </div>
+  <div class="info-box">
+    <strong>📋 Kural:</strong> Aylık min. <strong style="color:#1a1a2e">5 faturalı aktivasyon</strong> koşulu ile;
+    HGO ve toplam aktivasyon bazlı iki çarpan <strong style="color:#1a1a2e">toplanarak</strong> POS cirosuna uygulanır.
+    Koşul: HGO ≥%100 <strong style="color:#1a1a2e">veya</strong> toplam aktivasyon ≥50 olmalıdır.
+  </div>
+
+  <div class="ts" style="margin-bottom:16px;">
+    <div class="tsh"><div class="tst">💳 AYLIK POS / ÖKC CİROSU</div></div>
+    <div class="tr2">
+      <div class="tn">Bu ayki toplam POS cirosu</div>
+      <div class="ti-wrap">
+        <input type="number" class="ti" id="posCiro" value="85000" style="width:130px" oninput="renderAktivasyonTesvık()">
+        <span class="tu">₺</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="kg kg3" style="margin-bottom:18px;">
+    <div class="kc" style="--ac:var(--blue)">
+      <div class="kl">TOPLAM HGO</div>
+      <div class="kv" id="atHgo">—</div>
+      <div class="ks" id="atHgoLabel">Hedef gerçekleşme</div>
+    </div>
+    <div class="kc" style="--ac:var(--yellow)">
+      <div class="kl">TOPLAM AKTİVASYON</div>
+      <div class="kv" id="atAdet">0</div>
+      <div class="ks">Bu ay toplam</div>
+    </div>
+    <div class="kc" style="--ac:var(--green)">
+      <div class="kl">FATURALI AKTİVASYON</div>
+      <div class="kv" id="atFaturali">0</div>
+      <div class="ks">Min. 5 gerekli</div>
+    </div>
+  </div>
+
+  <div class="kg kg2" style="margin-bottom:18px;">
+    <div class="ts" style="margin-bottom:0">
+      <div class="tsh"><div class="tst">📊 HGO BAZLI ÇARPAN</div></div>
+      <div id="atHgoTable"></div>
+    </div>
+    <div class="ts" style="margin-bottom:0">
+      <div class="tsh"><div class="tst">📊 AKTİVASYON BAZLI ÇARPAN</div></div>
+      <div id="atAdetTable"></div>
+    </div>
+  </div>
+
+  <div id="atSonucBox"></div>
+</div>
+
+<div class="page" id="page-crmboard">
+  <div class="ph">
+    <div><div class="pt">BUGÜN <span>ARANACAKLAR</span></div><div class="ps" id="crmBoardPs">Bugün aranması gereken müşteriler</div></div>
+    <div style="display:flex;gap:7px;">
+      <button class="btn btn-g" onclick="openCrmAddModal()">+ Müşteri Ekle</button>
+      <button class="btn btn-p" onclick="openCrmUpload()">📥 Excel Yükle</button>
+    </div>
+  </div>
+  <div class="kg kg4" id="crmSummaryCards"></div>
+  <div id="crmTodayList"></div>
+  <div id="crmUpcomingList" style="margin-top:18px;"></div>
+</div>
+
+<div class="page" id="page-crmlist">
+  <div class="ph">
+    <div><div class="pt">TÜM <span>MÜŞTERİLER</span></div><div class="ps">Kayıtlı müşteri listesi ve durumları</div></div>
+    <div style="display:flex;gap:7px;">
+      <button class="btn btn-g" onclick="openCrmAddModal()">+ Müşteri Ekle</button>
+      <select class="month-sel" id="crmGrupFilter" onchange="renderCrmList()" style="width:180px;padding:6px 9px;">
+        <option value="0">Tüm Gruplar</option>
+        <option value="1">Grup 1 — Postpaid 1 Yıl</option>
+        <option value="2">Grup 2 — Prepaid MNT</option>
+        <option value="3">Grup 3 — Prepaid Yeni Tesis</option>
+        <option value="4">Grup 4 — Yapboz 6 Ay</option>
+      </select>
+    </div>
+  </div>
+  <div class="tw"><table><thead><tr><th>Müşteri</th><th>Telefon</th><th>Grup</th><th>Taahhüt Bitiş</th><th>Hatırlatma</th><th>Durum</th><th>Sonuç</th><th>Son Arama</th><th>İşlem</th></tr></thead><tbody id="crmListBody"></tbody></table></div>
+</div>
+
+<div class="page" id="page-crmrapor">
+  <div class="ph">
+    <div><div class="pt">ARAMA <span>RAPORU</span></div><div class="ps">Haftalık ve aylık arama istatistikleri</div></div>
+  </div>
+  <div class="kg kg4" id="crmRaporCards"></div>
+  <div class="sh"><div class="st">SON <em>ARAMA KAYITLARI</em></div></div>
+  <div class="tw"><table><thead><tr><th>Müşteri</th><th>Tarih</th><th>Durum</th><th>Sonuç</th><th>Not</th><th>Arayan</th></tr></thead><tbody id="crmRaporBody"></tbody></table></div>
+</div>
+
+<div class="page" id="page-smsgonder">
+  <div class="ph">
+    <div><div class="pt">HIZLI <span>SMS GÖNDER</span></div><div class="ps">Tek kişiye veya toplu SMS gönder</div></div>
+  </div>
+  <div class="ts" style="margin-bottom:16px;">
+    <div class="tsh"><div class="tst">📱 SMS GÖNDER</div></div>
+    <div style="padding:14px;">
+      <div class="fr">
+        <div class="fg"><label>ALICI SEÇ</label><select id="smsTekAlici" onchange="smsAliciSec()">
+          <option value="">— Listeden seç veya numara gir —</option>
+          <option disabled style="font-weight:700;color:var(--yellow)">── ÇALIŞANLAR ──</option>
+        </select></div>
+        <div class="fg"><label>TELEFON</label><input type="tel" id="smsTekTel" placeholder="0532 XXX XX XX"></div>
+      </div>
+      <div class="fg"><label>MESAJ <span id="smsTekCount" style="color:var(--gray);font-size:10px">(0/160)</span></label><textarea id="smsTekMesaj" placeholder="Mesajınızı yazın..." oninput="smsTekSay()" style="min-height:100px;"></textarea></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+        <div style="font-size:10px;color:var(--gray)">NetGSM · Gönderici: ABBANELTRNK</div>
+        <button class="btn btn-p" onclick="sendTekSms()">📤 SMS Gönder</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-smsrapor">
+  <div class="ph">
+    <div><div class="pt">HAFTALIK <span>RAPOR SMS</span></div><div class="ps">Çalışanlara kişiye özel performans SMS'i gönder</div></div>
+    <div style="display:flex;gap:7px;">
+      <button class="btn btn-g" onclick="generateWeeklyReports()">🔄 Raporları Oluştur</button>
+      <button class="btn btn-p" onclick="sendAllWeeklyReports()">📤 Hepsini Gönder</button>
+    </div>
+  </div>
+  <div class="info-box">
+    <strong>💬 Nasıl çalışır:</strong> "Raporları Oluştur" butonuna basın → her çalışan için haftalık performans + kişiye özel espirili mesaj oluşturulur. Önizleyip düzenleyebilirsiniz. "Gönder" ile NetGSM üzerinden SMS olarak gider.
+  </div>
+  <div id="smsRaporCards"></div>
+</div>
+
+<div class="page" id="page-smsgecmis">
+  <div class="ph">
+    <div><div class="pt">SMS <span>GEÇMİŞİ</span></div><div class="ps">Gönderilen SMS kayıtları</div></div>
+  </div>
+  <div class="tw"><table><thead><tr><th>Tarih</th><th>Telefon</th><th>Mesaj</th><th>Durum</th></tr></thead><tbody id="smsGecmisBody"></tbody></table></div>
+</div>
+
+<div class="ov" id="crmAddOv">
+  <div class="modal">
+    <h2>MÜŞTERİ <em id="crmAddTitle">EKLE</em></h2>
+    <div class="msub">Yeni müşteri kaydı</div>
+    <input type="hidden" id="crmEditId" value="">
+    <div class="fr">
+      <div class="fg"><label>MÜŞTERİ ADI</label><input type="text" id="crmAd" placeholder="Ad Soyad / Şirket"></div>
+      <div class="fg"><label>TELEFON</label><input type="tel" id="crmTel" placeholder="0532 XXX XX XX"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>GRUP</label><select id="crmGrup">
+        <option value="1">Grup 1 — Postpaid (1 Yıl Taahhüt)</option>
+        <option value="2">Grup 2 — Prepaid MNT</option>
+        <option value="3">Grup 3 — Prepaid Yeni Tesis</option>
+        <option value="4">Grup 4 — Yapboz Paket (6 Ay)</option>
+      </select></div>
+      <div class="fg"><label>PAKET / TARİFE</label><input type="text" id="crmPaket" placeholder="Paket adı"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>TAAHHÜT BAŞLANGIÇ</label><input type="date" id="crmBaslangic"></div>
+      <div class="fg"><label>TAAHHÜT BİTİŞ / AKTİVASYON</label><input type="date" id="crmBitis"></div>
+    </div>
+    <div class="fg"><label>E-POSTA</label><input type="email" id="crmEposta" placeholder="ornek@mail.com"></div>
+    <div class="mf"><button class="btn btn-g" onclick="closeCrmAddModal()">İptal</button><button class="btn btn-p" onclick="saveCrmMusteri()">✓ Kaydet</button></div>
+  </div>
+</div>
+
+<div class="ov" id="crmCallOv">
+  <div class="modal">
+    <h2>ARAMA <em>KAYDI</em></h2>
+    <div class="msub" id="crmCallSub">Müşteri arama sonucu girin</div>
+    <input type="hidden" id="crmCallMusteriId" value="">
+    <div class="fg"><label>DURUM</label><select id="crmCallDurum">
+      <option value="arandi">✓ Arandı — Ulaşıldı</option>
+      <option value="ulasilamadi">✗ Ulaşılamadı</option>
+      <option value="mesgul">📞 Meşgul / Daha Sonra</option>
+    </select></div>
+    <div class="fg"><label>SONUÇ</label><select id="crmCallSonuc">
+      <option value="">— Henüz sonuç yok —</option>
+      <option value="taahhut_yenilendi">✅ Taahhüt Yenilendi</option>
+      <option value="postpaide_gecti">✅ Postpaid'e Geçti</option>
+      <option value="dusunuyor">⏳ Düşünüyor</option>
+      <option value="reddetti">❌ Reddetti</option>
+      <option value="iptal_etti">❌ İptal Etti</option>
+      <option value="numara_yanlis">⚠️ Numara Yanlış</option>
+    </select></div>
+    <div class="fg"><label>NOT</label><textarea id="crmCallNot" placeholder="Görüşme detayları, randevu tarihi, vb..."></textarea></div>
+    <div class="mf"><button class="btn btn-g" onclick="closeCrmCallModal()">İptal</button><button class="btn btn-p" onclick="saveCrmCall()">✓ Kaydet</button></div>
+  </div>
+</div>
+
+<div class="ov" id="crmUploadOv">
+  <div class="modal">
+    <h2>EXCEL <em>YÜKLE</em></h2>
+    <div class="msub">Müşteri listesini Excel'den içe aktar</div>
+    <div class="info-box">
+      <strong>📋 Format:</strong> Excel dosyanızda şu sütunlar olmalı:<br>
+      <strong>A:</strong> Müşteri Adı &nbsp;|&nbsp; <strong>B:</strong> Telefon &nbsp;|&nbsp; <strong>C:</strong> Grup (1-4) &nbsp;|&nbsp; <strong>D:</strong> Paket<br>
+      <strong>E:</strong> Taahhüt Başlangıç &nbsp;|&nbsp; <strong>F:</strong> Taahhüt Bitiş / Aktivasyon Tarihi &nbsp;|&nbsp; <strong>G:</strong> E-posta (opsiyonel)
+    </div>
+    <div class="fg">
+      <label>DOSYA SEÇ</label>
+      <input type="file" id="crmFile" accept=".xlsx,.xls,.csv" style="background:#f7f8fa;border:1px solid var(--border);border-radius:8px;padding:10px;width:100%;font-family:'Outfit';cursor:pointer;">
+    </div>
+    <div id="crmUploadPreview" style="display:none;margin-top:12px;"></div>
+    <div class="mf"><button class="btn btn-g" onclick="closeCrmUpload()">İptal</button><button class="btn btn-p" id="crmUploadBtn" onclick="processCrmUpload()" disabled>📥 İçe Aktar</button></div>
+  </div>
+</div>
+
+<div class="ov" id="saleOv">
+  <div class="modal">
+    <h2>SATIŞ <em id="sModalTitle">EKLE</em></h2>
+    <div class="msub" id="sSub">Yeni satış kaydı</div>
+    <input type="hidden" id="editId" value="">
+    <div class="fr">
+      <div class="fg"><label>ÇALIŞAN</label><select id="sEmp"></select></div>
+      <div class="fg"><label>ÜRÜN</label><select id="sProd" onchange="updatePrev()"></select></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>ADET</label><input type="number" id="sQty" value="1" min="1" oninput="updatePrev()"></div>
+      <div class="fg"><label>TARİH</label><input type="date" id="sDate"></div>
+    </div>
+    <div class="fg" id="manuelGrp" style="display:none">
+      <label>KARLILIK (₺/adet)</label>
+      <input type="number" id="sManuel" value="0" min="0" oninput="updatePrev()">
+      <div style="margin-top:6px;padding:8px 11px;background:rgba(0,168,107,0.07);border-radius:7px;border:1px solid rgba(0,168,107,0.2);font-size:12px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="color:var(--gray)">Çalışan Primi (%10)</span>
+        <strong id="calisanPrimPreview" style="color:var(--green)">₺0</strong>
+      </div>
+    </div>
+    <div class="fg" id="acGrp" style="display:none"><label>AÇIKLAMA</label><textarea id="sAc" placeholder="Cihaz modeli, kondisyon, fiyat..."></textarea></div>
+    <div class="pvb">
+      <div class="pr2"><span class="pl">Ürün Tipi</span><span id="pvTip" style="font-weight:600">—</span></div>
+      <div class="pr2"><span class="pl">Puan</span><span id="pvPuan" style="color:var(--yellow);font-weight:600">—</span></div>
+      <div class="pr2"><span class="pl">Adet Primi</span><span id="pvPrim" style="color:var(--green);font-weight:600">—</span></div>
+      <div class="pr2" id="pvMRow" style="display:none"><span class="pl">Manuel Prim</span><span id="pvM" style="color:var(--blue);font-weight:600">—</span></div>
+    </div>
+    <div class="mf"><button class="btn btn-g" onclick="closeSaleModal()">İptal</button><button class="btn btn-p" id="saveSaleBtn" onclick="saveSale()">✓ Kaydet</button></div>
+  </div>
+</div>
+
+<div class="ov" id="muafOv">
+  <div class="modal">
+    <h2>MUAFİYET <em>EKLE</em></h2>
+    <div class="msub">Bu çalışan bu ay primini almaya devam edecek</div>
+    <div class="fr">
+      <div class="fg"><label>ÇALIŞAN</label><select id="mEmp"></select></div>
+      <div class="fg"><label>AY</label><select id="mAy"></select></div>
+    </div>
+    <div class="fg"><label>NEDEN</label><textarea id="mNeden" placeholder="Hastalık, izin, özel durum..."></textarea></div>
+    <div class="mf"><button class="btn btn-g" onclick="closeMuafModal()">İptal</button><button class="btn btn-p" onclick="saveMuafiyet()">✓ Kaydet</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// SUPABASE
+// ============================================================
+const SURL='https://wjsonuxlcrmdaaxodsti.supabase.co';
+const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indqc29udXhsY3JtZGFheG9kc3RpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NzEyMjQsImV4cCI6MjA4ODE0NzIyNH0.y59-uIYp4ZNop-2yRm6JaighBoCzo8BpEp9K-VAglwo';
+const sb=supabase.createClient(SURL,SKEY);
+
+// ============================================================
+// SABİT VERİ
+// ============================================================
+const MONTHS=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+const products=[
+  {name:"SÜPERBOX",                    tip:"postpaid",puan:7,  prim:1256,manuel:false,hedef:2, zorunlu:false, yillikHedef:10},
+  {name:"FİBER",                       tip:"postpaid",puan:5,  prim:1256,manuel:false,hedef:2, zorunlu:false, yillikHedef:12},
+  {name:"ORTAK ALTYAPI",               tip:"postpaid",puan:3.5,prim:628, manuel:false,hedef:2, zorunlu:false, yillikHedef:10, hidden:true},
+  {name:"FATURALI YENİ TESİS ve MNT",  tip:"postpaid",puan:4.5,prim:564, manuel:false,hedef:5, zorunlu:true,  yillikHedef:400},
+  {name:"SWİTCH",                      tip:"postpaid",puan:2,  prim:294, manuel:false,hedef:3, zorunlu:true,  yillikHedef:133},
+  {name:"FATURALI DATA",               tip:"postpaid",puan:4.5,prim:338, manuel:false,hedef:4, zorunlu:false, yillikHedef:80, hidden:true},
+  {name:"ÖN ÖDEMELİ YENİ TESİS",      tip:"prepaid", puan:1,  prim:183, manuel:false,hedef:6, zorunlu:false, yillikHedef:200},
+  {name:"ÖN ÖDEMELİ MNT",             tip:"prepaid", puan:1,  prim:254, manuel:false,hedef:5, zorunlu:false, yillikHedef:200},
+  {name:"TURKCELL RAHAT ve MNT",       tip:"prepaid", puan:1.5,prim:338, manuel:false,hedef:4, zorunlu:false, yillikHedef:50, hidden:true},
+  {name:"RAHATTAN FATURALIYA GEÇİŞ",   tip:"postpaid",puan:2,  prim:245, manuel:false,hedef:3, zorunlu:false, yillikHedef:40, hidden:true},
+  {name:"ÖN ÖDEMELİDEN RAHATA GEÇİŞ", tip:"prepaid", puan:1.5,prim:270, manuel:false,hedef:3, zorunlu:false, yillikHedef:30, hidden:true},
+  {name:"REKONTRATLAMA 1",             tip:"notr",    puan:0,  prim:370, manuel:false,hedef:5, zorunlu:true,  yillikHedef:80},
+  {name:"REKONTRATLAMA 2",             tip:"notr",    puan:0,  prim:420, manuel:false,hedef:3, zorunlu:true,  yillikHedef:80},
+  {name:"REKONTRATLAMA 3",             tip:"notr",    puan:0,  prim:500, manuel:false,hedef:2, zorunlu:true,  yillikHedef:60},
+  {name:"AKG",                         tip:"prepaid", puan:0,  prim:0,   manuel:false,hedef:2, zorunlu:true,  yillikHedef:23},
+  {name:"NTC",                         tip:"postpaid",puan:3,  prim:0,   manuel:true, hedef:4, zorunlu:true,  hedefTL:5000, aciklama:true, yillikHedef:240},
+  {name:"2. EL CİHAZ",                 tip:"notr",    puan:0,  prim:0,   manuel:true, hedef:0, zorunlu:false, hedefTL:12917,aciklama:true, yillikHedefTL:155000},
+  {name:"SIFIR CİHAZ",                 tip:"notr",    puan:0,  prim:0,   manuel:true, hedef:0, zorunlu:false, hedefTL:13542,aciklama:true, yillikHedefTL:162500},
+  {name:"AKSESUAR",                    tip:"notr",    puan:0,  prim:0,   manuel:true, hedef:0, zorunlu:false, hedefTL:26042,yillikHedefTL:312500},
+];
+const employees=[
+  {name:"Abdurrahman Yıldırım",color:"#FFD100",initials:"AY",tel:"05326822277",
+   karakter:"İşkolik, Beşiktaşlı, ekmeğini kes çayını kesme, evli 3 çocuk, Güneysinır Durayda köyünden, 44 yaşında"},
+  {name:"Hüseyin Ergün",       color:"#00e5a0",initials:"HE",tel:"05363125015",
+   karakter:"Zaman mefhumu yok, Konyasporlu, satış canavarı, 2 kızı var, Konya Başarakavaklı, 46 yaşında"},
+  {name:"Kerem Ardıç",         color:"#4fa3ff",initials:"KA",tel:"05304031534",
+   karakter:"Yakışıklı ama geç anlayan, Fenerbahçeli, kızlarla arası iyi, cihaz satış potansiyeli var, bekar Ermeneği, 25 yaşında, temiz tertipli"},
+  {name:"Melike Erdal",        color:"#ff6b9d",initials:"ME",tel:"05326521404",
+   karakter:"Güzel alımlı, çok makyaj yapar, bazen sinirli halleri olur, bekar 18 yaşında, Galatasaraylı, Niğdeli"},
+];
+const primBands=[
+  {min:190,max:239,prim:2228},{min:240,max:289,prim:5495},
+  {min:290,max:389,prim:7277},{min:390,max:489,prim:11955},
+  {min:490,max:589,prim:17078},{min:590,max:689,prim:24354},
+  {min:690,max:889,prim:29849},{min:890,max:1089,prim:43362},
+  {min:1090,max:1289,prim:59697},{min:1290,max:1589,prim:77443},
+  {min:1590,max:1889,prim:110633},{min:1890,max:Infinity,prim:149391},
+];
+
+// ============================================================
+// DURUM
+// ============================================================
+let sales=[];
+let muafiyetler=[];
+let yillikHedefler=employees.map(()=>MONTHS.map(()=>({puanHedef:Math.round(500/employees.length)})));
+let carpanlar={c1:0.65,c2:1.00,c3:1.10};
+let storeTarget=500;
+let bonusAyar={tip:'sabit',sabit:1000,yuzde:15,aktif:true};
+const now=new Date();
+let activeMonth=now.getMonth();
+let activeYear=now.getFullYear();
+let activeYillikEmp=0;
+
+// ============================================================
+// YARDIMCILAR
+// ============================================================
+const fmt=n=>(n||0).toLocaleString('tr-TR');
+const fmtTL=n=>'₺'+Math.round(n||0).toLocaleString('tr-TR');
+const tipLabel=t=>t==='postpaid'?'<span class="tpp">POSTPAİD</span>':t==='prepaid'?'<span class="tpr">PREPAİD</span>':'<span class="tnt">NÖTR</span>';
+const tipName=t=>t==='postpaid'?'POSTPAİD':t==='prepaid'?'PREPAİD':'NÖTR';
+
+function getMonthSales(m=activeMonth,y=activeYear){
+  return sales.filter(s=>{const d=new Date(s.date);return d.getMonth()===m&&d.getFullYear()===y;});
+}
+function getEmpStats(ei,m=activeMonth,y=activeYear){
+  let puan=0,adetPrim=0,manuelPrim=0,adet=0,calisanPrimTop=0;
+  getMonthSales(m,y).filter(s=>s.emp===ei).forEach(s=>{
+    const p=products[s.prod];
+    puan+=p.puan*s.qty;
+    if(!p.manuel){
+      adetPrim+=p.prim*s.qty;
+      calisanPrimTop+=(p.calisanPrim||0)*s.qty;
+    } else {
+      manuelPrim+=(s.manuel_prim||0)*s.qty;
+      // Manuel ürünlerde (TL bazlı) karlılığın %10'u çalışan primi
+      calisanPrimTop+=Math.round((s.manuel_prim||0)*s.qty*0.1);
+    }
+    adet+=s.qty;
+  });
+  return{puan,adetPrim,manuelPrim,adet,totalPrim:adetPrim+manuelPrim,calisanPrim:calisanPrimTop};
+}
+function getTotalStats(m=activeMonth,y=activeYear){
+  let puan=0,adetPrim=0,manuelPrim=0,adet=0;
+  getMonthSales(m,y).forEach(s=>{
+    const p=products[s.prod];
+    puan+=p.puan*s.qty;
+    if(!p.manuel)adetPrim+=p.prim*s.qty;
+    else manuelPrim+=(s.manuel_prim||0)*s.qty;
+    adet+=s.qty;
+  });
+  return{puan,adetPrim,manuelPrim,adet};
+}
+function getPrimBand(puan){return primBands.find(b=>puan>=b.min&&puan<=b.max)||null;}
+function getCarpan(pct){if(pct>=110)return carpanlar.c3;if(pct>=100)return carpanlar.c2;if(pct>=70)return carpanlar.c1;return 0;}
+function getPuanPrim(puan){
+  const band=getPrimBand(puan);if(!band)return 0;
+  const pct=storeTarget>0?(puan/storeTarget)*100:0;
+  return Math.round(band.prim*getCarpan(pct));
+}
+function getEmpZorunlu(ei,m=activeMonth,y=activeYear){
+  const ms=getMonthSales(m,y).filter(s=>s.emp===ei);
+  return products.map((p,pi)=>{
+    if(!p.zorunlu||p.hidden)return null;
+    let qty=0;ms.filter(s=>s.prod===pi).forEach(s=>qty+=s.qty);
+    if(p.manuel){
+      let tlK=0;ms.filter(s=>s.prod===pi).forEach(s=>tlK+=(s.manuel_prim||0)*s.qty);
+      return{pi,name:p.name,met:tlK>=(p.hedefTL||0),qty,tlK,hedefTL:p.hedefTL||0,isManuel:true};
+    }
+    return{pi,name:p.name,met:qty>=p.hedef,qty,hedef:p.hedef,isManuel:false};
+  }).filter(Boolean);
+}
+function empHasMuafiyet(ei,m=activeMonth,y=activeYear){
+  return muafiyetler.some(mu=>mu.emp===ei&&mu.ay===m&&mu.yil===y);
+}
+function empPrimHak(ei,m=activeMonth,y=activeYear){
+  if(empHasMuafiyet(ei,m,y))return{hak:true,muaf:true};
+  const z=getEmpZorunlu(ei,m,y);
+  const eksik=z.filter(x=>!x.met);
+  return{hak:eksik.length===0,muaf:false,eksik};
+}
+function calcBonus(totalPrim,puan,empTarget){
+  if(!bonusAyar.aktif)return 0;
+  const pct=empTarget>0?(puan/empTarget)*100:0;
+  if(pct<100)return 0;
+  return bonusAyar.tip==='sabit'?bonusAyar.sabit:Math.round(totalPrim*(bonusAyar.yuzde/100));
+}
+function getDailyPrim(ei){
+  const eom=new Date(activeYear,activeMonth+1,0);
+  const days=eom.getDate();
+  const res=[];
+  for(let d=1;d<=days;d++){
+    const ds=`${activeYear}-${String(activeMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let pp=0,pr=0;
+    sales.filter(s=>s.emp===ei&&s.date===ds).forEach(s=>{
+      const t=products[s.prod]?.tip;
+      if(t==='postpaid')pp+=s.qty;else if(t==='prepaid')pr+=s.qty;
+    });
+    // Kaç kat prim kazanıldı hesapla (6PP=1 kat, 12PP=2 kat, vs.)
+    let kat=0;
+    let kPP=pp, kPR=pr;
+    while(kPP>=6||(kPP>=5&&kPR>=1)){
+      kat++;
+      if(kPP>=6){kPP-=6;}
+      else{kPP-=5;kPR-=1;}
+    }
+    res.push({date:ds,day:d,pp,pr,met:kat>=1,kat});
+  }
+  return res.map((r,i)=>{
+    if(r.met)return{...r,earned:true,comp:false};
+    if(i<res.length-1){
+      const nx=res[i+1];
+      if(nx&&(nx.pp>=6||(nx.pp>=5&&nx.pr>=1))){
+        if((r.pp+nx.pp>=12)||((r.pp+nx.pp>=10)&&(r.pr+nx.pr>=2)))
+          return{...r,earned:true,comp:true,kat:1};
+      }
+    }
+    return{...r,earned:false,comp:false,kat:0};
+  });
+}
+
+// ============================================================
+// SUPABASE CRUD
+// ============================================================
+async function loadAll(){
+  showLoading(true);
+  try{
+    const[{data:sd},{data:md},{data:ad},{data:ud},{data:yd},{data:ld}]=await Promise.all([
+      sb.from('sales').select('*').order('created_at',{ascending:false}),
+      sb.from('muafiyetler').select('*').order('created_at',{ascending:false}),
+      sb.from('ayarlar').select('*').eq('id',1).single(),
+      sb.from('urun_ayarlar').select('*'),
+      sb.from('yillik_hedefler').select('*'),
+      sb.from('lider_primler').select('*').order('created_at',{ascending:false}),
+    ]);
+    sales=sd||[];
+    // Eski çalışan index düzeltme
+    sales.forEach(s=>{ if(s.emp>=employees.length) s.emp=0; });
+    // Ürün index güvenlik: sınır dışı indexleri düzelt
+    sales.forEach(s=>{
+      if(s.prod<0||s.prod>=products.length) s.prod=0;
+    });
+    // Geçersiz kayıtları filtrele
+    sales=sales.filter(s=>s.emp>=0&&s.emp<employees.length&&s.prod>=0&&s.prod<products.length);
+    muafiyetler=md||[];
+    liderPrimler=ld||[];
+    if(ad){
+      storeTarget=ad.store_target||500;
+      carpanlar={c1:ad.carpan_c1||0.65,c2:ad.carpan_c2||1.00,c3:ad.carpan_c3||1.10};
+      bonusAyar={tip:ad.bonus_tip||'sabit',sabit:ad.bonus_sabit||1000,yuzde:ad.bonus_yuzde||15,aktif:ad.bonus_aktif!==false};
+    }
+    if(ud&&ud.length){
+      ud.forEach(row=>{
+        if(products[row.id]){
+          const p=products[row.id];
+          p.hedef=row.hedef;p.hedefTL=row.hedef_tl;
+          p.puan=row.puan;p.prim=row.prim;p.zorunlu=row.zorunlu;
+        }
+      });
+    }
+    if(yd&&yd.length){
+      yd.forEach(row=>{
+        if(yillikHedefler[row.emp]&&yillikHedefler[row.emp][row.ay])
+          yillikHedefler[row.emp][row.ay].puanHedef=row.puan_hedef;
+      });
+    }
+  }catch(e){
+    showToast('Veri yükleme hatası: '+e.message,true);
+  }finally{
+    showLoading(false);
+    await loadCrmData();
+    initCrmNotifications();
+    renderDashboard();
+  }
+}
+
+async function dbAddSale(obj){
+  const{data,error}=await sb.from('sales').insert([obj]).select().single();
+  if(error)throw error;
+  return data;
+}
+async function dbUpdateSale(id,obj){
+  const{error}=await sb.from('sales').update(obj).eq('id',id);
+  if(error)throw error;
+}
+async function dbDeleteSale(id){
+  const{error}=await sb.from('sales').delete().eq('id',id);
+  if(error)throw error;
+}
+async function dbSaveAyarlar(){
+  const{error}=await sb.from('ayarlar').upsert({
+    id:1,store_target:storeTarget,
+    carpan_c1:carpanlar.c1,carpan_c2:carpanlar.c2,carpan_c3:carpanlar.c3,
+    bonus_tip:bonusAyar.tip,bonus_sabit:bonusAyar.sabit,
+    bonus_yuzde:bonusAyar.yuzde,bonus_aktif:bonusAyar.aktif,
+    updated_at:new Date().toISOString()
+  });
+  if(error)throw error;
+}
+async function dbSaveUrunAyarlar(){
+  const rows=products.map((p,i)=>({id:i,hedef:p.hedef,hedef_tl:p.hedefTL||0,puan:p.puan,prim:p.prim,zorunlu:p.zorunlu,updated_at:new Date().toISOString()}));
+  const{error}=await sb.from('urun_ayarlar').upsert(rows);
+  if(error)throw error;
+}
+async function dbAddMuafiyet(obj){
+  const{data,error}=await sb.from('muafiyetler').insert([obj]).select().single();
+  if(error)throw error;
+  return data;
+}
+async function dbDeleteMuafiyet(id){
+  const{error}=await sb.from('muafiyetler').delete().eq('id',id);
+  if(error)throw error;
+}
+async function dbSaveYillik(ei,mi,hedef){
+  const{error}=await sb.from('yillik_hedefler').upsert({emp:ei,ay:mi,yil:activeYear,puan_hedef:hedef},{onConflict:'emp,ay,yil'});
+  if(error)throw error;
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function renderDashboard(){
+  const tot=getTotalStats();
+  const pct=storeTarget>0?(tot.puan/storeTarget)*100:0;
+  const puanPrim=getPuanPrim(tot.puan);
+  const carpan=getCarpan(pct);
+  document.getElementById('k1').textContent=fmt(tot.puan);
+  document.getElementById('k1h').textContent=fmt(storeTarget)+' puan';
+  document.getElementById('k2').textContent=fmtTL(tot.adetPrim);
+  document.getElementById('k3').textContent=fmtTL(puanPrim);
+  document.getElementById('k4').textContent=fmtTL(tot.adetPrim+puanPrim+tot.manuelPrim);
+  const ob=document.getElementById('k1o');
+  ob.textContent='%'+Math.round(pct);
+  ob.className='badge '+(pct>=110?'bg':pct>=100?'bb':pct>=70?'by':'br');
+  document.getElementById('k3c').textContent='Çarpan: ×'+carpan.toFixed(2);
+  ['cs1','cs2','cs3'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('hi');});
+  ['cm1','cm2','cm3'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('ac');});
+  if(pct>=110){const e=document.getElementById('cs3');if(e)e.classList.add('hi');const f=document.getElementById('cm3');if(f)f.classList.add('ac');}
+  else if(pct>=100){const e=document.getElementById('cs2');if(e)e.classList.add('hi');const f=document.getElementById('cm2');if(f)f.classList.add('ac');}
+  else if(pct>=70){const e=document.getElementById('cs1');if(e)e.classList.add('hi');const f=document.getElementById('cm1');if(f)f.classList.add('ac');}
+  renderMagazaOzet();
+}
+
+function renderMagazaOzet(){
+  const ms=getMonthSales();
+  const eom=new Date(activeYear,activeMonth+1,0);
+  const totalDays=eom.getDate();
+  const today=new Date();
+  const isThisMonth=today.getMonth()===activeMonth&&today.getFullYear()===activeYear;
+  const passedDays=isThisMonth?today.getDate():totalDays;
+  const remDays=Math.max(0,totalDays-passedDays);
+
+  // Mağaza toplam adetler
+  let topFaturali=0,topPrepaid=0,topSwitch=0,topRekon=0,topDiger=0,topAdet=0;
+  ms.forEach(s=>{
+    const p=products[s.prod];
+    topAdet+=s.qty;
+    if(p.tip==='postpaid'&&s.prod<=3) topFaturali+=s.qty;
+    else if(p.tip==='postpaid'&&s.prod===4) topSwitch+=s.qty;
+    else if(p.tip==='prepaid') topPrepaid+=s.qty;
+    else if(p.tip==='rekon') topRekon+=s.qty;
+    else topDiger+=s.qty;
+  });
+
+  // Günlük ortalama ve gidişat
+  const gunlukOrt=passedDays>0?Math.round(topAdet/passedDays*10)/10:0;
+  const tahminiAySonu=Math.round(gunlukOrt*totalDays);
+  const hedefAdet=products.reduce((a,p)=>a+((p.hidden||p.manuel)?0:(p.hedef||0)),0)*employees.length;
+
+  // Çalışan bazlı adet
+  const empAdetHedef=products.reduce((a,p)=>a+((p.manuel||p.hidden)?0:(p.hedef||0)),0);
+  const empRows=employees.map((emp,i)=>{
+    let adet=0,faturali=0,prepaid=0,puan=0;
+    ms.filter(s=>s.emp===i).forEach(s=>{
+      const p=products[s.prod];
+      adet+=s.qty;puan+=p.puan*s.qty;
+      if(p.tip==='postpaid')faturali+=s.qty;
+      else if(p.tip==='prepaid')prepaid+=s.qty;
+    });
+    const empHedef=Math.round(storeTarget/employees.length);
+    const oran=empHedef>0?Math.min(999,Math.round(puan/empHedef*100)):0;
+    const adetOran=empAdetHedef>0?Math.min(999,Math.round(adet/empAdetHedef*100)):0;
+    const tahmini=passedDays>0?Math.round(adet/passedDays*totalDays):0;
+    return {emp,faturali,prepaid,adet,puan,oran,adetOran,tahmini};
+  });
+
+  const el=document.getElementById('magazaOzet');
+  el.innerHTML=`
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
+    <div class="kc" style="--ac:var(--blue)">
+      <div class="kl">GÜNLÜK ORTALAMA</div>
+      <div class="kv">${gunlukOrt}</div>
+      <div class="ks">adet/gün (${passedDays} gün geçti)</div>
+    </div>
+    <div class="kc" style="--ac:var(--yellow)">
+      <div class="kl">AY SONU TAHMİN</div>
+      <div class="kv">${tahminiAySonu}</div>
+      <div class="ks">mevcut gidişatta</div>
+    </div>
+    <div class="kc" style="--ac:var(--green)">
+      <div class="kl">KALAN GÜN</div>
+      <div class="kv">${remDays}</div>
+      <div class="ks">ay sonuna</div>
+    </div>
+    <div class="kc" style="--ac:var(--postpaid)">
+      <div class="kl">TOPLAM SATIŞ</div>
+      <div class="kv">${topAdet}<span style="font-size:14px;color:var(--gray)">/${hedefAdet}</span></div>
+      <div class="ks">Faturalı: ${topFaturali} | Ön Öd: ${topPrepaid}</div>
+      <div class="badge ${topAdet>=hedefAdet?'bg':topAdet>=hedefAdet*0.7?'by':'br'}">%${hedefAdet>0?Math.round(topAdet/hedefAdet*100):0}</div>
+    </div>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Çalışan</th><th>Faturalı</th><th>Ön Ödemeli</th><th>Toplam</th><th>Hedef</th><th>Adet %</th><th>Tahmini</th></tr></thead>
+      <tbody>
+        ${empRows.map(r=>`<tr>
+          <td><span style="font-weight:600;color:${r.emp.color}">${r.emp.name}</span></td>
+          <td><span class="tpp">${r.faturali}</span></td>
+          <td><span class="tpr">${r.prepaid}</span></td>
+          <td><strong>${r.adet}</strong></td>
+          <td style="color:var(--gray)">${empAdetHedef}</td>
+          <td><span class="badge ${r.adetOran>=100?'bg':r.adetOran>=70?'by':'br'}">%${r.adetOran}</span></td>
+          <td style="color:${r.tahmini>=empAdetHedef?'var(--green)':'var(--red)'}">${r.tahmini} adet</td>
+        </tr>`).join('')}
+        <tr style="background:#f7f8fa;font-weight:700;">
+          <td>TOPLAM</td>
+          <td><span class="tpp">${topFaturali}</span></td>
+          <td><span class="tpr">${topPrepaid}</span></td>
+          <td><strong>${topAdet}</strong></td>
+          <td style="color:var(--gray)">${empAdetHedef*employees.length}</td>
+          <td>—</td>
+          <td style="color:${tahminiAySonu>=hedefAdet?'var(--green)':'var(--red)'}">~${tahminiAySonu}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function renderEmpCards(cid){
+  const el=document.getElementById(cid);if(!el)return;el.innerHTML='';
+  const empAdetHedef=products.reduce((a,p)=>a+((p.manuel||p.hidden)?0:(p.hedef||0)),0);
+  employees.forEach((emp,i)=>{
+    const st=getEmpStats(i);
+    const hak=empPrimHak(i);
+    const adetOran=empAdetHedef>0?Math.min(100,Math.round((st.adet/empAdetHedef)*100)):0;
+    const adetFc=adetOran>=100?'var(--green)':adetOran>=70?'var(--yellow)':'var(--red)';
+    const empTarget=Math.round(storeTarget/employees.length);
+    const bonus=hak.hak?calcBonus(st.totalPrim,st.puan,empTarget):0;
+    el.innerHTML+=`
+    <div class="ec">
+      <div class="et">
+        <div class="av" style="background:${emp.color}">${emp.initials}</div>
+        <div><div class="en">${emp.name}</div><div class="er">Satış Temsilcisi</div></div>
+        <div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+          <span class="badge ${adetOran>=100?'bg':adetOran>=70?'by':'br'}">%${adetOran}</span>
+          ${hak.muaf?'<span class="muaf-badge">Muaf</span>':hak.hak?'<span class="badge bg">✓ Prim Hak</span>':'<span class="badge br">✗ Eksik</span>'}
+        </div>
+      </div>
+      <div class="es2">
+        <div class="esb"><div class="esv" style="color:var(--green)">${fmtTL(st.calisanPrim)}</div><div class="esl">ÇALIŞAN PRİMİ</div></div>
+        <div class="esb"><div class="esv" style="color:var(--purple)">${bonus>0?fmtTL(bonus):'—'}</div><div class="esl">BONUS</div></div>
+        <div class="esb"><div class="esv">${st.adet}<span style="font-size:11px;color:var(--gray)">/${empAdetHedef}</span></div><div class="esl">SATIŞ / HEDEF</div></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray);margin-bottom:3px"><span>Adet Hedefi</span><span>${st.adet} / ${empAdetHedef} adet</span></div>
+        <div style="background:rgba(0,0,0,0.07);border-radius:20px;height:4px;overflow:hidden;">
+          <div style="width:${adetOran}%;background:${adetFc};height:4px;border-radius:20px"></div>
+        </div>
+      </div>
+    </div>`;
+  });
+}
+
+function renderEmpDetay(){
+  const el=document.getElementById('empDetayCards');if(!el)return;el.innerHTML='';
+  const empTarget=Math.round(storeTarget/employees.length);
+  employees.forEach((emp,i)=>{
+    const st=getEmpStats(i);
+    const hak=empPrimHak(i);
+    const zs=getEmpZorunlu(i);
+    const oran=empTarget>0?(st.puan/empTarget)*100:0;
+    const bonus=hak.hak?calcBonus(st.totalPrim,st.puan,empTarget):0;
+    const topPrim=hak.hak?(st.totalPrim+bonus):0;
+    const zorHtml=zs.map(z=>`
+      <div class="zor-card ${z.met?'zor-ok':'zor-fail'}">
+        <div style="font-size:11px;font-weight:600;color:${z.met?'var(--green)':'var(--red)'};margin-bottom:5px">${z.name}</div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray)">
+          <span>${z.isManuel?fmtTL(z.tlK||0):z.qty+' adet'}</span>
+          <span>/ ${z.isManuel?fmtTL(z.hedefTL):z.hedef+' hedef'}</span>
+          <span>${z.met?'✓':'✗'}</span>
+        </div>
+      </div>`).join('');
+    el.innerHTML+=`
+    <div style="background:#fff;border-radius:12px;border:1px solid ${hak.hak?'rgba(0,168,107,0.25)':hak.muaf?'rgba(147,51,234,0.2)':'rgba(230,57,70,0.2)'};padding:18px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="av" style="background:${emp.color};width:38px;height:38px;font-size:14px">${emp.initials}</div>
+          <div><div style="font-weight:600;font-size:14px;color:#1a1a2e">${emp.name}</div>
+            <div style="font-size:11px;color:var(--gray);margin-top:2px">
+              ${hak.muaf?'<span class="muaf-badge">Muafiyet Tanımlandı</span>':hak.hak?'<span class="badge bg">✓ Tüm Zorunlu Hedefler Tamam</span>':'<span class="badge br">✗ '+hak.eksik.length+' Zorunlu Ürün Eksik</span>'}
+            </div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:\'Bebas Neue\';font-size:22px;color:${hak.hak?'var(--green)':'var(--red)'}">${fmtTL(topPrim)}</div>
+          <div style="font-size:10px;color:var(--gray)">Toplam Hakediş</div>
+        </div>
+      </div>
+      <div class="kg kg3" style="margin-bottom:14px;">
+        <div class="kc" style="--ac:var(--green);padding:12px"><div class="kl">ÇALIŞAN PRİMİ</div><div class="kv" style="font-size:20px;color:var(--green)">${hak.hak?fmtTL(st.calisanPrim):'—'}</div><div class="ks" style="color:var(--green)">Çalışanın kazancı</div></div>
+        <div class="kc" style="--ac:var(--blue);padding:12px"><div class="kl">MAĞAZA KARI</div><div class="kv" style="font-size:20px;color:var(--blue)">${hak.hak?fmtTL(st.totalPrim-st.calisanPrim):'—'}</div><div class="ks">Bayi kazancı</div></div>
+        <div class="kc" style="--ac:var(--purple);padding:12px"><div class="kl">BONUS</div><div class="kv" style="font-size:20px;color:var(--purple)">${bonus>0?fmtTL(bonus):'—'}</div></div>
+      </div>
+      <div style="margin-bottom:10px;font-size:10px;color:var(--gray);letter-spacing:1px;text-transform:uppercase">ZORUNLU ÜRÜN DURUMU</div>
+      <div class="zor-grid">${zorHtml}</div>
+      ${buildEmpCalendar(i)}
+      ${!hak.hak&&!hak.muaf?`<div style="display:flex;justify-content:flex-end;margin-top:10px;"><button class="btn btn-gr bsm" onclick="openMuafModalForEmp(${i})">🛡️ Muafiyet Tanımla</button></div>`:''}
+    </div>`;
+  });
+}
+
+function buildEmpCalendar(ei){
+  const eom=new Date(activeYear,activeMonth+1,0);
+  const days=eom.getDate();
+  const firstDay=new Date(activeYear,activeMonth,1).getDay();
+  const adjustedFirst=(firstDay+6)%7; // Pzt=0 ... Paz=6
+  const DAY_LABELS=['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+  const today=new Date();
+  const todayStr=today.toISOString().split('T');
+
+  // Günlük satış özeti
+  const daySales={};
+  getMonthSales().filter(s=>s.emp===ei).forEach(s=>{
+    if(!daySales[s.date])daySales[s.date]={puan:0,adet:0,pp:0,pr:0};
+    const p=products[s.prod];
+    daySales[s.date].puan+=p.puan*s.qty;
+    daySales[s.date].adet+=s.qty;
+    if(p.tip==='postpaid')daySales[s.date].pp+=s.qty;
+    else if(p.tip==='prepaid')daySales[s.date].pr+=s.qty;
+  });
+
+  const emp=employees[ei];
+  let cells='';
+  // Gün başlıkları
+  const headers=DAY_LABELS.map(d=>`<div style="text-align:center;font-size:9px;color:var(--gray);font-weight:600;padding:4px 0;letter-spacing:0.5px">${d}</div>`).join('');
+  // Boş hücreler
+  for(let b=0;b<adjustedFirst;b++)cells+=`<div></div>`;
+  // Günler
+  for(let d=1;d<=days;d++){
+    const ds=`${activeYear}-${String(activeMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const sd=daySales[ds];
+    const isFuture=new Date(ds)>today;
+    const isToday=ds===todayStr;
+    const isWeekend=((adjustedFirst+d-1)%7)>=5;
+    let bg,border,numColor,dot='';
+    if(sd&&sd.adet>0){
+      bg=`rgba(${emp.color.startsWith('#')?hexToRgb(emp.color):'230,168,0'},0.12)`;
+      border=`2px solid ${emp.color}`;
+      numColor=emp.color;
+      dot=`<div style="display:flex;justify-content:center;gap:2px;margin-top:2px">${sd.pp>0?`<span style="width:5px;height:5px;border-radius:50%;background:var(--postpaid);display:inline-block" title="${sd.pp} postpaid"></span>`:''}${sd.pr>0?`<span style="width:5px;height:5px;border-radius:50%;background:var(--prepaid);display:inline-block" title="${sd.pr} prepaid"></span>`:''}</div>`;
+    } else if(isFuture){
+      bg='#f7f8fa';border='1px solid #e8eaed';numColor='#bbb';
+    } else if(isWeekend){
+      bg='#f7f8fa';border='1px solid #e8eaed';numColor='#ccc';
+    } else {
+      bg='#fff0f1';border='1px solid rgba(230,57,70,0.15)';numColor='var(--red)';
+    }
+    if(isToday){border=`2px solid var(--yellow)`;}
+    cells+=`<div style="background:${bg};border:${border};border-radius:8px;padding:6px 4px;text-align:center;cursor:default;transition:transform 0.1s" title="${ds}${sd?' | '+sd.adet+' satış, '+fmt(sd.puan)+' puan':''}">
+      <div style="font-family:'Bebas Neue';font-size:15px;color:${numColor};line-height:1">${d}</div>
+      ${sd&&sd.adet>0?`<div style="font-size:8px;color:${numColor};margin-top:1px">${sd.adet} sat</div>${dot}`:`<div style="font-size:8px;color:#ddd">—</div>`}
+    </div>`;
+  }
+  return `
+  <div style="margin-top:16px;">
+    <div style="font-size:10px;color:var(--gray);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">📅 ${MONTHS[activeMonth]} TAKVİMİ</div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">
+      ${headers}
+      ${cells}
+    </div>
+    <div style="display:flex;gap:12px;margin-top:8px;font-size:10px;color:var(--gray)">
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(230,168,0,0.2);border:1px solid #e6a800;margin-right:3px"></span>Satış var</span>
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#fff0f1;border:1px solid rgba(230,57,70,0.2);margin-right:3px"></span>Satış yok</span>
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#f7f8fa;border:1px solid #e8eaed;margin-right:3px"></span>Gelecek</span>
+      <span style="margin-left:4px"><span style="width:5px;height:5px;border-radius:50%;background:var(--postpaid);display:inline-block;margin-right:3px"></span>PP</span>
+      <span><span style="width:5px;height:5px;border-radius:50%;background:var(--prepaid);display:inline-block;margin-right:3px"></span>PR</span>
+    </div>
+  </div>`;
+}
+function hexToRgb(hex){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return`${r},${g},${b}`;
+}
+
+function renderUrunler(){
+  const tbody=document.getElementById('urunBody');if(!tbody)return;tbody.innerHTML='';
+  const ms=getMonthSales();
+  products.forEach((p,i)=>{
+    if(p.hidden)return;
+    let qty=0;ms.filter(s=>s.prod===i).forEach(s=>qty+=s.qty);
+    let oran=0;
+    if(p.manuel){
+      let tlK=0;ms.filter(s=>s.prod===i).forEach(s=>tlK+=(s.manuel_prim||0)*s.qty);
+      oran=p.hedefTL>0?Math.min(100,Math.round((tlK/((p.hedefTL||0)*employees.length))*100)):0;
+    }else{
+      const th=p.hedef*employees.length;
+      oran=th>0?Math.min(100,Math.round((qty/th)*100)):0;
+    }
+    const fc=oran>=100?'var(--green)':oran>=70?'var(--yellow)':'var(--red)';
+    let tp=0;
+    if(p.manuel)ms.filter(s=>s.prod===i).forEach(s=>tp+=(s.manuel_prim||0)*s.qty);
+    else tp=p.prim*qty;
+    tbody.innerHTML+=`<tr>
+      <td style="font-weight:600">${p.name}${p.manuel?'<span style="font-size:9px;color:var(--blue);margin-left:4px">M</span>':''}</td>
+      <td>${tipLabel(p.tip)}</td>
+      <td>${p.zorunlu?'<span class="tzor">ZORUNLU</span>':'<span style="color:var(--gray);font-size:9px">—</span>'}</td>
+      <td><strong>${qty}</strong></td>
+      <td><span class="badge by">${p.puan}</span></td>
+      <td style="color:var(--yellow)">${fmt(p.puan*qty)}</td>
+      <td style="color:var(--gray)">${p.manuel?'<span style="color:var(--blue)">Manuel</span>':fmtTL(p.prim)}</td>
+      <td style="color:var(--green)">${fmtTL(tp)}</td>
+      <td><div style="display:flex;align-items:center;gap:6px"><div class="pw"><div class="pf" style="width:${oran}%;background:${fc}"></div></div><span style="font-size:10px;color:var(--gray)">%${oran}</span></div></td>
+    </tr>`;
+  });
+}
+
+function renderSalesTable(tbodyId, salesArr){
+  const tbody=document.getElementById(tbodyId);if(!tbody)return;tbody.innerHTML='';
+  if(!salesArr.length){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--gray);padding:20px">Satış kaydı yok</td></tr>';return;}
+  salesArr.forEach(s=>{
+    const p=products[s.prod];
+    const pr=p.manuel?fmtTL((s.manuel_prim||0)*s.qty):(p.prim>0?fmtTL(p.prim*s.qty):'—');
+    tbody.innerHTML+=`<tr>
+      <td style="color:${employees[s.emp].color}">${employees[s.emp].name}</td>
+      <td>${p.name}</td><td>${tipLabel(p.tip)}</td><td>${s.qty}</td>
+      <td style="color:var(--yellow)">${p.puan*s.qty>0?fmt(p.puan*s.qty):'—'}</td>
+      <td style="color:var(--green)">${pr}</td>
+      <td style="color:var(--gray);font-size:11px;max-width:130px;overflow:hidden;text-overflow:ellipsis">${s.aciklama||'—'}</td>
+      <td style="color:var(--gray);font-size:11px">${s.date}</td>
+      <td><div style="display:flex;gap:4px">
+        <button class="btn btn-e bsm" onclick="editSale('${s.id}')">✏️</button>
+        <button class="btn btn-d bsm" onclick="deleteSale('${s.id}')">🗑️</button>
+      </div></td>
+    </tr>`;
+  });
+}
+
+function renderCalisanlar(){
+  renderEmpCards('allEg');
+  renderSalesTable('allBody',[...getMonthSales()].reverse());
+}
+
+function getGunlukDate(){
+  const inp=document.getElementById('gunlukDate');
+  return inp&&inp.value?inp.value:new Date().toISOString().split('T');
+}
+function resetGunlukDate(){
+  document.getElementById('gunlukDate').value=new Date().toISOString().split('T');
+  renderGunluk();
+}
+function shiftGunlukDate(delta){
+  const inp=document.getElementById('gunlukDate');
+  const cur=new Date(getGunlukDate());
+  cur.setDate(cur.getDate()+delta);
+  inp.value=cur.toISOString().split('T');
+  renderGunluk();
+}
+
+function renderGunluk(){
+  const today=new Date().toISOString().split('T');
+  // Tarih input başlangıçta boşsa bugünü ata
+  const inp=document.getElementById('gunlukDate');
+  if(inp&&!inp.value)inp.value=today;
+  const selDate=getGunlukDate();
+  const isToday=selDate===today;
+
+  const ts=sales.filter(s=>s.date===selDate);
+
+  // Başlık ve alt yazı güncelle
+  const dateLabel=new Date(selDate+'T12:00:00').toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric',weekday:'long'});
+  document.getElementById('gunlukPs').textContent=isToday?'Bugünün satış durumu':dateLabel;
+  const titleEl=document.getElementById('gunlukTableTitle');
+  titleEl.innerHTML=isToday?'BUGÜN <em>SATIŞLAR</em>':`<em>${dateLabel.toUpperCase()}</em> SATIŞLARI`;
+
+  let html='';
+  employees.forEach((emp,i)=>{
+    let tp=0,tpp=0,tpr=0;
+    ts.filter(s=>s.emp===i).forEach(s=>{const p=products[s.prod];tp+=p.puan*s.qty;if(p.tip==='postpaid')tpp+=s.qty;else if(p.tip==='prepaid')tpr+=s.qty;});
+    const met=tpp>=6||(tpp>=5&&tpr>=1);
+    html+=`<div style="background:#fff;border:1px solid ${met?'rgba(0,168,107,0.3)':'var(--border)'};border-radius:12px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-weight:600;color:${emp.color};font-size:13px">${emp.name}</div>
+        <span class="badge ${met?'bg':tpp>0||tpr>0?'by':'br'}">${met?'✓ 600₺ Canlı Prim':tpp>0||tpr>0?'Satış Var':'Satış Yok'}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+        <div style="background:#f5f6f8;border-radius:7px;padding:7px;text-align:center"><div style="font-family:'Bebas Neue';font-size:17px;color:var(--postpaid)">${tpp}</div><div style="color:var(--gray);font-size:9px">POSTPAİD</div></div>
+        <div style="background:#f5f6f8;border-radius:7px;padding:7px;text-align:center"><div style="font-family:'Bebas Neue';font-size:17px;color:var(--prepaid)">${tpr}</div><div style="color:var(--gray);font-size:9px">PREPAİD</div></div>
+        <div style="background:#f5f6f8;border-radius:7px;padding:7px;text-align:center"><div style="font-family:'Bebas Neue';font-size:17px;color:var(--yellow)">${fmt(tp)}</div><div style="color:var(--gray);font-size:9px">PUAN</div></div>
+        <div style="background:#f5f6f8;border-radius:7px;padding:7px;text-align:center"><div style="font-family:'Bebas Neue';font-size:17px;color:${met?'var(--green)':'var(--gray)'}">${met?'600₺':'—'}</div><div style="color:var(--gray);font-size:9px">PRİM</div></div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('dailySummary').innerHTML=html;
+  renderSalesTable('todayBody',[...ts].reverse());
+}
+
+function renderGunlukPrim(){
+  const el=document.getElementById('gpCards');if(!el)return;el.innerHTML='';
+  const eom=new Date(activeYear,activeMonth+1,0);
+  const days=eom.getDate();
+  employees.forEach((emp,i)=>{
+    const res=getDailyPrim(i);
+    const totalKat=res.reduce((a,r)=>a+(r.earned?r.kat:0),0);
+    const dHtml=res.slice(0,days).map(r=>{
+      const isF=new Date(r.date)>new Date();
+      let bg='rgba(230,57,70,0.08)',bc='rgba(230,57,70,0.2)',c='var(--red)';
+      if(r.earned&&r.comp){bg='rgba(43,123,232,0.08)';bc='rgba(43,123,232,0.2)';c='var(--blue)';}
+      else if(r.earned&&r.kat>=2){bg='rgba(230,168,0,0.1)';bc='rgba(230,168,0,0.35)';c='var(--yellow)';}
+      else if(r.earned){bg='rgba(0,168,107,0.08)';bc='rgba(0,168,107,0.2)';c='var(--green)';}
+      else if(isF){bg='#f7f8fa';bc='var(--border)';c='var(--gray)';}
+      const lbl=isF?'—':r.earned?(r.comp?'tel':r.kat>=2?`×${r.kat}`:'✓'):'✗';
+      return`<div style="background:${bg};border:1px solid ${bc};border-radius:6px;padding:5px;text-align:center" title="${r.date} PP:${r.pp} PR:${r.pr}">
+        <div style="font-family:'Bebas Neue';font-size:14px;color:${c}">${r.day}</div>
+        <div style="font-size:8px;color:${c}">${lbl}</div>
+      </div>`;
+    }).join('');
+    el.innerHTML+=`<div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:14px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:9px;">
+          <div class="av" style="background:${emp.color};width:36px;height:36px;font-size:13px">${emp.initials}</div>
+          <div><div style="font-weight:600;font-size:13px;color:#1a1a2e">${emp.name}</div><div style="font-size:10px;color:var(--gray)">${totalKat} canlı prim birimi × 600₺</div></div>
+        </div>
+        <div style="font-family:'Bebas Neue';font-size:20px;color:var(--green)">${fmtTL(totalKat*600)}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(${Math.min(days,10)},1fr);gap:4px;margin-bottom:7px">${dHtml}</div>
+      <div style="font-size:10px;color:var(--gray)"><span style="color:var(--green)">■</span> 600₺ &nbsp;<span style="color:var(--yellow)">■</span> ×2+ Kat &nbsp;<span style="color:var(--blue)">■</span> Telafi &nbsp;<span style="color:var(--red)">■</span> Kazanamadı</div>
+    </div>`;
+  });
+}
+
+function renderPrim(){
+  const tot=getTotalStats();
+  const band=getPrimBand(tot.puan);
+  const pct=storeTarget>0?(tot.puan/storeTarget)*100:0;
+  const carpan=getCarpan(pct);
+  document.getElementById('pPuan').textContent=fmt(tot.puan);
+  document.getElementById('pDilim').textContent=band?`${fmt(band.min)}–${band.max===Infinity?'∞':fmt(band.max)}`:'<190 puan';
+  document.getElementById('pSonuc').textContent=fmtTL(getPuanPrim(tot.puan));
+  document.getElementById('pCarpan').textContent=band?`${fmtTL(band.prim)} × ${carpan}`:'—';
+  document.getElementById('bandTable').innerHTML='<div class="pbg">'+primBands.map(b=>{
+    const ac=tot.puan>=b.min&&(b.max===Infinity||tot.puan<=b.max);
+    return`<div class="pbi" style="${ac?'border:1px solid rgba(0,168,107,0.3);background:rgba(0,168,107,0.06)':''}">
+      <span style="color:var(--gray)">${fmt(b.min)}–${b.max===Infinity?'∞':fmt(b.max)} ${ac?'✓':''}</span>
+      <span style="color:var(--green);font-weight:600">${fmtTL(b.prim)}</span>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+function renderHedefler(){
+  document.getElementById('storeTarget').value=storeTarget;
+  document.getElementById('c1').value=carpanlar.c1;
+  document.getElementById('c2').value=carpanlar.c2;
+  document.getElementById('c3').value=carpanlar.c3;
+  document.getElementById('bonusTip').value=bonusAyar.tip;
+  document.getElementById('bonusSabit').value=bonusAyar.sabit;
+  document.getElementById('bonusYuzde').value=bonusAyar.yuzde;
+  document.getElementById('bonusAktif').value=bonusAyar.aktif?'1':'0';
+  toggleBonus();
+  document.getElementById('hedefBody').innerHTML=products.map((p,i)=>p.hidden?'':`<tr>
+    <td>${p.name}${p.manuel?'<span style="font-size:9px;color:var(--blue);margin-left:4px">M</span>':''}</td>
+    <td>${tipLabel(p.tip)}</td>
+    <td><label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="hz_${i}" ${p.zorunlu?'checked':''}><span style="font-size:11px;color:${p.zorunlu?'var(--red)':'var(--gray)'}">Zorunlu</span></label></td>
+    <td>${p.manuel
+      ?`<input type="number" class="ti" id="hTL_${i}" value="${p.hedefTL||0}" style="width:90px"> <span style="font-size:10px;color:var(--gray)">₺</span>`
+      :`<input type="number" class="ti" id="ht_${i}" value="${p.hedef}" min="0" style="width:75px"> <span style="font-size:10px;color:var(--gray)">adet</span>`
+    }</td>
+    <td><input type="number" class="ti" id="hp_${i}" value="${p.puan}" step="0.5" min="0" style="width:75px"></td>
+    <td>${p.manuel?'<span style="color:var(--blue);font-size:11px">Satışta girilir</span>':`<input type="number" class="ti" id="hpr_${i}" value="${p.prim}" min="0" style="width:85px">`}</td>
+    <td><input type="number" class="ti" id="hcp_${i}" value="${p.calisanPrim||0}" min="0" style="width:85px" placeholder="0"></td>
+  </tr>`).join('');
+  renderHedefTakvim();
+}
+
+function renderHedefTakvim(){
+  const el=document.getElementById('hedefTakvim');
+  if(!el) return;
+  const ms=getMonthSales();
+  const eom=new Date(activeYear,activeMonth+1,0);
+  const totalDays=eom.getDate();
+  const today=new Date();
+  const isThisMonth=today.getMonth()===activeMonth&&today.getFullYear()===activeYear;
+  const passedDays=isThisMonth?today.getDate():totalDays;
+
+  // Ürün bazlı gerçekleşme
+  const urunData=products.map((p,i)=>{
+    let qty=0,tlK=0;
+    ms.filter(s=>s.prod===i).forEach(s=>{qty+=s.qty;tlK+=(s.manuel_prim||0)*s.qty;});
+    const hedef=p.manuel?(p.hedefTL*employees.length):(p.hedef*employees.length);
+    const gercek=p.manuel?tlK:qty;
+    const oran=hedef>0?Math.min(100,Math.round(gercek/hedef*100)):0;
+    const gunlukOrt=passedDays>0?gercek/passedDays:0;
+    const tahmini=Math.round(gunlukOrt*totalDays);
+    const tahminiOran=hedef>0?Math.min(150,Math.round(tahmini/hedef*100)):0;
+    return{p,qty,tlK,hedef,gercek,oran,tahmini,tahminiOran};
+  }).filter(d=>(d.hedef>0||d.gercek>0)&&!d.p.hidden);
+
+  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+  ${urunData.map(d=>{
+    const fc=d.oran>=100?'var(--green)':d.oran>=70?'var(--yellow)':'var(--red)';
+    const tf=d.tahminiOran>=100?'var(--green)':d.tahminiOran>=70?'var(--yellow)':'var(--red)';
+    const gercekStr=d.p.manuel?fmtTL(d.gercek):d.gercek+' adet';
+    const hedefStr=d.p.manuel?fmtTL(d.hedef):d.hedef+' adet';
+    const tahStr=d.p.manuel?fmtTL(d.tahmini):d.tahmini+' adet';
+    return`<div style="background:#fff;border-radius:10px;border:1px solid var(--border);padding:13px;box-shadow:0 1px 5px rgba(0,0,0,0.04);">
+      <div style="font-size:10px;font-weight:600;color:#1a1a2e;margin-bottom:8px;letter-spacing:0.3px">${d.p.name}</div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray);margin-bottom:4px;">
+        <span>Gerçekleşen</span><strong style="color:${fc}">${gercekStr}</strong>
+      </div>
+      <div style="background:rgba(0,0,0,0.07);border-radius:20px;height:5px;overflow:hidden;margin-bottom:6px;">
+        <div style="width:${d.oran}%;background:${fc};height:5px;border-radius:20px;transition:width 0.5s"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray);margin-bottom:2px;">
+        <span>Hedef (mağaza)</span><span>${hedefStr}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;margin-top:5px;padding-top:5px;border-top:1px solid rgba(0,0,0,0.06);">
+        <span style="color:var(--gray)">Ay sonu tahmini</span>
+        <strong style="color:${tf}">${tahStr} <span style="font-weight:400;font-size:9px">(%${d.tahminiOran})</span></strong>
+      </div>
+    </div>`;
+  }).join('')}
+  </div>`;
+}
+
+async function saveHedefler(){
+  storeTarget=parseFloat(document.getElementById('storeTarget').value)||storeTarget;
+  carpanlar.c1=parseFloat(document.getElementById('c1').value)||carpanlar.c1;
+  carpanlar.c2=parseFloat(document.getElementById('c2').value)||carpanlar.c2;
+  carpanlar.c3=parseFloat(document.getElementById('c3').value)||carpanlar.c3;
+  bonusAyar.tip=document.getElementById('bonusTip').value;
+  bonusAyar.sabit=parseFloat(document.getElementById('bonusSabit').value)||0;
+  bonusAyar.yuzde=parseFloat(document.getElementById('bonusYuzde').value)||0;
+  bonusAyar.aktif=document.getElementById('bonusAktif').value==='1';
+  products.forEach((p,i)=>{
+    p.zorunlu=document.getElementById(`hz_${i}`)?.checked||false;
+    p.puan=parseFloat(document.getElementById(`hp_${i}`)?.value)||p.puan;
+    if(p.manuel){p.hedefTL=parseFloat(document.getElementById(`hTL_${i}`)?.value)||p.hedefTL;}
+    else{p.hedef=parseInt(document.getElementById(`ht_${i}`)?.value)||p.hedef;p.prim=parseFloat(document.getElementById(`hpr_${i}`)?.value)||p.prim;}
+    p.calisanPrim=parseFloat(document.getElementById(`hcp_${i}`)?.value)||0;
+  });
+  try{
+    await Promise.all([dbSaveAyarlar(),dbSaveUrunAyarlar()]);
+    showToast('✓ Hedefler kaydedildi!');
+    renderDashboard();
+  }catch(e){showToast('Kayıt hatası: '+e.message,true);}
+}
+
+function toggleBonus(){
+  const t=document.getElementById('bonusTip').value;
+  document.getElementById('bSabitRow').style.display=t==='sabit'?'flex':'none';
+  document.getElementById('bYuzdeRow').style.display=t==='yuzde'?'flex':'none';
+}
+
+function renderYillik(){
+  document.getElementById('yillikTabs').innerHTML=employees.map((e,i)=>`<button class="yet ${i===activeYillikEmp?'active':''}" onclick="setYillikEmp(${i})">${e.name.split(' ')}</button>`).join('');
+  const yh=yillikHedefler[activeYillikEmp];
+  const emp=employees[activeYillikEmp];
+  const yillikTop=yh.reduce((a,b)=>a+b.puanHedef,0);
+  let yillikGercek=0;
+  MONTHS.forEach((_,mi)=>yillikGercek+=getEmpStats(activeYillikEmp,mi,activeYear).puan);
+  document.getElementById('yillikContent').innerHTML=`
+  <div class="kg kg3" style="margin-bottom:16px;">
+    <div class="kc" style="--ac:var(--yellow)"><div class="kl">YILLIK HEDEF</div><div class="kv">${fmt(yillikTop)}</div><div class="ks">puan</div></div>
+    <div class="kc" style="--ac:var(--green)"><div class="kl">GERÇEKLEŞen</div><div class="kv">${fmt(yillikGercek)}</div><div class="ks">puan</div></div>
+    <div class="kc" style="--ac:var(--red)"><div class="kl">KALAN</div><div class="kv">${fmt(Math.max(0,yillikTop-yillikGercek))}</div><div class="ks">puan</div></div>
+  </div>
+  <div style="background:rgba(0,0,0,0.06);border-radius:20px;height:7px;overflow:hidden;margin-bottom:18px;">
+    <div style="width:${Math.min(100,yillikTop>0?Math.round(yillikGercek/yillikTop*100):0)}%;background:var(--green);height:7px;border-radius:20px;transition:width 1s"></div>
+  </div>
+  <div class="tw ow"><table class="mw"><thead><tr><th>Ay</th><th>Puan Hedefi</th><th>Gerçekleşen</th><th>Adet Prim</th><th>Bonus</th><th>Toplam Prim</th><th>Durum</th></tr></thead>
+  <tbody>${MONTHS.map((m,mi)=>{
+    const st=getEmpStats(activeYillikEmp,mi,activeYear);
+    const h=yh[mi];
+    const hak=empPrimHak(activeYillikEmp,mi,activeYear);
+    const bonus=hak.hak?calcBonus(st.totalPrim,st.puan,h.puanHedef):0;
+    const top=hak.hak?(st.totalPrim+bonus):0;
+    const oran=h.puanHedef>0?Math.round((st.puan/h.puanHedef)*100):0;
+    const isAct=mi===activeMonth;
+    return`<tr style="${isAct?'background:rgba(230,168,0,0.05)':''}">
+      <td style="font-weight:600;${isAct?'color:var(--yellow)':''}">${m}${isAct?' ←':''}</td>
+      <td><input type="number" class="ti" id="yph_${activeYillikEmp}_${mi}" value="${h.puanHedef}" style="width:85px"></td>
+      <td style="color:var(--yellow)">${fmt(st.puan)}</td>
+      <td style="color:var(--green)">${hak.hak?fmtTL(st.totalPrim):'—'}</td>
+      <td style="color:var(--purple)">${bonus>0?fmtTL(bonus):'—'}</td>
+      <td style="font-weight:600">${fmtTL(top)}</td>
+      <td>${oran>0?`<span class="badge ${oran>=110?'bg':oran>=100?'bb':oran>=70?'by':'br'}">%${oran}</span>`:'—'}</td>
+    </tr>`;
+  }).join('')}</tbody></table></div>`;
+
+  // Yıllık ürün hedefleri tablosu
+  const yilEl=document.getElementById('yillikUrunHedef');
+  if(yilEl){
+    // Yıllık gerçekleşen veriler
+    let topFaturali=0,topPrepaid=0,topRekon=0,topNTC=0,topAKG=0,topSOL=0;
+    let tlAksesuar=0,tl2El=0,tlSifir=0;
+    const today=new Date();
+    const passedMonths=today.getFullYear()===activeYear?today.getMonth()+1:12;
+    const passedDayOfYear=today.getFullYear()===activeYear
+      ?(Math.floor((today-new Date(activeYear,0,1))/86400000)+1):365;
+    const totalDays=365;
+
+    sales.filter(s=>s.date&&parseInt(s.date.split('-'))===activeYear).forEach(s=>{
+      const p=products[s.prod];
+      if(p.tip==='postpaid'&&s.prod<=4)topFaturali+=s.qty;
+      if(p.tip==='prepaid')topPrepaid+=s.qty;
+      if(p.name.includes('REKON'))topRekon+=s.qty;
+      if(p.name==='NTC')topNTC+=s.qty;
+      if(p.name==='AKG')topAKG+=s.qty;
+      if(s.prod<=2)topSOL+=s.qty;
+      if(p.name==='AKSESUAR')tlAksesuar+=(s.manuel_prim||0)*s.qty;
+      if(p.name==='2. EL CİHAZ')tl2El+=(s.manuel_prim||0)*s.qty;
+      if(p.name==='SIFIR CİHAZ')tlSifir+=(s.manuel_prim||0)*s.qty;
+    });
+
+    const N=employees.length;
+    // kisiH = kişi başı yıllık hedef (verilen), magazaH = kisiH * N (mağaza toplamı)
+    const rows=[
+      {lbl:'FATURALI (NTC,SOL hariç)', kisiH:1596,   magazaH:1596*N,   gercek:topFaturali, birim:'adet'},
+      {lbl:'ÖN ÖDEMELİ (AKG hariç)',  kisiH:400,    magazaH:400*N,    gercek:topPrepaid,  birim:'adet'},
+      {lbl:'NTC',                      kisiH:240,    magazaH:240*N,    gercek:topNTC,      birim:'adet'},
+      {lbl:'REKONTRATLAMA (1-2-3)',    kisiH:220,    magazaH:220*N,    gercek:topRekon,    birim:'adet'},
+      {lbl:'AKG',                      kisiH:23,     magazaH:23*N,     gercek:topAKG,      birim:'adet'},
+      {lbl:'SOL (SB+FİB+OA)',          kisiH:32,     magazaH:32*N,     gercek:topSOL,      birim:'adet'},
+      {lbl:'AKSESUAR',                 kisiH:312500, magazaH:312500*N, gercek:tlAksesuar,  birim:'₺'},
+      {lbl:'2. EL CİHAZ',              kisiH:155000, magazaH:155000*N, gercek:tl2El,       birim:'₺'},
+      {lbl:'SIFIR CİHAZ',              kisiH:162500, magazaH:162500*N, gercek:tlSifir,     birim:'₺'},
+    ];
+
+    const fmtVal=(v,b)=>b==='₺'?fmtTL(v):v+' '+b;
+    const tahminiYilSonu=(g)=>passedMonths>0?Math.round(g/passedMonths*12):0;
+
+    // Kişi başı tablo
+    let kisiHtml=`<div class="sh" style="margin-top:6px;"><div class="st">KİŞİ BAŞI <em>YILLIK HEDEFLER</em></div></div>
+    <div class="tw"><table><thead><tr><th>Ürün/Kategori</th><th>Kişi Başı Hedef</th><th>Kişi Başı Gerçekleşen</th><th>Kişi Başı Kalan</th><th>Gidişat (Yıl Sonu)</th><th>İlerleme</th></tr></thead><tbody>
+    ${rows.map(r=>{
+      const kisiGercek=Math.round(r.gercek/N);
+      const oran=r.kisiH>0?Math.min(100,Math.round(kisiGercek/r.kisiH*100)):0;
+      const kalan=Math.max(0,r.kisiH-kisiGercek);
+      const tahmin=Math.round(tahminiYilSonu(r.gercek)/N);
+      const tahOran=r.kisiH>0?Math.min(150,Math.round(tahmin/r.kisiH*100)):0;
+      const tf=tahOran>=100?'var(--green)':tahOran>=70?'var(--yellow)':'var(--red)';
+      return`<tr>
+        <td style="font-weight:600">${r.lbl}</td>
+        <td>${fmtVal(r.kisiH,r.birim)}</td>
+        <td style="color:var(--green)">${fmtVal(kisiGercek,r.birim)}</td>
+        <td style="color:var(--red)">${fmtVal(kalan,r.birim)}</td>
+        <td><span style="color:${tf};font-weight:600">${fmtVal(tahmin,r.birim)}</span> <span class="badge ${tahOran>=100?'bg':tahOran>=70?'by':'br'}">%${tahOran}</span></td>
+        <td><div style="display:flex;align-items:center;gap:7px"><div style="background:rgba(0,0,0,0.07);border-radius:20px;height:6px;width:80px;overflow:hidden"><div style="width:${oran}%;background:${oran>=100?'var(--green)':oran>=50?'var(--yellow)':'var(--red)'};height:6px;border-radius:20px"></div></div><span class="badge ${oran>=100?'bg':oran>=50?'by':'br'}">%${oran}</span></div></td>
+      </tr>`;
+    }).join('')}
+    </tbody></table></div>`;
+
+    // Mağaza toplam tablo
+    let magazaHtml=`<div class="sh" style="margin-top:10px;"><div class="st">MAĞAZA TOPLAM <em>YILLIK HEDEFLER</em></div></div>
+    <div class="tw"><table><thead><tr><th>Ürün/Kategori</th><th>Yıllık Hedef</th><th>Gerçekleşen</th><th>Kalan</th><th>Gidişat (Yıl Sonu)</th><th>İlerleme</th></tr></thead><tbody>
+    ${rows.map(r=>{
+      const oran=r.magazaH>0?Math.min(100,Math.round(r.gercek/r.magazaH*100)):0;
+      const kalan=Math.max(0,r.magazaH-r.gercek);
+      const tahmin=tahminiYilSonu(r.gercek);
+      const tahOran=r.magazaH>0?Math.min(150,Math.round(tahmin/r.magazaH*100)):0;
+      const tf=tahOran>=100?'var(--green)':tahOran>=70?'var(--yellow)':'var(--red)';
+      return`<tr>
+        <td style="font-weight:600">${r.lbl}</td>
+        <td>${fmtVal(r.magazaH,r.birim)}</td>
+        <td style="color:var(--green)">${fmtVal(r.gercek,r.birim)}</td>
+        <td style="color:var(--red)">${fmtVal(kalan,r.birim)}</td>
+        <td><span style="color:${tf};font-weight:600">${fmtVal(tahmin,r.birim)}</span> <span class="badge ${tahOran>=100?'bg':tahOran>=70?'by':'br'}">%${tahOran}</span></td>
+        <td><div style="display:flex;align-items:center;gap:7px"><div style="background:rgba(0,0,0,0.07);border-radius:20px;height:6px;width:80px;overflow:hidden"><div style="width:${oran}%;background:${oran>=100?'var(--green)':oran>=50?'var(--yellow)':'var(--red)'};height:6px;border-radius:20px"></div></div><span class="badge ${oran>=100?'bg':oran>=50?'by':'br'}">%${oran}</span></div></td>
+      </tr>`;
+    }).join('')}
+    </tbody></table></div>`;
+
+    yilEl.innerHTML=kisiHtml+magazaHtml;
+  }
+}
+
+function setYillikEmp(i){activeYillikEmp=i;renderYillik();}
+
+async function saveYillik(){
+  const promises=[];
+  employees.forEach((_,ei)=>{
+    MONTHS.forEach((_,mi)=>{
+      const inp=document.getElementById(`yph_${ei}_${mi}`);
+      if(inp){
+        const val=parseInt(inp.value)||0;
+        yillikHedefler[ei][mi].puanHedef=val;
+        promises.push(dbSaveYillik(ei,mi,val));
+      }
+    });
+  });
+  try{await Promise.all(promises);showToast('✓ Yıllık plan kaydedildi!');}
+  catch(e){showToast('Kayıt hatası: '+e.message,true);}
+}
+
+// ============================================================
+// LİDERLİK TABLOSU
+// ============================================================
+let liderMod='ay'; // 'ay' veya 'yil'
+let liderPrimler=[]; // [{ay,yil,kat,tutar,not,kazanan}]
+
+function setLiderMod(mod){
+  liderMod=mod;
+  document.getElementById('liderAyBtn').className='btn '+(mod==='ay'?'btn-p':'btn-g');
+  document.getElementById('liderYilBtn').className='btn '+(mod==='yil'?'btn-p':'btn-g');
+  renderLiderlik();
+}
+
+function getLiderStats(mod){
+  return employees.map((emp,i)=>{
+    let puan=0,faturali=0,prepaid=0,toplam=0,ntc=0,aksesuar=0,ikinciel=0,sifir=0;
+    const filtSales=mod==='ay'
+      ?getMonthSales(activeMonth,activeYear).filter(s=>s.emp===i)
+      :sales.filter(s=>s.emp===i&&s.date&&parseInt(s.date.split('-'))===activeYear);
+    filtSales.forEach(s=>{
+      const p=products[s.prod];
+      puan+=p.puan*s.qty;toplam+=s.qty;
+      if(p.tip==='postpaid')faturali+=s.qty;
+      else if(p.tip==='prepaid')prepaid+=s.qty;
+      if(p.name==='NTC')ntc+=s.qty;
+      if(p.name==='AKSESUAR')aksesuar+=(s.manuel_prim||0)*s.qty;
+      if(p.name==='2. EL CİHAZ')ikinciel+=(s.manuel_prim||0)*s.qty;
+      if(p.name==='SIFIR CİHAZ')sifir+=(s.manuel_prim||0)*s.qty;
+    });
+    return{emp,i,puan,faturali,prepaid,toplam,ntc,aksesuar,ikinciel,sifir};
+  });
+}
+
+function renderLiderlik(){
+  const stats=getLiderStats(liderMod);
+  const donem=liderMod==='ay'?MONTHS[activeMonth]+' '+activeYear:activeYear+' Yılı';
+  const cats=[
+    {key:'puan',    lbl:'PUAN TOPLAMI',  birim:'puan',icon:'⭐',color:'var(--yellow)', tl:false},
+    {key:'faturali',lbl:'FATURALI',      birim:'adet',icon:'📱',color:'var(--blue)',   tl:false},
+    {key:'prepaid', lbl:'ÖN ÖDEMELİ',   birim:'adet',icon:'💳',color:'var(--prepaid)',tl:false},
+    {key:'ntc',     lbl:'NTC',           birim:'adet',icon:'🔄',color:'var(--purple)', tl:false},
+    {key:'toplam',  lbl:'TOPLAM SATIŞ',  birim:'adet',icon:'🏆',color:'var(--green)',  tl:false},
+    {key:'aksesuar',lbl:'AKSESUAR',      birim:'₺',   icon:'🎧',color:'var(--green)',  tl:true},
+    {key:'ikinciel',lbl:'2. EL CİHAZ',  birim:'₺',   icon:'📦',color:'var(--notr)',   tl:true},
+    {key:'sifir',   lbl:'SIFIR CİHAZ',  birim:'₺',   icon:'✨',color:'var(--blue)',   tl:true},
+  ];
+  let html=`<div style="margin-bottom:12px;font-family:'Bebas Neue';font-size:14px;color:var(--gray);letter-spacing:1px">${donem}</div>`;
+  html+=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;">`;
+  cats.forEach(cat=>{
+    const sorted=[...stats].sort((a,b)=>b[cat.key]-a[cat.key]);
+    html+=`<div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+      <div style="font-size:10px;color:var(--gray);letter-spacing:1px;margin-bottom:10px">${cat.icon} ${cat.lbl}</div>
+      ${sorted.map((s,rank)=>{
+        const isFirst=rank===0;
+        const pct=sorted[cat.key]>0?Math.round(s[cat.key]/sorted[cat.key]*100):0;
+        const val=cat.tl?fmtTL(s[cat.key]):s[cat.key]+' '+cat.birim;
+        return`<div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;">
+          <div style="font-size:14px;width:18px">${rank===0?'🥇':rank===1?'🥈':'🥉'}</div>
+          <div class="av" style="background:${s.emp.color};width:24px;height:24px;font-size:10px;flex-shrink:0;border-radius:6px">${s.emp.initials}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:11px;font-weight:600;color:${isFirst?'#1a1a2e':'#777'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.emp.name.split(' ')}</div>
+            <div style="background:rgba(0,0,0,0.07);border-radius:20px;height:3px;margin-top:2px;overflow:hidden"><div style="width:${pct}%;background:${cat.color};height:3px;border-radius:20px"></div></div>
+          </div>
+          <div style="font-family:'Bebas Neue';font-size:13px;color:${isFirst?cat.color:'var(--gray)'};white-space:nowrap">${val}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  });
+  html+='</div>';
+  document.getElementById('liderContent').innerHTML=html;
+
+  // Lider prim listesi
+  const lpEl=document.getElementById('liderPrimList');
+  if(!liderPrimler.length){
+    lpEl.innerHTML='<div style="color:var(--gray);font-size:12px;padding:14px">Henüz tanımlanmış lider primi yok.</div>';
+    return;
+  }
+  lpEl.innerHTML=`<div class="tw"><table><thead><tr><th>Dönem</th><th>Kategori</th><th>Kazanan</th><th>Prim</th><th>Not</th><th>İşlem</th></tr></thead><tbody>
+  ${liderPrimler.map(lp=>{
+    const katLabel={'puan':'Puan','faturali':'Faturalı','prepaid':'Ön Ödemeli','ntc':'NTC','aksesuar':'Aksesuar','ikinciel':'2. El Cihaz','sifir':'Sıfır Cihaz','toplam':'Toplam'}[lp.kategori||lp.kat]||(lp.kategori||lp.kat);
+    return`<tr>
+    <td>${MONTHS[lp.ay]} ${lp.yil}</td>
+    <td>${katLabel}</td>
+    <td style="color:${employees[lp.kazanan]?.color||'var(--gray)'};font-weight:600">${employees[lp.kazanan]?.name||'—'}</td>
+    <td style="color:var(--green);font-weight:600">${fmtTL(lp.tutar)}</td>
+    <td style="color:var(--gray);font-size:11px">${lp.not_text||lp.not||'—'}</td>
+    <td><button class="btn btn-d bsm" onclick="deleteLiderPrim('${lp.id}')">🗑️</button></td>
+  </tr>`;}).join('')}
+  </tbody></table></div>`;
+}
+
+function openLiderPrimModal(){
+  const sel=document.getElementById('lpAy');
+  sel.innerHTML=MONTHS.map((m,i)=>`<option value="${i}" ${i===activeMonth?'selected':''}>${m} ${activeYear}</option>`).join('');
+  // Otomatik lider seç
+  const stats=getLiderStats('ay');
+  const lider=stats.sort((a,b)=>b.puan-a.puan);
+  document.getElementById('liderPrimOv').style.display='flex';
+}
+
+function closeLiderPrimModal(){
+  document.getElementById('liderPrimOv').style.display='none';
+}
+
+async function saveLiderPrim(){
+  const ay=parseInt(document.getElementById('lpAy').value);
+  const kat=document.getElementById('lpKat').value;
+  const tutar=parseFloat(document.getElementById('lpTutar').value)||0;
+  const notText=document.getElementById('lpNot').value.trim();
+  const stats=getLiderStats('ay');
+  const sorted=[...stats].sort((a,b)=>{
+    if(kat==='puan')return b.puan-a.puan;
+    if(kat==='faturali')return b.faturali-a.faturali;
+    if(kat==='prepaid')return b.prepaid-a.prepaid;
+    if(kat==='ntc')return b.ntc-a.ntc;
+    if(kat==='aksesuar')return b.aksesuar-a.aksesuar;
+    if(kat==='ikinciel')return b.ikinciel-a.ikinciel;
+    if(kat==='sifir')return b.sifir-a.sifir;
+    return b.toplam-a.toplam;
+  });
+  const kazanan=sorted.i;
+  const obj={ay,yil:activeYear,kategori:kat,tutar,not_text:notText,kazanan};
+  try{
+    const{data,error}=await sb.from('lider_primler').upsert(obj,{onConflict:'ay,yil,kategori'}).select().single();
+    if(error)throw error;
+    const existing=liderPrimler.findIndex(lp=>lp.ay===ay&&lp.yil===activeYear&&(lp.kategori||lp.kat)===kat);
+    if(existing>=0)liderPrimler[existing]=data;
+    else liderPrimler.push(data);
+    closeLiderPrimModal();
+    showToast(`✓ ${employees[kazanan].name} için ${fmtTL(tutar)} lider primi tanımlandı!`);
+    renderLiderlik();
+  }catch(e){showToast('Hata: '+e.message,true);}
+}
+
+async function deleteLiderPrim(id){
+  if(!confirm('Lider primini silmek istiyor musunuz?'))return;
+  try{
+    const{error}=await sb.from('lider_primler').delete().eq('id',id);
+    if(error)throw error;
+    liderPrimler=liderPrimler.filter(lp=>lp.id!==id);
+    showToast('Lider primi silindi');
+    renderLiderlik();
+  }catch(e){showToast('Hata: '+e.message,true);}
+}
+
+function renderMuafiyet(){
+  const tbody=document.getElementById('muafBody');if(!tbody)return;tbody.innerHTML='';
+  if(!muafiyetler.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--gray);padding:20px">Henüz muafiyet kaydı yok</td></tr>';return;}
+  muafiyetler.forEach(m=>{
+    tbody.innerHTML+=`<tr>
+      <td style="color:${employees[m.emp].color}">${employees[m.emp].name}</td>
+      <td>${MONTHS[m.ay]} ${m.yil}</td>
+      <td style="color:var(--gray)">${m.neden}</td>
+      <td style="color:var(--gray);font-size:11px">${m.tarih}</td>
+      <td><button class="btn btn-d bsm" onclick="deleteMuafiyet('${m.id}')">🗑️ Sil</button></td>
+    </tr>`;
+  });
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function openSaleModal(editId=''){
+  document.getElementById('editId').value=editId;
+  document.getElementById('sEmp').innerHTML=employees.map((e,i)=>`<option value="${i}">${e.name}</option>`).join('');
+  document.getElementById('sProd').innerHTML=products.map((p,i)=>p.hidden?'':`<option value="${i}">${p.name} (${tipName(p.tip)})</option>`).join('');
+  if(editId){
+    const s=sales.find(x=>x.id===editId);
+    document.getElementById('sModalTitle').textContent='DÜZENLE';
+    document.getElementById('sSub').textContent='Kaydı güncelle';
+    document.getElementById('saveSaleBtn').textContent='✓ Güncelle';
+    document.getElementById('sEmp').value=s.emp;
+    document.getElementById('sProd').value=s.prod;
+    document.getElementById('sQty').value=s.qty;
+    document.getElementById('sDate').value=s.date;
+    document.getElementById('sManuel').value=s.manuel_prim||0;
+    document.getElementById('sAc').value=s.aciklama||'';
+  }else{
+    document.getElementById('sModalTitle').textContent='EKLE';
+    document.getElementById('sSub').textContent='Yeni satış kaydı';
+    document.getElementById('saveSaleBtn').textContent='✓ Kaydet';
+    document.getElementById('sQty').value=1;
+    document.getElementById('sDate').value=new Date().toISOString().split('T');
+    document.getElementById('sManuel').value=0;
+    document.getElementById('sAc').value='';
+  }
+  updatePrev();
+  document.getElementById('saleOv').classList.add('open');
+}
+
+function closeSaleModal(){document.getElementById('saleOv').classList.remove('open');}
+
+function updatePrev(){
+  const pi=parseInt(document.getElementById('sProd').value);
+  const qty=parseInt(document.getElementById('sQty').value)||1;
+  const mp=parseFloat(document.getElementById('sManuel').value)||0;
+  const p=products[pi];
+  document.getElementById('manuelGrp').style.display=p.manuel?'block':'none';
+  document.getElementById('acGrp').style.display=p.aciklama?'block':'none';
+  document.getElementById('pvMRow').style.display=p.manuel?'flex':'none';
+  document.getElementById('pvTip').textContent=tipName(p.tip);
+  document.getElementById('pvTip').style.color=p.tip==='postpaid'?'var(--postpaid)':p.tip==='prepaid'?'var(--prepaid)':'var(--notr)';
+  document.getElementById('pvPuan').textContent=p.puan*qty>0?fmt(p.puan*qty)+' puan':'—';
+  document.getElementById('pvPrim').textContent=(!p.manuel&&p.prim>0)?fmtTL(p.prim*qty):'—';
+  if(p.manuel){
+    document.getElementById('pvM').textContent=fmtTL(mp*qty);
+    const cp=document.getElementById('calisanPrimPreview');
+    if(cp) cp.textContent=fmtTL(Math.round(mp*qty*0.1));
+  }
+}
+
+async function saveSale(){
+  const editId=document.getElementById('editId').value;
+  const obj={
+    emp:parseInt(document.getElementById('sEmp').value),
+    prod:parseInt(document.getElementById('sProd').value),
+    qty:parseInt(document.getElementById('sQty').value)||1,
+    date:document.getElementById('sDate').value,
+    manuel_prim:parseFloat(document.getElementById('sManuel').value)||0,
+    aciklama:document.getElementById('sAc').value.trim()
+  };
+  try{
+    if(editId){
+      await dbUpdateSale(editId,obj);
+      const idx=sales.findIndex(s=>s.id===editId);
+      if(idx>=0)sales[idx]={...sales[idx],...obj};
+      showToast('✓ Satış güncellendi!');
+    }else{
+      const data=await dbAddSale(obj);
+      sales.unshift(data);
+      showToast('✓ Satış eklendi!');
+    }
+    closeSaleModal();refreshAll();
+  }catch(e){showToast('Hata: '+e.message,true);}
+}
+
+async function editSale(id){openSaleModal(id);}
+
+async function deleteSale(id){
+  if(!confirm('Bu satışı silmek istiyor musunuz?'))return;
+  try{
+    await dbDeleteSale(id);
+    sales=sales.filter(s=>s.id!==id);
+    showToast('Satış silindi');refreshAll();
+  }catch(e){showToast('Hata: '+e.message,true);}
+}
+
+function openMuafModal(){
+  document.getElementById('mEmp').innerHTML=employees.map((e,i)=>`<option value="${i}">${e.name}</option>`).join('');
+  document.getElementById('mAy').innerHTML=MONTHS.map((m,i)=>`<option value="${i}" ${i===activeMonth?'selected':''}>${m} ${activeYear}</option>`).join('');
+  document.getElementById('mNeden').value='';
+  document.getElementById('muafOv').classList.add('open');
+}
+function openMuafModalForEmp(ei){openMuafModal();document.getElementById('mEmp').value=ei;}
+function closeMuafModal(){document.getElementById('muafOv').classList.remove('open');}
+
+async function saveMuafiyet(){
+  const emp=parseInt(document.getElementById('mEmp').value);
+  const ay=parseInt(document.getElementById('mAy').value);
+  if(muafiyetler.some(m=>m.emp===emp&&m.ay===ay&&m.yil===activeYear)){showToast('⚠️ Bu çalışan için bu ay zaten muafiyet var!',true);return;}
+  const obj={emp,ay,yil:activeYear,neden:document.getElementById('mNeden').value.trim()||'Belirtilmedi',tarih:new Date().toLocaleDateString('tr-TR')};
+  try{
+    const data=await dbAddMuafiyet(obj);
+    muafiyetler.unshift(data);
+    closeMuafModal();showToast('✓ Muafiyet kaydedildi!');refreshAll();
+  }catch(e){showToast('Hata: '+e.message,true);}
+}
+
+async function deleteMuafiyet(id){
+  if(!confirm('Muafiyeti silmek istiyor musunuz?'))return;
+  try{
+    await dbDeleteMuafiyet(id);
+    muafiyetler=muafiyetler.filter(m=>m.id!==id);
+    showToast('Muafiyet silindi');refreshAll();
+  }catch(e){showToast('Hata: '+e.message,true);}
+}
+
+let aktivasyonMonth=null,aktivasyonYear=null;
+function shiftAktivasyonMonth(d){
+  if(aktivasyonMonth===null){aktivasyonMonth=activeMonth;aktivasyonYear=activeYear;}
+  aktivasyonMonth+=d;
+  if(aktivasyonMonth<0){aktivasyonMonth=11;aktivasyonYear--;}
+  if(aktivasyonMonth>11){aktivasyonMonth=0;aktivasyonYear++;}
+  renderAktivasyonTesvık();
+}
+
+function renderAktivasyonTesvık(){
+  if(aktivasyonMonth===null){aktivasyonMonth=activeMonth;aktivasyonYear=activeYear;}
+  const lbl=document.getElementById('aktivasyonMonthLabel');
+  if(lbl) lbl.textContent=MONTHS[aktivasyonMonth]+' '+aktivasyonYear;
+  const ms=getMonthSales(aktivasyonMonth,aktivasyonYear);
+  const tot=getTotalStats(aktivasyonMonth,aktivasyonYear);
+  const pct=storeTarget>0?(tot.puan/storeTarget)*100:0;
+
+  // Toplam aktivasyon (Faturalı YT+MNT+Data+Switch + ÖnÖd YT+MNT + TC Rahat YT+MNT + SOL)
+  let toplamAkt=
