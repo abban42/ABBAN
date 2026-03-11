@@ -263,7 +263,7 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
       <div class="login-title">ELFİN İLETİŞİM</div>
     </div>
     <div class="login-sub">Hedef & Prim Takip Sistemi</div>
-    <div style="font-size:9px;color:var(--gray);margin-bottom:20px;letter-spacing:1px">v2.5 — CRM + NetGSM</div>
+    <div style="font-size:9px;color:var(--gray);margin-bottom:20px;letter-spacing:1px">v2.6 — CRM Pro</div>
     <label class="login-label">ŞİFRE</label>
     <input class="login-input" type="password" id="loginPass" placeholder="••••••">
     <button class="login-btn" id="loginBtn">🔐 Giriş Yap</button>
@@ -317,6 +317,7 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
     <div class="ni" onclick="sp('crmboard',this)"><span class="ni-ic">📞</span>Bugün Ara<span id="crmBadge" style="margin-left:auto;background:var(--red);color:#fff;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:700;display:none">0</span></div>
     <div class="ni" onclick="sp('crmlist',this)"><span class="ni-ic">📋</span>Tüm Müşteriler</div>
     <div class="ni" onclick="sp('crmrapor',this)"><span class="ni-ic">📊</span>Arama Raporu</div>
+    <div class="ni" onclick="sp('crmchurn',this)"><span class="ni-ic">📱</span>Operatör Geçişleri</div>
     <div class="ni" onclick="openCrmUpload()"><span class="ni-ic">📥</span>Excel Yükle</div>
     <div class="ns">SMS & RAPORLAR</div>
     <div class="ni" onclick="sp('smsgonder',this)"><span class="ni-ic">📱</span>Hızlı SMS Gönder</div>
@@ -569,10 +570,10 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
 <!-- ============ MÜŞTERİ TAKİP: TÜM MÜŞTERİLER ============ -->
 <div class="page" id="page-crmlist">
   <div class="ph">
-    <div><div class="pt">TÜM <span>MÜŞTERİLER</span></div><div class="ps">Kayıtlı müşteri listesi ve durumları</div></div>
-    <div style="display:flex;gap:7px;">
+    <div><div class="pt">TÜM <span>MÜŞTERİLER</span></div><div class="ps" id="crmListCount">Kayıtlı müşteri listesi</div></div>
+    <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap;">
       <button class="btn btn-g" onclick="openCrmAddModal()">+ Müşteri Ekle</button>
-      <select class="month-sel" id="crmGrupFilter" onchange="renderCrmList()" style="width:180px;padding:6px 9px;">
+      <select class="month-sel" id="crmGrupFilter" onchange="crmListPage=0;renderCrmList()" style="width:180px;padding:6px 9px;">
         <option value="0">Tüm Gruplar</option>
         <option value="1">Grup 1 — Postpaid 1 Yıl</option>
         <option value="2">Grup 2 — Prepaid MNT</option>
@@ -581,7 +582,9 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
       </select>
     </div>
   </div>
-  <div class="tw"><table><thead><tr><th>Müşteri</th><th>Telefon</th><th>Grup</th><th>Taahhüt Bitiş</th><th>Hatırlatma</th><th>Durum</th><th>Sonuç</th><th>Son Arama</th><th>İşlem</th></tr></thead><tbody id="crmListBody"></tbody></table></div>
+  <div id="crmListPagination" style="margin-bottom:10px;"></div>
+  <div class="tw"><table><thead><tr><th>Müşteri</th><th>Telefon</th><th>Grup</th><th>Taahhüt Bitiş</th><th>Durum</th><th>Sonuç</th><th>İşlem</th></tr></thead><tbody id="crmListBody"></tbody></table></div>
+  <div id="crmListPaginationBottom" style="margin-top:10px;"></div>
 </div>
 
 <!-- ============ MÜŞTERİ TAKİP: ARAMA RAPORU ============ -->
@@ -592,6 +595,19 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
   <div class="kg kg4" id="crmRaporCards"></div>
   <div class="sh"><div class="st">SON <em>ARAMA KAYITLARI</em></div></div>
   <div class="tw"><table><thead><tr><th>Müşteri</th><th>Tarih</th><th>Durum</th><th>Sonuç</th><th>Not</th><th>Arayan</th></tr></thead><tbody id="crmRaporBody"></tbody></table></div>
+</div>
+
+<!-- ============ OPERATÖR GEÇİŞLERİ ============ -->
+<div class="page" id="page-crmchurn">
+  <div class="ph">
+    <div><div class="pt">OPERATÖR <span>GEÇİŞLERİ</span></div><div class="ps">Başka operatöre geçmiş müşteriler ve geri kazanma takibi</div></div>
+  </div>
+  <div class="kg kg3" id="churnSummaryCards"></div>
+  <div class="info-box">
+    <strong>📋 Kural:</strong> <strong style="color:var(--red)">Vodafone</strong> müşterileri taahhüt bitişine <strong>1 ay</strong> kala arama listesine eklenir. <strong style="color:var(--purple)">Telekom</strong> müşterileri taahhüt bitişine <strong>1 hafta</strong> kala eklenir.
+  </div>
+  <div class="sh"><div class="st">BAŞKA OPERATÖRE <em>GEÇEN MÜŞTERİLER</em></div></div>
+  <div class="tw"><table><thead><tr><th>Müşteri</th><th>Telefon</th><th>Operatör</th><th>Hat Tipi</th><th>Geçiş Tarihi</th><th>Taahhüt Bitiş</th><th>Durum</th><th>İşlem</th></tr></thead><tbody id="churnBody"></tbody></table></div>
 </div>
 
 <!-- ============ HIZLI SMS GÖNDER ============ -->
@@ -675,12 +691,13 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
     <h2>ARAMA <em>KAYDI</em></h2>
     <div class="msub" id="crmCallSub">Müşteri arama sonucu girin</div>
     <input type="hidden" id="crmCallMusteriId" value="">
+    <div class="fg"><label>ARAYAN</label><select id="crmCallArayan"></select></div>
     <div class="fg"><label>DURUM</label><select id="crmCallDurum">
       <option value="arandi">✓ Arandı — Ulaşıldı</option>
       <option value="ulasilamadi">✗ Ulaşılamadı</option>
       <option value="mesgul">📞 Meşgul / Daha Sonra</option>
     </select></div>
-    <div class="fg"><label>SONUÇ</label><select id="crmCallSonuc">
+    <div class="fg"><label>SONUÇ</label><select id="crmCallSonuc" onchange="toggleOperatorFields()">
       <option value="">— Henüz sonuç yok —</option>
       <option value="taahhut_yenilendi">✅ Taahhüt Yenilendi</option>
       <option value="postpaide_gecti">✅ Postpaid'e Geçti</option>
@@ -688,7 +705,24 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
       <option value="reddetti">❌ Reddetti</option>
       <option value="iptal_etti">❌ İptal Etti</option>
       <option value="numara_yanlis">⚠️ Numara Yanlış</option>
+      <option value="operator_gecis">📱 Başka Operatöre Geçmiş</option>
     </select></div>
+    <div id="operatorFields" style="display:none;">
+      <div class="fr">
+        <div class="fg"><label>HANGİ OPERATÖR</label><select id="crmCallOperator">
+          <option value="vodafone">Vodafone</option>
+          <option value="telekom">Türk Telekom</option>
+        </select></div>
+        <div class="fg"><label>GEÇİŞ TARİHİ</label><input type="date" id="crmCallGecTarih"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>HAT TİPİ</label><select id="crmCallHatTip">
+          <option value="postpaid">Faturalı (Postpaid)</option>
+          <option value="prepaid">Faturasız (Prepaid)</option>
+        </select></div>
+        <div class="fg"><label>TAAHHÜT BİTİŞ (TAHMİNİ)</label><input type="date" id="crmCallTaahhutBitis"></div>
+      </div>
+    </div>
     <div class="fg"><label>NOT</label><textarea id="crmCallNot" placeholder="Görüşme detayları, randevu tarihi, vb..."></textarea></div>
     <div class="mf"><button class="btn btn-g" onclick="closeCrmCallModal()">İptal</button><button class="btn btn-p" onclick="saveCrmCall()">✓ Kaydet</button></div>
   </div>
@@ -2116,7 +2150,7 @@ let crmAramalar=[];
 const CRM_GRUP_LABELS={1:'Postpaid 1 Yıl',2:'Prepaid MNT',3:'Prepaid Yeni Tesis',4:'Yapboz 6 Ay'};
 const CRM_GRUP_COLORS={1:'var(--postpaid)',2:'var(--prepaid)',3:'var(--purple)',4:'var(--yellow)'};
 const CRM_DURUM_LABELS={arandi:'✓ Arandı',ulasilamadi:'✗ Ulaşılamadı',mesgul:'📞 Meşgul'};
-const CRM_SONUC_LABELS={taahhut_yenilendi:'✅ Taahhüt Yenilendi',postpaide_gecti:'✅ Postpaid\'e Geçti',dusunuyor:'⏳ Düşünüyor',reddetti:'❌ Reddetti',iptal_etti:'❌ İptal Etti',numara_yanlis:'⚠️ Numara Yanlış'};
+const CRM_SONUC_LABELS={taahhut_yenilendi:'✅ Taahhüt Yenilendi',postpaide_gecti:'✅ Postpaid\'e Geçti',dusunuyor:'⏳ Düşünüyor',reddetti:'❌ Reddetti',iptal_etti:'❌ İptal Etti',numara_yanlis:'⚠️ Numara Yanlış',operator_gecis:'📱 Operatör Geçişi'};
 
 function calcHatirlatma(m){
   const g=parseInt(m.grup);
@@ -2148,6 +2182,15 @@ function getTodayCrmList(){
   const todayD=new Date(today);
   return crmMusteriler.filter(m=>{
     if(m.sonuc==='taahhut_yenilendi'||m.sonuc==='postpaide_gecti')return false;
+    // Operatör geçişi: Vodafone 30 gün, Telekom 7 gün önce
+    if(m.sonuc==='operator_gecis'&&m.operator_taahhut_bitis){
+      const bitis=new Date(m.operator_taahhut_bitis);
+      const diff=Math.round((bitis-todayD)/86400000);
+      if(m.operator_adi==='vodafone'&&diff<=30&&diff>=-7)return true;
+      if(m.operator_adi==='telekom'&&diff<=7&&diff>=-3)return true;
+      return false;
+    }
+    if(m.sonuc==='operator_gecis')return false;
     const dates=calcHatirlatma(m);
     return dates.some(d=>{
       const ds=d.toISOString().split('T')[0];
@@ -2271,16 +2314,25 @@ async function saveCrmCall(){
   const durum=document.getElementById('crmCallDurum').value;
   const sonuc=document.getElementById('crmCallSonuc').value;
   const notText=document.getElementById('crmCallNot').value.trim();
-  const obj={musteri_id:mid,durum,sonuc,not_text:notText,arayan:'',tarih:new Date().toISOString()};
+  const arayanIdx=parseInt(document.getElementById('crmCallArayan').value);
+  const arayanAd=employees[arayanIdx]?.name||'';
+  const obj={musteri_id:mid,durum,sonuc,not_text:notText,arayan:arayanAd,tarih:new Date().toISOString()};
   try{
     const{data,error}=await sb.from('arama_kayitlari').insert([obj]).select().single();
     if(error)throw error;
     crmAramalar.unshift(data);
     // Müşteri sonucunu güncelle
+    const updateObj={sonuc,updated_at:new Date().toISOString()};
+    if(sonuc==='operator_gecis'){
+      updateObj.operator_adi=document.getElementById('crmCallOperator').value;
+      updateObj.operator_hat_tipi=document.getElementById('crmCallHatTip').value;
+      updateObj.operator_gecis_tarihi=document.getElementById('crmCallGecTarih').value||null;
+      updateObj.operator_taahhut_bitis=document.getElementById('crmCallTaahhutBitis').value||null;
+    }
     if(sonuc){
-      await sb.from('musteriler').update({sonuc,updated_at:new Date().toISOString()}).eq('id',mid);
+      await sb.from('musteriler').update(updateObj).eq('id',mid);
       const idx=crmMusteriler.findIndex(m=>m.id===mid);
-      if(idx>=0)crmMusteriler[idx].sonuc=sonuc;
+      if(idx>=0)Object.assign(crmMusteriler[idx],updateObj);
     }
     closeCrmCallModal();showToast('✓ Arama kaydedildi!');updateCrmBadge();renderCrmBoard();renderCrmRapor();
   }catch(e){showToast('Hata: '+e.message,true);}
@@ -2312,12 +2364,21 @@ function openCrmCallModal(mid){
   const m=crmMusteriler.find(x=>x.id===mid);
   document.getElementById('crmCallMusteriId').value=mid;
   document.getElementById('crmCallSub').textContent=m?m.ad+' — '+m.telefon:'';
+  document.getElementById('crmCallArayan').innerHTML=employees.map((e,i)=>`<option value="${i}">${e.name}</option>`).join('');
   document.getElementById('crmCallDurum').value='arandi';
   document.getElementById('crmCallSonuc').value='';
   document.getElementById('crmCallNot').value='';
+  document.getElementById('crmCallGecTarih').value=new Date().toISOString().split('T')[0];
+  document.getElementById('crmCallTaahhutBitis').value='';
+  toggleOperatorFields();
   document.getElementById('crmCallOv').classList.add('open');
 }
 function closeCrmCallModal(){document.getElementById('crmCallOv').classList.remove('open');}
+
+function toggleOperatorFields(){
+  const sonuc=document.getElementById('crmCallSonuc').value;
+  document.getElementById('operatorFields').style.display=sonuc==='operator_gecis'?'block':'none';
+}
 
 function openCrmUpload(){document.getElementById('crmUploadOv').classList.add('open');document.getElementById('crmFile').value='';document.getElementById('crmUploadPreview').style.display='none';document.getElementById('crmUploadBtn').disabled=true;}
 function closeCrmUpload(){document.getElementById('crmUploadOv').classList.remove('open');}
@@ -2552,31 +2613,95 @@ function buildCrmCard(m,today,isTodayView,atananIdx){
   </div>`;
 }
 
+let crmListPage=0;
+const CRM_PAGE_SIZE=50;
+
 function renderCrmList(){
   const tbody=document.getElementById('crmListBody');if(!tbody)return;tbody.innerHTML='';
   const filter=parseInt(document.getElementById('crmGrupFilter')?.value||0);
   const list=filter>0?crmMusteriler.filter(m=>m.grup===filter):crmMusteriler;
-  if(!list.length){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--gray);padding:20px">Henüz müşteri kaydı yok</td></tr>';return;}
-  list.forEach(m=>{
-    const son=getMusteriSonArama(m.id);
-    const dates=calcHatirlatma(m);
-    const nextD=dates.length>0?dates[0].toISOString().split('T')[0]:'—';
+  const total=list.length;
+  const totalPages=Math.ceil(total/CRM_PAGE_SIZE);
+  if(crmListPage>=totalPages)crmListPage=Math.max(0,totalPages-1);
+  const start=crmListPage*CRM_PAGE_SIZE;
+  const pageList=list.slice(start,start+CRM_PAGE_SIZE);
+
+  // Sayaç
+  const countEl=document.getElementById('crmListCount');
+  if(countEl)countEl.textContent=`Toplam ${total} müşteri${filter>0?' ('+CRM_GRUP_LABELS[filter]+')':''}`;
+
+  // Sayfalama
+  const pagHtml=totalPages>1?`<div style="display:flex;gap:5px;align-items:center;justify-content:center;flex-wrap:wrap;">
+    <button class="btn btn-g bsm" onclick="crmListPage=0;renderCrmList()" ${crmListPage===0?'disabled':''}>«</button>
+    <button class="btn btn-g bsm" onclick="crmListPage--;renderCrmList()" ${crmListPage===0?'disabled':''}>‹</button>
+    <span style="font-size:11px;color:var(--gray);padding:0 8px">Sayfa ${crmListPage+1} / ${totalPages} (${start+1}-${Math.min(start+CRM_PAGE_SIZE,total)} / ${total})</span>
+    <button class="btn btn-g bsm" onclick="crmListPage++;renderCrmList()" ${crmListPage>=totalPages-1?'disabled':''}>›</button>
+    <button class="btn btn-g bsm" onclick="crmListPage=${totalPages-1};renderCrmList()" ${crmListPage>=totalPages-1?'disabled':''}>»</button>
+  </div>`:'';
+  const pagEl=document.getElementById('crmListPagination');if(pagEl)pagEl.innerHTML=pagHtml;
+  const pagElB=document.getElementById('crmListPaginationBottom');if(pagElB)pagElB.innerHTML=pagHtml;
+
+  if(!pageList.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:20px">Henüz müşteri kaydı yok</td></tr>';return;}
+  pageList.forEach(m=>{
     const sonucLabel=CRM_SONUC_LABELS[m.sonuc]||m.sonuc||'Bekliyor';
-    const sonucColor=m.sonuc==='taahhut_yenilendi'||m.sonuc==='postpaide_gecti'?'var(--green)':m.sonuc==='reddetti'||m.sonuc==='iptal_etti'?'var(--red)':'var(--gray)';
+    const sonucColor=m.sonuc==='taahhut_yenilendi'||m.sonuc==='postpaide_gecti'?'var(--green)':m.sonuc==='reddetti'||m.sonuc==='iptal_etti'||m.sonuc==='operator_gecis'?'var(--red)':'var(--gray)';
     tbody.innerHTML+=`<tr>
       <td style="font-weight:600">${m.ad}</td>
       <td>${m.telefon||'—'}</td>
       <td><span style="color:${CRM_GRUP_COLORS[m.grup]};font-weight:600;font-size:11px">${CRM_GRUP_LABELS[m.grup]||m.grup}</span></td>
       <td style="font-size:11px">${m.taahhut_bitis||m.aktivasyon_tarihi||'—'}</td>
-      <td style="font-size:11px">${nextD}</td>
       <td style="font-size:11px">${m.durum||'aktif'}</td>
       <td style="color:${sonucColor};font-size:11px;font-weight:600">${sonucLabel}</td>
-      <td style="font-size:10px;color:var(--gray)">${son?new Date(son.tarih).toLocaleDateString('tr-TR'):'—'}</td>
       <td><div style="display:flex;gap:4px">
         <a href="tel:${(m.telefon||'').replace(/\s/g,'')}" class="btn btn-p bsm" style="text-decoration:none">📞</a>
         <button class="btn btn-gr bsm" onclick="openCrmCallModal('${m.id}')">✍</button>
         <button class="btn btn-e bsm" onclick="openCrmAddModal('${m.id}')">✏️</button>
         <button class="btn btn-d bsm" onclick="deleteCrmMusteri('${m.id}')">🗑️</button>
+      </div></td>
+    </tr>`;
+  });
+}
+
+function renderCrmChurn(){
+  const churnList=crmMusteriler.filter(m=>m.sonuc==='operator_gecis');
+  const today=new Date();
+  const vodafone=churnList.filter(m=>m.operator_adi==='vodafone');
+  const telekom=churnList.filter(m=>m.operator_adi==='telekom');
+
+  const el=document.getElementById('churnSummaryCards');
+  if(el)el.innerHTML=`
+    <div class="kc" style="--ac:var(--red)"><div class="kl">TOPLAM GEÇİŞ</div><div class="kv" style="color:var(--red)">${churnList.length}</div><div class="ks">Başka operatöre</div></div>
+    <div class="kc" style="--ac:var(--red)"><div class="kl">VODAFONE</div><div class="kv" style="color:var(--red)">${vodafone.length}</div><div class="ks">1 ay önce ara</div></div>
+    <div class="kc" style="--ac:var(--purple)"><div class="kl">TELEKOM</div><div class="kv" style="color:var(--purple)">${telekom.length}</div><div class="ks">1 hafta önce ara</div></div>`;
+
+  const tbody=document.getElementById('churnBody');if(!tbody)return;tbody.innerHTML='';
+  if(!churnList.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:20px">Operatör geçişi kaydı yok</td></tr>';return;}
+  churnList.forEach(m=>{
+    const opColor=m.operator_adi==='vodafone'?'var(--red)':'var(--purple)';
+    const opLabel=m.operator_adi==='vodafone'?'Vodafone':'Türk Telekom';
+    const hatLabel=m.operator_hat_tipi==='postpaid'?'Faturalı':'Faturasız';
+    const bitis=m.operator_taahhut_bitis||'—';
+    // Arama listesinde mi?
+    let aramaStatus='—';
+    if(m.operator_taahhut_bitis){
+      const bitisD=new Date(m.operator_taahhut_bitis);
+      const diff=Math.round((bitisD-today)/86400000);
+      if(m.operator_adi==='vodafone'&&diff<=30&&diff>0)aramaStatus='<span class="badge br">Arama listesinde</span>';
+      else if(m.operator_adi==='telekom'&&diff<=7&&diff>0)aramaStatus='<span class="badge br">Arama listesinde</span>';
+      else if(diff<=0)aramaStatus='<span class="badge bg">Taahhüt bitti</span>';
+      else aramaStatus=diff+' gün kaldı';
+    }
+    tbody.innerHTML+=`<tr>
+      <td style="font-weight:600">${m.ad}</td>
+      <td>${m.telefon||'—'}</td>
+      <td style="color:${opColor};font-weight:700">${opLabel}</td>
+      <td>${hatLabel}</td>
+      <td style="font-size:11px">${m.operator_gecis_tarihi||'—'}</td>
+      <td style="font-size:11px">${bitis}</td>
+      <td>${aramaStatus}</td>
+      <td><div style="display:flex;gap:4px">
+        <a href="tel:${(m.telefon||'').replace(/\s/g,'')}" class="btn btn-p bsm" style="text-decoration:none">📞</a>
+        <button class="btn btn-gr bsm" onclick="openCrmCallModal('${m.id}')">✍</button>
       </div></td>
     </tr>`;
   });
@@ -2884,7 +3009,7 @@ function sp(page,navEl){
   document.getElementById('page-'+page).classList.add('active');
   if(navEl){document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));navEl.classList.add('active');}
   closeMobMenu();
-  const m={dashboard:renderDashboard,gunluk:renderGunluk,urunler:renderUrunler,calisanlar:renderCalisanlar,empdetay:renderEmpDetay,prim:renderPrim,gunlukprim:renderGunlukPrim,hedefler:renderHedefler,yillik:renderYillik,muafiyet:renderMuafiyet,aktivasyon:renderAktivasyonTesvık,liderlik:renderLiderlik,crmboard:renderCrmBoard,crmlist:renderCrmList,crmrapor:renderCrmRapor,smsgonder:renderSmsGonder,smsrapor:renderSmsRapor,smsgecmis:renderSmsGecmis};
+  const m={dashboard:renderDashboard,gunluk:renderGunluk,urunler:renderUrunler,calisanlar:renderCalisanlar,empdetay:renderEmpDetay,prim:renderPrim,gunlukprim:renderGunlukPrim,hedefler:renderHedefler,yillik:renderYillik,muafiyet:renderMuafiyet,aktivasyon:renderAktivasyonTesvık,liderlik:renderLiderlik,crmboard:renderCrmBoard,crmlist:renderCrmList,crmrapor:renderCrmRapor,crmchurn:renderCrmChurn,smsgonder:renderSmsGonder,smsrapor:renderSmsRapor,smsgecmis:renderSmsGecmis};
   if(m[page])m[page]();
 }
 
