@@ -263,7 +263,7 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
       <div class="login-title">ELFİN İLETİŞİM</div>
     </div>
     <div class="login-sub">Hedef & Prim Takip Sistemi</div>
-    <div style="font-size:9px;color:var(--gray);margin-bottom:20px;letter-spacing:1px">v2.9 — Hızlı Satış + CRM Pro</div>
+    <div style="font-size:9px;color:var(--gray);margin-bottom:20px;letter-spacing:1px">v3.0 — WhatsApp + Hızlı Satış</div>
     <label class="login-label">ŞİFRE</label>
     <input class="login-input" type="password" id="loginPass" placeholder="••••••">
     <button class="login-btn" id="loginBtn">🔐 Giriş Yap</button>
@@ -322,7 +322,7 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
     <div class="ni" onclick="sp('crmajanda',this)"><span class="ni-ic">📅</span>Ajanda</div>
     <div class="ni" onclick="openCrmUpload()"><span class="ni-ic">📥</span>Excel Yükle</div>
     <div class="ns">SMS & RAPORLAR</div>
-    <div class="ni" onclick="sp('smsgonder',this)"><span class="ni-ic">📱</span>Hızlı SMS Gönder</div>
+    <div class="ni" onclick="sp('smsgonder',this)"><span class="ni-ic">📱</span>Mesaj Gönder</div>
     <div class="ni" onclick="sp('smsrapor',this)"><span class="ni-ic">💬</span>Haftalık Rapor SMS</div>
     <div class="ni" onclick="sp('smsgecmis',this)"><span class="ni-ic">📨</span>SMS Geçmişi</div>
   </nav>
@@ -657,10 +657,10 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
 <!-- ============ HIZLI SMS GÖNDER ============ -->
 <div class="page" id="page-smsgonder">
   <div class="ph">
-    <div><div class="pt">HIZLI <span>SMS GÖNDER</span></div><div class="ps">Tek kişiye veya toplu SMS gönder</div></div>
+    <div><div class="pt">HIZLI <span>MESAJ GÖNDER</span></div><div class="ps">SMS veya WhatsApp ile mesaj gönder</div></div>
   </div>
   <div class="ts" style="margin-bottom:16px;">
-    <div class="tsh"><div class="tst">📱 SMS GÖNDER</div></div>
+    <div class="tsh"><div class="tst">📱 SMS / WhatsApp GÖNDER</div></div>
     <div style="padding:14px;">
       <div class="fr">
         <div class="fg"><label>ALICI SEÇ</label><select id="smsTekAlici" onchange="smsAliciSec()">
@@ -670,11 +670,17 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
         <div class="fg"><label>TELEFON</label><input type="tel" id="smsTekTel" placeholder="0532 XXX XX XX"></div>
       </div>
       <div class="fg"><label>MESAJ <span id="smsTekCount" style="color:var(--gray);font-size:10px">(0/160)</span></label><textarea id="smsTekMesaj" placeholder="Mesajınızı yazın..." oninput="smsTekSay()" style="min-height:100px;"></textarea></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
-        <div style="font-size:10px;color:var(--gray)">NetGSM · Gönderici: ABBANELTRNK</div>
-        <button class="btn btn-p" onclick="sendTekSms()">📤 SMS Gönder</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:10px;color:var(--gray)">SMS: NetGSM · WhatsApp: Meta API (Test)</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-p" onclick="sendTekSms()">📤 SMS Gönder</button>
+          <button class="btn" onclick="sendTekWhatsApp()" style="background:#25D366;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:600;cursor:pointer;">💬 WhatsApp Gönder</button>
+        </div>
       </div>
     </div>
+  </div>
+  <div class="info-box">
+    <strong>💬 WhatsApp Test Modu:</strong> Şu an test numarasıyla çalışıyor. Sadece Meta panelinde "To" listesine eklediğiniz numaralara mesaj gönderebilirsiniz (max 5). Kendi hattınızı ekledikten sonra tüm numaralara mesaj gidebilir.
   </div>
 </div>
 
@@ -3043,6 +3049,79 @@ function initCrmNotifications(){
 // ============================================================
 // SMS & HAFTALIK RAPOR SİSTEMİ
 // ============================================================
+
+// ============================================================
+// WHATSAPP API
+// ============================================================
+const WA_PHONE_ID='988665524338368';
+const WA_TOKEN='EAARnMrZCUaOoBQ3laMaKDevlZB6mlQSBT7ZCao3JqG6uGaBp41JpVXD6nvjwFY3oftvWtGMnYMqeKjZAcM3qVBgWG2GgmcaXJfB1t5H65LZBZBIpqx7riQb7q15UXQenPcybj6UnbAdOrzyWFtnJZAsgQ6uHpOgLdoOjf45qn4GBSMxXiyw13qKEKsxpkjCg15ADAmZAZCyytqGdr12jTutZCOWC2UHvZCR0ZBHSYL1ZA5klJNxNwKwZBlTSNxQpzF90YpZBoPy8wWl9qA0UWTi3GJXaGNKSwZDZD';
+
+function formatWAPhone(tel){
+  let t=tel.replace(/[\s\-\(\)]/g,'');
+  if(t.startsWith('0'))t='90'+t.substring(1);
+  else if(t.startsWith('+'))t=t.substring(1);
+  else if(t.startsWith('5')&&t.length===10)t='90'+t;
+  return t;
+}
+
+async function sendWhatsApp(telefon,mesaj){
+  const to=formatWAPhone(telefon);
+  try{
+    const res=await fetch(`https://graph.facebook.com/v22.0/${WA_PHONE_ID}/messages`,{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+WA_TOKEN,'Content-Type':'application/json'},
+      body:JSON.stringify({
+        messaging_product:'whatsapp',
+        to:to,
+        type:'text',
+        text:{body:mesaj}
+      })
+    });
+    const data=await res.json();
+    if(data.error){
+      return{ok:false,error:data.error.message||'WhatsApp API hatası'};
+    }
+    return{ok:true,messageId:data.messages?.[0]?.id};
+  }catch(e){
+    return{ok:false,error:e.message};
+  }
+}
+
+async function sendWhatsAppTemplate(telefon,templateName='hello_world',lang='en_US'){
+  const to=formatWAPhone(telefon);
+  try{
+    const res=await fetch(`https://graph.facebook.com/v22.0/${WA_PHONE_ID}/messages`,{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+WA_TOKEN,'Content-Type':'application/json'},
+      body:JSON.stringify({
+        messaging_product:'whatsapp',
+        to:to,
+        type:'template',
+        template:{name:templateName,language:{code:lang}}
+      })
+    });
+    const data=await res.json();
+    if(data.error)return{ok:false,error:data.error.message};
+    return{ok:true};
+  }catch(e){return{ok:false,error:e.message};}
+}
+
+async function sendTekWhatsApp(){
+  const tel=document.getElementById('smsTekTel').value.trim();
+  const msg=document.getElementById('smsTekMesaj').value.trim();
+  if(!tel){showToast('Telefon numarası girin!',true);return;}
+  if(!msg){showToast('Mesaj yazın!',true);return;}
+  if(!confirm(tel+' numarasına WhatsApp mesajı göndermek istiyor musunuz?'))return;
+  showToast('⏳ WhatsApp gönderiliyor...');
+  const res=await sendWhatsApp(tel,msg);
+  if(res.ok){
+    showToast('✓ WhatsApp mesajı gönderildi!');
+    document.getElementById('smsTekMesaj').value='';
+    smsTekSay();
+  }else{
+    showToast('WhatsApp hatası: '+res.error,true);
+  }
+}
 
 // Hızlı SMS fonksiyonları
 function renderSmsGonder(){
