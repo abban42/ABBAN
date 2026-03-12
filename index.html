@@ -263,7 +263,7 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
       <div class="login-title">ELFİN İLETİŞİM</div>
     </div>
     <div class="login-sub">Hedef & Prim Takip Sistemi</div>
-    <div style="font-size:9px;color:var(--gray);margin-bottom:20px;letter-spacing:1px">v2.8 — CRM Pro + Ajanda</div>
+    <div style="font-size:9px;color:var(--gray);margin-bottom:20px;letter-spacing:1px">v2.9 — Hızlı Satış + CRM Pro</div>
     <label class="login-label">ŞİFRE</label>
     <input class="login-input" type="password" id="loginPass" placeholder="••••••">
     <button class="login-btn" id="loginBtn">🔐 Giriş Yap</button>
@@ -575,6 +575,7 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
     <div><div class="pt">TÜM <span>MÜŞTERİLER</span></div><div class="ps" id="crmListCount">Kayıtlı müşteri listesi</div></div>
     <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap;">
       <button class="btn btn-g" onclick="openCrmAddModal()">+ Müşteri Ekle</button>
+      <button class="btn btn-d" onclick="topluSilMenu()">🗑️ Toplu Sil</button>
       <select class="month-sel" id="crmGrupFilter" onchange="crmListPage=0;renderCrmList()" style="width:180px;padding:6px 9px;">
         <option value="0">Tüm Gruplar</option>
         <option value="1">Grup 1 — Postpaid 1 Yıl</option>
@@ -583,6 +584,10 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
         <option value="4">Grup 4 — Yapboz 6 Ay</option>
       </select>
     </div>
+  </div>
+  <div id="topluSilPanel" style="display:none;background:rgba(230,57,70,0.06);border:1px solid rgba(230,57,70,0.2);border-radius:10px;padding:12px;margin-bottom:14px;">
+    <div style="font-size:12px;color:var(--red);font-weight:600;margin-bottom:8px">⚠️ Toplu Silme — Dikkat!</div>
+    <div id="topluSilButtons" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
   </div>
   <div id="crmListPagination" style="margin-bottom:10px;"></div>
   <div class="tw"><table><thead><tr><th>Müşteri</th><th>Telefon</th><th>Grup</th><th>Taahhüt Bitiş</th><th>Durum</th><th>Sonuç</th><th>İşlem</th></tr></thead><tbody id="crmListBody"></tbody></table></div>
@@ -789,34 +794,45 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
 
 <!-- SATIŞ MODAL -->
 <div class="ov" id="saleOv">
-  <div class="modal">
+  <div class="modal" style="width:650px;">
     <h2>SATIŞ <em id="sModalTitle">EKLE</em></h2>
-    <div class="msub" id="sSub">Yeni satış kaydı</div>
+    <div class="msub" id="sSub">Ürüne tıkla → anında kaydet</div>
     <input type="hidden" id="editId" value="">
-    <div class="fr">
-      <div class="fg"><label>ÇALIŞAN</label><select id="sEmp"></select></div>
-      <div class="fg"><label>ÜRÜN</label><select id="sProd" onchange="updatePrev()"></select></div>
-    </div>
-    <div class="fr">
-      <div class="fg"><label>ADET</label><input type="number" id="sQty" value="1" min="1" oninput="updatePrev()"></div>
-      <div class="fg"><label>TARİH</label><input type="date" id="sDate"></div>
-    </div>
-    <div class="fg" id="manuelGrp" style="display:none">
-      <label>KARLILIK (₺/adet)</label>
-      <input type="number" id="sManuel" value="0" min="0" oninput="updatePrev()">
-      <div style="margin-top:6px;padding:8px 11px;background:rgba(0,168,107,0.07);border-radius:7px;border:1px solid rgba(0,168,107,0.2);font-size:12px;display:flex;justify-content:space-between;align-items:center;">
-        <span style="color:var(--gray)">Çalışan Primi (%10)</span>
-        <strong id="calisanPrimPreview" style="color:var(--green)">₺0</strong>
+    <div id="saleEditForm" style="display:none;">
+      <div class="fr">
+        <div class="fg"><label>ÇALIŞAN</label><select id="sEmpEdit"></select></div>
+        <div class="fg"><label>ÜRÜN</label><select id="sProdEdit"></select></div>
       </div>
+      <div class="fr">
+        <div class="fg"><label>ADET</label><input type="number" id="sQtyEdit" value="1" min="1"></div>
+        <div class="fg"><label>TARİH</label><input type="date" id="sDateEdit"></div>
+      </div>
+      <div class="fg" id="manuelGrpEdit" style="display:none"><label>KARLILIK (₺)</label><input type="number" id="sManuelEdit" value="0"></div>
+      <div class="fg" id="acGrpEdit" style="display:none"><label>AÇIKLAMA</label><textarea id="sAcEdit"></textarea></div>
+      <div class="mf"><button class="btn btn-g" onclick="closeSaleModal()">İptal</button><button class="btn btn-p" onclick="saveSaleEdit()">✓ Güncelle</button></div>
     </div>
-    <div class="fg" id="acGrp" style="display:none"><label>AÇIKLAMA</label><textarea id="sAc" placeholder="Cihaz modeli, kondisyon, fiyat..."></textarea></div>
-    <div class="pvb">
-      <div class="pr2"><span class="pl">Ürün Tipi</span><span id="pvTip" style="font-weight:600">—</span></div>
-      <div class="pr2"><span class="pl">Puan</span><span id="pvPuan" style="color:var(--yellow);font-weight:600">—</span></div>
-      <div class="pr2"><span class="pl">Adet Primi</span><span id="pvPrim" style="color:var(--green);font-weight:600">—</span></div>
-      <div class="pr2" id="pvMRow" style="display:none"><span class="pl">Manuel Prim</span><span id="pvM" style="color:var(--blue);font-weight:600">—</span></div>
+    <div id="saleQuickForm">
+      <div class="fr" style="margin-bottom:14px;">
+        <div class="fg"><label>ÇALIŞAN</label><select id="sEmp" style="font-size:14px;padding:10px;" onchange="renderSaleTiles()"></select></div>
+        <div class="fg"><label>TARİH</label><input type="date" id="sDate" style="font-size:14px;padding:10px;" onchange="renderSaleTiles()"></div>
+      </div>
+      <div style="font-size:10px;color:var(--gray);letter-spacing:1px;margin-bottom:8px">POSTPAID ÜRÜNLER</div>
+      <div id="saleTilesPost" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div>
+      <div style="font-size:10px;color:var(--gray);letter-spacing:1px;margin-bottom:8px">PREPAID ÜRÜNLER</div>
+      <div id="saleTilesPre" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div>
+      <div style="font-size:10px;color:var(--gray);letter-spacing:1px;margin-bottom:8px">DİĞER ÜRÜNLER</div>
+      <div id="saleTilesNotr" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div>
+      <div id="manuelPopup" style="display:none;background:#f7f8fa;border:1px solid rgba(230,168,0,0.3);border-radius:10px;padding:14px;margin-bottom:14px;">
+        <div style="font-weight:600;font-size:12px;margin-bottom:8px" id="manuelPopupTitle">—</div>
+        <div class="fr">
+          <div class="fg"><label>KARLILIK (₺)</label><input type="number" id="sManuelQuick" value="0" min="0"></div>
+          <div class="fg"><label>AÇIKLAMA</label><input type="text" id="sAcQuick" placeholder="Model, kondisyon..."></div>
+        </div>
+        <div class="mf"><button class="btn btn-g bsm" onclick="cancelManuelSale()">İptal</button><button class="btn btn-p bsm" onclick="confirmManuelSale()">✓ Ekle</button></div>
+      </div>
+      <div id="saleTodaySummary" style="background:rgba(230,168,0,0.06);border:1px solid rgba(230,168,0,0.2);border-radius:10px;padding:10px;font-size:11px;color:var(--gray)"></div>
+      <div class="mf"><button class="btn btn-g" onclick="closeSaleModal()">Kapat</button></div>
     </div>
-    <div class="mf"><button class="btn btn-g" onclick="closeSaleModal()">İptal</button><button class="btn btn-p" id="saveSaleBtn" onclick="saveSale()">✓ Kaydet</button></div>
   </div>
 </div>
 
@@ -2003,79 +2019,185 @@ function renderMuafiyet(){
 }
 
 // ============================================================
-// MODAL
+// MODAL — SATIŞ (Tile-based)
 // ============================================================
+let pendingManuelProd=null;
+
 function openSaleModal(editId=''){
   document.getElementById('editId').value=editId;
-  document.getElementById('sEmp').innerHTML=employees.map((e,i)=>`<option value="${i}">${e.name}</option>`).join('');
-  document.getElementById('sProd').innerHTML=products.map((p,i)=>p.hidden?'':`<option value="${i}">${p.name} (${tipName(p.tip)})</option>`).join('');
   if(editId){
+    // Düzenleme modu
     const s=sales.find(x=>x.id===editId);
     document.getElementById('sModalTitle').textContent='DÜZENLE';
     document.getElementById('sSub').textContent='Kaydı güncelle';
-    document.getElementById('saveSaleBtn').textContent='✓ Güncelle';
-    document.getElementById('sEmp').value=s.emp;
-    document.getElementById('sProd').value=s.prod;
-    document.getElementById('sQty').value=s.qty;
-    document.getElementById('sDate').value=s.date;
-    document.getElementById('sManuel').value=s.manuel_prim||0;
-    document.getElementById('sAc').value=s.aciklama||'';
+    document.getElementById('saleQuickForm').style.display='none';
+    document.getElementById('saleEditForm').style.display='block';
+    document.getElementById('sEmpEdit').innerHTML=employees.map((e,i)=>`<option value="${i}">${e.name}</option>`).join('');
+    document.getElementById('sProdEdit').innerHTML=products.map((p,i)=>p.hidden?'':`<option value="${i}">${p.name}</option>`).join('');
+    document.getElementById('sEmpEdit').value=s.emp;
+    document.getElementById('sProdEdit').value=s.prod;
+    document.getElementById('sQtyEdit').value=s.qty;
+    document.getElementById('sDateEdit').value=s.date;
+    const p=products[s.prod];
+    document.getElementById('manuelGrpEdit').style.display=p.manuel?'block':'none';
+    document.getElementById('acGrpEdit').style.display=p.aciklama?'block':'none';
+    document.getElementById('sManuelEdit').value=s.manuel_prim||0;
+    document.getElementById('sAcEdit').value=s.aciklama||'';
   }else{
+    // Hızlı ekleme modu
     document.getElementById('sModalTitle').textContent='EKLE';
-    document.getElementById('sSub').textContent='Yeni satış kaydı';
-    document.getElementById('saveSaleBtn').textContent='✓ Kaydet';
-    document.getElementById('sQty').value=1;
+    document.getElementById('sSub').textContent='Ürüne tıkla → anında kaydet';
+    document.getElementById('saleQuickForm').style.display='block';
+    document.getElementById('saleEditForm').style.display='none';
+    document.getElementById('sEmp').innerHTML=employees.map((e,i)=>`<option value="${i}">${e.name}</option>`).join('');
     document.getElementById('sDate').value=new Date().toISOString().split('T')[0];
-    document.getElementById('sManuel').value=0;
-    document.getElementById('sAc').value='';
+    document.getElementById('manuelPopup').style.display='none';
+    renderSaleTiles();
   }
-  updatePrev();
   document.getElementById('saleOv').classList.add('open');
 }
 
-function closeSaleModal(){document.getElementById('saleOv').classList.remove('open');}
+function renderSaleTiles(){
+  const date=document.getElementById('sDate').value;
+  const ei=parseInt(document.getElementById('sEmp').value);
+  const daySales=sales.filter(s=>s.date===date&&s.emp===ei);
 
-function updatePrev(){
-  const pi=parseInt(document.getElementById('sProd').value);
-  const qty=parseInt(document.getElementById('sQty').value)||1;
-  const mp=parseFloat(document.getElementById('sManuel').value)||0;
-  const p=products[pi];
-  document.getElementById('manuelGrp').style.display=p.manuel?'block':'none';
-  document.getElementById('acGrp').style.display=p.aciklama?'block':'none';
-  document.getElementById('pvMRow').style.display=p.manuel?'flex':'none';
-  document.getElementById('pvTip').textContent=tipName(p.tip);
-  document.getElementById('pvTip').style.color=p.tip==='postpaid'?'var(--postpaid)':p.tip==='prepaid'?'var(--prepaid)':'var(--notr)';
-  document.getElementById('pvPuan').textContent=p.puan*qty>0?fmt(p.puan*qty)+' puan':'—';
-  document.getElementById('pvPrim').textContent=(!p.manuel&&p.prim>0)?fmtTL(p.prim*qty):'—';
-  if(p.manuel){
-    document.getElementById('pvM').textContent=fmtTL(mp*qty);
-    const cp=document.getElementById('calisanPrimPreview');
-    if(cp) cp.textContent=fmtTL(Math.round(mp*qty*0.1));
-  }
+  ['Post','Pre','Notr'].forEach(cat=>{
+    const tipFilter=cat==='Post'?'postpaid':cat==='Pre'?'prepaid':'notr';
+    const el=document.getElementById('saleTiles'+cat);if(!el)return;
+    el.innerHTML=products.map((p,i)=>{
+      if(p.hidden)return'';
+      if(p.tip!==tipFilter)return'';
+      const cnt=daySales.filter(s=>s.prod===i).reduce((a,s)=>a+s.qty,0);
+      const tipColor=p.tip==='postpaid'?'var(--postpaid)':p.tip==='prepaid'?'var(--prepaid)':'var(--notr)';
+      return`<div onclick="quickAddSale(${i})" style="background:#fff;border:2px solid ${cnt>0?tipColor:'var(--border)'};border-radius:10px;padding:10px 8px;cursor:pointer;text-align:center;position:relative;transition:all 0.15s;user-select:none;" onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform=''" onmouseleave="this.style.transform=''">
+        ${cnt>0?`<div style="position:absolute;top:-8px;right:-8px;width:22px;height:22px;background:${tipColor};color:#fff;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">${cnt}</div>`:''}
+        <div style="font-size:11px;font-weight:600;color:#1a1a2e;line-height:1.3;margin-bottom:4px">${p.name}</div>
+        <div style="font-size:9px;color:var(--gray)">${p.puan>0?p.puan+' puan':'—'} ${p.prim>0?' · '+fmtTL(p.prim):''}</div>
+      </div>`;
+    }).join('');
+  });
+
+  // Bugünkü özet
+  let topPP=0,topPR=0,topPuan=0;
+  daySales.forEach(s=>{
+    const p=products[s.prod];
+    topPuan+=p.puan*s.qty;
+    if(p.tip==='postpaid')topPP+=s.qty;
+    else if(p.tip==='prepaid')topPR+=s.qty;
+  });
+  document.getElementById('saleTodaySummary').innerHTML=`<strong>${employees[ei]?.name?.split(' ')[0]||''}</strong> — ${date}: <strong style="color:var(--postpaid)">${topPP} PP</strong> + <strong style="color:var(--prepaid)">${topPR} PR</strong> = <strong style="color:var(--yellow)">${fmt(topPuan)} puan</strong> · Toplam ${daySales.reduce((a,s)=>a+s.qty,0)} satış`;
 }
 
-async function saveSale(){
-  const editId=document.getElementById('editId').value;
+async function quickAddSale(pi){
+  const p=products[pi];
+  if(p.manuel){
+    pendingManuelProd=pi;
+    document.getElementById('manuelPopupTitle').textContent=p.name+' — Karlılık girin';
+    document.getElementById('sManuelQuick').value=0;
+    document.getElementById('sAcQuick').value='';
+    document.getElementById('manuelPopup').style.display='block';
+    document.getElementById('sManuelQuick').focus();
+    return;
+  }
   const obj={
     emp:parseInt(document.getElementById('sEmp').value),
-    prod:parseInt(document.getElementById('sProd').value),
-    qty:parseInt(document.getElementById('sQty').value)||1,
+    prod:pi,qty:1,
     date:document.getElementById('sDate').value,
-    manuel_prim:parseFloat(document.getElementById('sManuel').value)||0,
-    aciklama:document.getElementById('sAc').value.trim()
+    manuel_prim:0,aciklama:''
   };
   try{
-    if(editId){
-      await dbUpdateSale(editId,obj);
-      const idx=sales.findIndex(s=>s.id===editId);
-      if(idx>=0)sales[idx]={...sales[idx],...obj};
-      showToast('✓ Satış güncellendi!');
-    }else{
-      const data=await dbAddSale(obj);
-      sales.unshift(data);
-      showToast('✓ Satış eklendi!');
-    }
+    const data=await dbAddSale(obj);
+    sales.unshift(data);
+    showToast('✓ '+p.name+' eklendi!');
+    renderSaleTiles();refreshAll();
+  }catch(e){showToast('Hata: '+e.message,true);}
+}
+
+async function confirmManuelSale(){
+  if(pendingManuelProd===null)return;
+  const p=products[pendingManuelProd];
+  const obj={
+    emp:parseInt(document.getElementById('sEmp').value),
+    prod:pendingManuelProd,qty:1,
+    date:document.getElementById('sDate').value,
+    manuel_prim:parseFloat(document.getElementById('sManuelQuick').value)||0,
+    aciklama:document.getElementById('sAcQuick').value.trim()
+  };
+  try{
+    const data=await dbAddSale(obj);
+    sales.unshift(data);
+    showToast('✓ '+p.name+' eklendi!');
+    document.getElementById('manuelPopup').style.display='none';
+    pendingManuelProd=null;
+    renderSaleTiles();refreshAll();
+  }catch(e){showToast('Hata: '+e.message,true);}
+}
+function cancelManuelSale(){document.getElementById('manuelPopup').style.display='none';pendingManuelProd=null;}
+
+function closeSaleModal(){document.getElementById('saleOv').classList.remove('open');}
+
+async function saveSaleEdit(){
+  const editId=document.getElementById('editId').value;
+  const pi=parseInt(document.getElementById('sProdEdit').value);
+  const p=products[pi];
+  const obj={
+    emp:parseInt(document.getElementById('sEmpEdit').value),
+    prod:pi,
+    qty:parseInt(document.getElementById('sQtyEdit').value)||1,
+    date:document.getElementById('sDateEdit').value,
+    manuel_prim:p.manuel?parseFloat(document.getElementById('sManuelEdit').value)||0:0,
+    aciklama:p.aciklama?document.getElementById('sAcEdit').value.trim():''
+  };
+  try{
+    await dbUpdateSale(editId,obj);
+    const idx=sales.findIndex(s=>s.id===editId);
+    if(idx>=0)sales[idx]={...sales[idx],...obj};
+    showToast('✓ Satış güncellendi!');
     closeSaleModal();refreshAll();
+  }catch(e){showToast('Hata: '+e.message,true);}
+}
+
+// Toplu silme
+function topluSilMenu(){
+  const p=document.getElementById('topluSilPanel');
+  const b=document.getElementById('topluSilButtons');
+  const g1=crmMusteriler.filter(m=>m.grup===1).length;
+  const g2=crmMusteriler.filter(m=>m.grup===2).length;
+  const g3=crmMusteriler.filter(m=>m.grup===3).length;
+  const g4=crmMusteriler.filter(m=>m.grup===4).length;
+  b.innerHTML=`
+    <button class="btn btn-d bsm" onclick="topluSil(0)">Tümünü Sil (${crmMusteriler.length})</button>
+    <button class="btn btn-d bsm" onclick="topluSil(1)">Grup 1 (${g1})</button>
+    <button class="btn btn-d bsm" onclick="topluSil(2)">Grup 2 (${g2})</button>
+    <button class="btn btn-d bsm" onclick="topluSil(3)">Grup 3 (${g3})</button>
+    <button class="btn btn-d bsm" onclick="topluSil(4)">Grup 4 (${g4})</button>
+    <button class="btn btn-g bsm" onclick="document.getElementById('topluSilPanel').style.display='none'">İptal</button>`;
+  p.style.display=p.style.display==='none'?'block':'none';
+}
+async function topluSil(grup){
+  const list=grup===0?crmMusteriler:crmMusteriler.filter(m=>m.grup===grup);
+  const cnt=list.length;
+  if(!cnt){showToast('Silinecek müşteri yok',true);return;}
+  const msg=grup===0?`TÜM ${cnt} müşteri silinecek!`:`Grup ${grup}: ${cnt} müşteri silinecek!`;
+  if(!confirm('⚠️ '+msg+'\n\nBu işlem geri alınamaz!\nDevam etmek istiyor musunuz?'))return;
+  if(!confirm('EMIN MISINIZ? '+cnt+' müşteri kalıcı olarak silinecek.'))return;
+  try{
+    showToast('⏳ Siliniyor...');
+    if(grup===0){
+      await sb.from('musteriler').delete().neq('id','00000000-0000-0000-0000-000000000000');
+      crmMusteriler=[];
+    }else{
+      const ids=list.map(m=>m.id);
+      for(let i=0;i<ids.length;i+=100){
+        const batch=ids.slice(i,i+100);
+        await sb.from('musteriler').delete().in('id',batch);
+      }
+      crmMusteriler=crmMusteriler.filter(m=>m.grup!==grup);
+    }
+    document.getElementById('topluSilPanel').style.display='none';
+    showToast(`✓ ${cnt} müşteri silindi`);
+    renderCrmList();updateCrmBadge();
   }catch(e){showToast('Hata: '+e.message,true);}
 }
 
