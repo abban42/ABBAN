@@ -325,6 +325,8 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
     <div class="ni" onclick="sp('smsgonder',this)"><span class="ni-ic">📱</span>Mesaj Gönder</div>
     <div class="ni" onclick="sp('smsrapor',this)"><span class="ni-ic">💬</span>Haftalık Rapor SMS</div>
     <div class="ni" onclick="sp('smsgecmis',this)"><span class="ni-ic">📨</span>SMS Geçmişi</div>
+    <div class="ns">FATURALAMA</div>
+    <div class="ni" onclick="sp('efatura',this)"><span class="ni-ic">🧾</span>E-Fatura</div>
   </nav>
 </div>
 
@@ -707,6 +709,28 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
   <div class="tw"><table><thead><tr><th>Tarih</th><th>Telefon</th><th>Mesaj</th><th>Durum</th></tr></thead><tbody id="smsGecmisBody"></tbody></table></div>
 </div>
 
+<!-- E-FATURA SAYFASI -->
+<div class="page" id="page-efatura">
+  <div class="ph">
+    <div>
+      <div class="pt">E-FATURA <span>OLUŞTUR</span></div>
+      <div class="ps">Anlık satıştan fatura üretin ve yönetin</div>
+    </div>
+    <div style="display:flex;gap:7px;">
+      <button class="btn btn-p" onclick="openEfaturaModal()">+ Yeni Fatura</button>
+      <button class="btn btn-e" onclick="renderFaturaListesi()">🔄 Yenile</button>
+    </div>
+  </div>
+  
+  <div style="background:rgba(230,168,0,0.06);border:1px solid rgba(230,168,0,0.2);border-radius:10px;padding:12px;margin-bottom:16px;">
+    <strong style="color:var(--yellow)">⚡ Bilgi:</strong> Faturalar anlık olarak Supabase'e kaydedilir ve PDF formatında indirilebilir.
+  </div>
+  
+  <div id="faturaListesiContainer" style="min-height:200px;">
+    <div style="text-align:center;padding:40px;color:var(--gray)">Faturalar yükleniyor...</div>
+  </div>
+</div>
+
 <!-- CRM MÜŞTERİ EKLE/DÜZENLE MODAL -->
 <div class="ov" id="crmAddOv">
   <div class="modal">
@@ -857,6 +881,69 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- E-FATURA MODAL -->
+<div class="ov" id="efaturaOv">
+  <div class="modal" style="width:760px;max-height:90vh;overflow-y:auto;">
+    <h2>E-FATURA <em id="eModalTitle">OLUŞTUR</em></h2>
+    <div class="msub">Müşteri bilgileri ve ürün detaylarını girerek hemen fatura oluşturun</div>
+    
+    <input type="hidden" id="efaturaEditId" value="">
+    
+    <!-- MÜŞTERI BİLGİLERİ -->
+    <div style="background:rgba(230,168,0,0.06);border:1px solid rgba(230,168,0,0.2);border-radius:10px;padding:14px;margin-bottom:14px;">
+      <div style="font-weight:600;color:var(--yellow);margin-bottom:10px;font-size:12px;text-transform:uppercase;letter-spacing:1px;">👤 MÜŞTERİ BİLGİLERİ</div>
+      <div class="fr">
+        <div class="fg"><label>AD</label><input type="text" id="efMusAd" placeholder="Müşteri Adı"></div>
+        <div class="fg"><label>SOYAD</label><input type="text" id="efMusSoyad" placeholder="Müşteri Soyadı"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>TC KİMLİK NO</label><input type="text" id="efMusTc" placeholder="12345678901" maxlength="11"></div>
+        <div class="fg"><label>TELEFON</label><input type="tel" id="efMusTel" placeholder="5xx xxx xxxx"></div>
+      </div>
+      <div class="fg"><label>ADRES</label><textarea id="efMusAdres" placeholder="Tam adres" style="min-height:50px;"></textarea></div>
+      <div class="fr">
+        <div class="fg"><label>ŞEHİR</label><input type="text" id="efMusSehir" placeholder="İstanbul"></div>
+        <div class="fg"><label>POSTA KODU</label><input type="text" id="efMusPk" placeholder="34000"></div>
+      </div>
+    </div>
+    
+    <!-- ÜRÜN SATIRLARI -->
+    <div style="background:rgba(79,163,255,0.06);border:1px solid rgba(79,163,255,0.2);border-radius:10px;padding:14px;margin-bottom:14px;">
+      <div style="font-weight:600;color:var(--blue);margin-bottom:12px;font-size:12px;text-transform:uppercase;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;">
+        <span>📦 ÜRÜN SATIRLARI</span>
+        <button class="btn btn-e bsm" onclick="addUrunSatiri()">+ Satır Ekle</button>
+      </div>
+      <div id="urunSatirlariContainer" style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px;"></div>
+      <div style="background:#fff;border-radius:10px;padding:12px;border:1px solid var(--border);">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <span style="color:var(--gray);font-size:11px">KDV'siz Toplam:</span>
+          <span style="font-weight:600;font-family:'Bebas Neue';font-size:14px;color:#1a1a2e;" id="efTuttar">₺0,00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;border-bottom:1px solid var(--border);padding-bottom:6px;">
+          <span style="color:var(--gray);font-size:11px">KDV (%18):</span>
+          <span style="font-weight:600;font-family:'Bebas Neue';font-size:14px;color:var(--yellow);" id="efKdv">₺0,00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="font-weight:600;color:#1a1a2e;font-size:12px">GENEL TOPLAM:</span>
+          <span style="font-weight:600;font-family:'Bebas Neue';font-size:18px;color:var(--yellow);" id="efGenel">₺0,00</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- NOTLAR -->
+    <div class="fg">
+      <label>NOTLAR (İsteğe Bağlı)</label>
+      <textarea id="efNotlar" placeholder="Faturaya eklenecek notlar, ödeme koşulları vb..." style="min-height:50px;"></textarea>
+    </div>
+    
+    <!-- BUTONLAR -->
+    <div class="mf">
+      <button class="btn btn-g" onclick="closeEfaturaModal()">İptal</button>
+      <button class="btn btn-p" onclick="saveEfatura()" style="background:var(--yellow);color:#000;">✓ FATURA OLUŞTUR</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // ============================================================
@@ -3400,6 +3487,302 @@ document.getElementById('crmAddOv').addEventListener('click',function(e){if(e.ta
 document.getElementById('crmCallOv').addEventListener('click',function(e){if(e.target===this)closeCrmCallModal();});
 document.getElementById('crmUploadOv').addEventListener('click',function(e){if(e.target===this)closeCrmUpload();});
 document.getElementById('ajandaOv').addEventListener('click',function(e){if(e.target===this)closeAjandaModal();});
+
+// ============================================================
+// E-FATURA MODÜLÜ
+// ============================================================
+
+let efUrunSatirlari = [];
+
+function openEfaturaModal(editId=''){
+  document.getElementById('efaturaEditId').value = editId;
+  document.getElementById('eModalTitle').textContent = editId ? 'DÜZENLE' : 'OLUŞTUR';
+  efUrunSatirlari = [];
+  document.getElementById('efMusAd').value = '';
+  document.getElementById('efMusSoyad').value = '';
+  document.getElementById('efMusTc').value = '';
+  document.getElementById('efMusTel').value = '';
+  document.getElementById('efMusAdres').value = '';
+  document.getElementById('efMusSehir').value = '';
+  document.getElementById('efMusPk').value = '';
+  document.getElementById('efNotlar').value = '';
+  if(!editId){addUrunSatiri();}
+  document.getElementById('efaturaOv').classList.add('open');
+}
+
+function closeEfaturaModal(){
+  document.getElementById('efaturaOv').classList.remove('open');
+  efUrunSatirlari = [];
+}
+
+function addUrunSatiri(urun={}){
+  const idx = efUrunSatirlari.length;
+  const satir = {
+    id: Date.now() + idx,
+    urunAdi: urun.urunAdi || '',
+    aciklama: urun.aciklama || '',
+    adet: urun.adet || 1,
+    birimFiyat: urun.birimFiyat || 0,
+    kdvOrani: urun.kdvOrani || 18
+  };
+  efUrunSatirlari.push(satir);
+  renderUrunSatirlari();
+}
+
+function removeUrunSatiri(idx){
+  efUrunSatirlari.splice(idx, 1);
+  renderUrunSatirlari();
+}
+
+function renderUrunSatirlari(){
+  const container = document.getElementById('urunSatirlariContainer');
+  container.innerHTML = efUrunSatirlari.map((satir, idx) => {
+    const toplam = satir.adet * satir.birimFiyat;
+    return `
+      <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px;position:relative;">
+        <button class="btn btn-d bsm" onclick="removeUrunSatiri(${idx})" style="position:absolute;top:8px;right:8px;">✕</button>
+        <div style="margin-bottom:8px;">
+          <label style="font-size:9px;color:var(--gray);letter-spacing:0.5px;text-transform:uppercase;">Ürün Adı</label>
+          <input type="text" value="${satir.urunAdi}" onchange="efUrunSatirlari[${idx}].urunAdi = this.value; updateEfaturaTotals();" style="width:100%;background:#f7f8fa;border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;outline:none;color:#1a1a2e;font-family:'Outfit';" placeholder="İnternet Paketi, Telefon vb.">
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
+          <div>
+            <label style="font-size:9px;color:var(--gray);letter-spacing:0.5px;text-transform:uppercase;">Açıklama</label>
+            <input type="text" value="${satir.aciklama}" onchange="efUrunSatirlari[${idx}].aciklama = this.value;" placeholder="Model, detay..." style="width:100%;background:#f7f8fa;border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;outline:none;color:#1a1a2e;font-family:'Outfit';">
+          </div>
+          <div>
+            <label style="font-size:9px;color:var(--gray);letter-spacing:0.5px;text-transform:uppercase;">Adet</label>
+            <input type="number" value="${satir.adet}" onchange="efUrunSatirlari[${idx}].adet = parseFloat(this.value) || 1; updateEfaturaTotals();" min="0.1" step="0.1" style="width:100%;background:#f7f8fa;border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;outline:none;color:#1a1a2e;text-align:right;font-family:'Outfit';">
+          </div>
+          <div>
+            <label style="font-size:9px;color:var(--gray);letter-spacing:0.5px;text-transform:uppercase;">Fiyat (₺)</label>
+            <input type="number" value="${satir.birimFiyat}" onchange="efUrunSatirlari[${idx}].birimFiyat = parseFloat(this.value) || 0; updateEfaturaTotals();" min="0" step="0.01" style="width:100%;background:#f7f8fa;border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;outline:none;color:#1a1a2e;text-align:right;font-family:'Outfit';">
+          </div>
+          <div>
+            <label style="font-size:9px;color:var(--gray);letter-spacing:0.5px;text-transform:uppercase;">Toplam (₺)</label>
+            <input type="text" value="${toplam.toFixed(2)}" disabled style="width:100%;background:#f5f6f8;border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;color:#888;text-align:right;font-weight:600;font-family:'Outfit';">
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  updateEfaturaTotals();
+}
+
+function updateEfaturaTotals(){
+  let toplam = 0, kdvToplam = 0;
+  efUrunSatirlari.forEach(satir => {
+    const satirToplam = satir.adet * satir.birimFiyat;
+    const satirKdv = satirToplam * (satir.kdvOrani / 100);
+    toplam += satirToplam;
+    kdvToplam += satirKdv;
+  });
+  const genel = toplam + kdvToplam;
+  document.getElementById('efTuttar').textContent = '₺' + toplam.toFixed(2).replace('.', ',');
+  document.getElementById('efKdv').textContent = '₺' + kdvToplam.toFixed(2).replace('.', ',');
+  document.getElementById('efGenel').textContent = '₺' + genel.toFixed(2).replace('.', ',');
+}
+
+async function saveEfatura(){
+  const ad = document.getElementById('efMusAd').value.trim();
+  const soyad = document.getElementById('efMusSoyad').value.trim();
+  const tc = document.getElementById('efMusTc').value.trim();
+  const telefon = document.getElementById('efMusTel').value.trim();
+  const adres = document.getElementById('efMusAdres').value.trim();
+  
+  if(!ad || !soyad){showToast('Ad ve Soyad zorunlu!', true);return;}
+  if(efUrunSatirlari.length === 0){showToast('En az bir ürün ekleyin!', true);return;}
+  
+  showLoading(true);
+  
+  try {
+    const musteriData = {
+      ad: ad,
+      soyad: soyad,
+      tc_kimlik: tc || null,
+      telefon: telefon || null,
+      adres: adres || null,
+      sehir: document.getElementById('efMusSehir').value || null,
+      posta_kodu: document.getElementById('efMusPk').value || null
+    };
+    
+    let musteriId;
+    if(tc && tc.length === 11){
+      const {data: mevcutMus} = await _sb.from('musteri_bilgileri').select('id').eq('tc_kimlik', tc).maybeSingle();
+      if(mevcutMus){
+        musteriId = mevcutMus.id;
+        await _sb.from('musteri_bilgileri').update(musteriData).eq('id', musteriId);
+      } else {
+        const {data: yeniMus, error: err1} = await _sb.from('musteri_bilgileri').insert([musteriData]).select();
+        if(err1 || !yeniMus) throw err1 || new Error('Müşteri kaydı başarısız');
+        musteriId = yeniMus[0].id;
+      }
+    } else {
+      const {data: yeniMus, error: err1} = await _sb.from('musteri_bilgileri').insert([musteriData]).select();
+      if(err1 || !yeniMus) throw err1 || new Error('Müşteri kaydı başarısız');
+      musteriId = yeniMus[0].id;
+    }
+    
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const {count} = await _sb.from('faturalar').select('id', {count: 'exact'}).gte('created_at', `${year}-${month}-01`);
+    const sira = String((count || 0) + 1).padStart(4, '0');
+    const faturaNo = `${year}${month}${sira}`;
+    
+    let toplam = 0, kdvToplam = 0;
+    efUrunSatirlari.forEach(s => {
+      const st = s.adet * s.birimFiyat;
+      const sk = st * (s.kdvOrani / 100);
+      toplam += st;
+      kdvToplam += sk;
+    });
+    
+    const faturaData = {
+      fatura_no: faturaNo,
+      fatura_tarihi: new Date().toISOString().split('T')[0],
+      musteri_id: musteriId,
+      musteri_ad: ad,
+      musteri_soyad: soyad,
+      musteri_tc: tc || null,
+      musteri_telefon: telefon || null,
+      musteri_adres: adres || null,
+      musteri_sehir: document.getElementById('efMusSehir').value || null,
+      musteri_posta_kodu: document.getElementById('efMusPk').value || null,
+      toplam_tuttar: toplam,
+      toplam_kdv: kdvToplam,
+      genel_toplam: toplam + kdvToplam,
+      notlar: document.getElementById('efNotlar').value || null,
+      durum: 'taslak'
+    };
+    
+    const {data: newFatura, error: err2} = await _sb.from('faturalar').insert([faturaData]).select();
+    if(err2 || !newFatura) throw err2 || new Error('Fatura kaydı başarısız');
+    
+    const faturaId = newFatura[0].id;
+    
+    const satirlar = efUrunSatirlari.map((s, i) => ({
+      fatura_id: faturaId,
+      sira_no: i + 1,
+      urun_adi: s.urunAdi,
+      aciklama: s.aciklama || null,
+      adet: s.adet,
+      birim_fiyat: s.birimFiyat,
+      toplam_fiyat: s.adet * s.birimFiyat,
+      kdv_orani: s.kdvOrani,
+      kdv_tutari: (s.adet * s.birimFiyat) * (s.kdvOrani / 100)
+    }));
+    
+    const {error: err3} = await _sb.from('fatura_satirlari').insert(satirlar);
+    if(err3) throw err3;
+    
+    showLoading(false);
+    closeEfaturaModal();
+    showToast(`✓ Fatura ${faturaNo} oluşturuldu!`);
+    renderFaturaListesi();
+    
+  } catch(e) {
+    showLoading(false);
+    showToast('Hata: ' + e.message, true);
+  }
+}
+
+async function renderFaturaListesi(){
+  const container = document.getElementById('faturaListesiContainer');
+  try {
+    const {data: faturalar, error} = await _sb.from('faturalar')
+      .select(`*,fatura_satirlari(*)`)
+      .order('created_at', {ascending: false})
+      .limit(50);
+    
+    if(error) throw error;
+    if(!faturalar || faturalar.length === 0){
+      container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);background:#fff;border-radius:10px;border:1px solid var(--border)">📭 Henüz fatura oluşturulmadı</div>';
+      return;
+    }
+    
+    container.innerHTML = faturalar.map(f => `
+      <div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+          <div>
+            <div style="font-weight:600;color:#1a1a2e;font-size:13px">Fatura No: <span style="color:var(--yellow);font-family:'Bebas Neue'">${f.fatura_no}</span></div>
+            <div style="font-size:11px;color:var(--gray);margin-top:2px">${new Date(f.fatura_tarihi).toLocaleDateString('tr-TR',{day:'numeric', month:'long', year:'numeric'})}</div>
+          </div>
+          <span class="badge ${f.durum === 'gonderildi' ? 'bg' : f.durum === 'iptal' ? 'br' : 'by'}">${f.durum.toUpperCase()}</span>
+        </div>
+        <div style="background:#f7f8fa;border-radius:8px;padding:10px;margin-bottom:10px;font-size:12px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+            <span style="color:var(--gray)">👤 Müşteri:</span>
+            <span style="font-weight:600">${f.musteri_ad} ${f.musteri_soyad || ''}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+            <span style="color:var(--gray)">📦 Ürün:</span>
+            <span style="font-weight:600">${f.fatura_satirlari?.length || 0} satır</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--gray)">💰 Toplam:</span>
+            <span style="font-weight:600;color:var(--yellow);font-family:'Bebas Neue';font-size:14px">₺${parseFloat(f.genel_toplam || 0).toFixed(2).replace('.', ',')}</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn btn-p bsm" onclick="showFaturaDetay('${f.id}')">👁️ Detay</button>
+          <button class="btn btn-g bsm" onclick="openEfaturaModal('${f.id}')">✏️ Düzenle</button>
+          <button class="btn btn-d bsm" onclick="deleteFatura('${f.id}')">🗑️ Sil</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    container.innerHTML = '<div style="color:var(--red);padding:20px;background:#fff;border-radius:10px;border:1px solid var(--border)">❌ Hata: ' + e.message + '</div>';
+  }
+}
+
+async function showFaturaDetay(id){
+  try {
+    const {data: fatura, error} = await _sb.from('faturalar').select('*, fatura_satirlari(*)').eq('id', id).single();
+    if(error || !fatura) throw error;
+    
+    let satirHtml = '';
+    let toplamTutar = 0, toplamKdv = 0;
+    
+    fatura.fatura_satirlari.forEach(s => {
+      satirHtml += `<tr><td>${s.sira_no}</td><td>${s.urun_adi}</td><td style="font-size:11px;color:var(--gray)">${s.aciklama || '—'}</td><td style="text-align:right">${s.adet.toFixed(2)}</td><td style="text-align:right">₺${s.birim_fiyat.toFixed(2)}</td><td style="text-align:right;font-weight:600">₺${s.toplam_fiyat.toFixed(2)}</td><td style="text-align:right">${s.kdv_orani}%</td><td style="text-align:right">₺${s.kdv_tutari.toFixed(2)}</td></tr>`;
+      toplamTutar += s.toplam_fiyat;
+      toplamKdv += s.kdv_tutari;
+    });
+    
+    const html = `<div style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;"><div style="background:#fff;border-radius:15px;padding:30px;max-width:900px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><h2 style="font-family:'Bebas Neue';font-size:24px;color:#1a1a2e">FATURA DETAYLARI</h2><button onclick="this.parentElement.parentElement.parentElement.remove()" style="background:none;border:none;font-size:24px;cursor:pointer">✕</button></div><div class="tw" style="margin-bottom:20px"><table style="font-size:12px;"><thead><tr style="background:#f7f8fa;"><th style="text-align:left;padding:8px">Sıra</th><th style="text-align:left;padding:8px">Ürün</th><th style="text-align:left;padding:8px">Açıklama</th><th style="text-align:right;padding:8px">Adet</th><th style="text-align:right;padding:8px">Fiyat</th><th style="text-align:right;padding:8px">Toplam</th><th style="text-align:right;padding:8px">KDV %</th><th style="text-align:right;padding:8px">KDV</th></tr></thead><tbody>${satirHtml}</tbody></table></div><div style="padding:15px;background:#f7f8fa;border-radius:10px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--gray)">KDV'siz Toplam:</span><span style="font-weight:600">₺${toplamTutar.toFixed(2)}</span></div><div style="display:flex;justify-content:space-between;border-top:2px solid var(--yellow);padding-top:8px;"><span style="font-weight:600;color:#1a1a2e">GENEL TOPLAM:</span><span style="font-weight:600;color:var(--yellow);font-family:'Bebas Neue';font-size:16px">₺${(toplamTutar + toplamKdv).toFixed(2)}</span></div></div></div></div>`;
+    
+    document.body.insertAdjacentHTML('beforeend', html);
+  } catch(e) {
+    showToast('Hata: ' + e.message, true);
+  }
+}
+
+async function deleteFatura(id){
+  if(!confirm('Faturayı silmek istediğinizden emin misiniz?')) return;
+  showLoading(true);
+  try {
+    const {error} = await _sb.from('faturalar').delete().eq('id', id);
+    if(error) throw error;
+    showLoading(false);
+    showToast('✓ Fatura silindi');
+    renderFaturaListesi();
+  } catch(e) {
+    showLoading(false);
+    showToast('Hata: ' + e.message, true);
+  }
+}
+
+const origSp = window.sp;
+window.sp = function(page, navEl){
+  origSp(page, navEl);
+  if(page === 'efatura') setTimeout(() => renderFaturaListesi(), 100);
+};
+
+document.addEventListener('DOMContentLoaded', function(){
+  const efOv = document.getElementById('efaturaOv');
+  if(efOv) efOv.addEventListener('click', function(e){if(e.target === this) closeEfaturaModal();});
+});
 
 // ============================================================
 // INIT
