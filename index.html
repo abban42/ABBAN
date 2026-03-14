@@ -921,7 +921,7 @@ td{padding:9px 13px;font-size:12.5px;vertical-align:middle;color:#2a2a2a;}
           <span style="font-weight:600;font-family:'Bebas Neue';font-size:14px;color:#1a1a2e;" id="efTuttar">₺0,00</span>
         </div>
         <div style="display:flex;justify-content:space-between;margin-bottom:6px;border-bottom:1px solid var(--border);padding-bottom:6px;">
-          <span style="color:var(--gray);font-size:11px">KDV (%18):</span>
+          <span style="color:var(--gray);font-size:11px">KDV (%20):</span>
           <span style="font-weight:600;font-family:'Bebas Neue';font-size:14px;color:var(--yellow);" id="efKdv">₺0,00</span>
         </div>
         <div style="display:flex;justify-content:space-between;">
@@ -3523,7 +3523,7 @@ function addUrunSatiri(urun={}){
     aciklama: urun.aciklama || '',
     adet: urun.adet || 1,
     birimFiyat: urun.birimFiyat || 0,
-    kdvOrani: urun.kdvOrani || 18
+    kdvOrani: urun.kdvOrani || 20
   };
   efUrunSatirlari.push(satir);
   renderUrunSatirlari();
@@ -3648,7 +3648,7 @@ async function saveEfatura(){
       musteri_telefon: telefon || null,
       musteri_adres: adres || null,
       musteri_sehir: document.getElementById('efMusSehir').value || null,
-      musteri_posta_kodu: document.getElementById('efMusPk').value || null,
+      posta_kodu: document.getElementById('efMusPk').value || null,
       toplam_tuttar: toplam,
       toplam_kdv: kdvToplam,
       genel_toplam: toplam + kdvToplam,
